@@ -520,7 +520,55 @@ a {
   opacity: 0; /* Start hidden for animation */
 }
 
-/* Grid Utilities */
+.stepper-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: var(--sp-xl) var(--sp-md) 0;
+}
+
+.step-marker {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 800;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 2px solid transparent;
+}
+
+.step-marker.pending {
+  background: #F5F5F4; /* Slightly darker than white */
+  border: 1.5px solid var(--color-cream-dark); /* Stronger border */
+  color: #78716C; /* Higher contrast grey */
+}
+
+.step-marker.active {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--color-dark);
+  box-shadow: 0 0 0 4px rgba(237, 184, 32, 0.2);
+}
+
+.step-marker.completed {
+  background: var(--color-dark);
+  color: var(--color-white);
+}
+
+.step-connector {
+  width: 48px;
+  height: 2px;
+  background: var(--color-cream-dark);
+  transition: background 0.3s ease;
+}
+
+.step-connector.completed {
+  background: var(--color-dark);
+}
 .grid-2 {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
