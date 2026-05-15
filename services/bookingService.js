@@ -9,7 +9,7 @@ const generateReceiptId = () => {
   return `SA-${timestamp}-${random}`.toUpperCase();
 };
 
-const createBooking = async ({ userName, userEmail, specialistId, bookingDate, bookingTime }) => {
+const createBooking = async ({ userName, userEmail, specialistId, bookingDate, bookingTime, rejectionReason, rejectionReasonOther }) => {
   const specialist = await getSpecialistById(specialistId);
 
   if (!specialist) {
@@ -27,6 +27,8 @@ const createBooking = async ({ userName, userEmail, specialistId, bookingDate, b
     bookingTime,
     status: 'confirmed',
     createdAt: new Date().toISOString(),
+    rejectionReason,
+    rejectionReasonOther
   };
 
   const booking = await Booking.create(bookingData);

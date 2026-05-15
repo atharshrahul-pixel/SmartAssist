@@ -10,6 +10,8 @@ const bookingSchema = new mongoose.Schema({
   bookingDate: { type: String, required: true },
   bookingTime: { type: String, required: true },
   status: { type: String, default: 'confirmed' },
+  rejectionReason: { type: String },
+  rejectionReasonOther: { type: String },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Booking', bookingSchema);
