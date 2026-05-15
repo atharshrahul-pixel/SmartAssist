@@ -1,10 +1,15 @@
 const env = require('../config/env');
 const Booking = require('../models/Booking');
-const { bookings } = require('../data/mockData');
 const CustomError = require('../utils/customError');
 const { getSpecialistById } = require('./specialistService');
 
-const createBooking = async ({ userName, specialistId, bookingDate, bookingTime }) => {
+const generateReceiptId = () => {
+  const timestamp = Date.now().toString(36);
+  const random = Math.random().toString(36).substring(2, 7);
+  return `SA-${timestamp}-${random}`.toUpperCase();
+};
+
+const createBooking = async ({ userName, userEmail, specialistId, bookingDate, bookingTime }) => {
   const specialist = await getSpecialistById(specialistId);
 
   if (!specialist) {
@@ -12,7 +17,9 @@ const createBooking = async ({ userName, specialistId, bookingDate, bookingTime 
   }
 
   const bookingData = {
+    receiptId: generateReceiptId(),
     userName: userName.trim(),
+    userEmail: userEmail.trim(),
     specialistId: specialist.id,
     specialistName: specialist.name,
     specialistCategory: specialist.category,

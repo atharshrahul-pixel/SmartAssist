@@ -1,7 +1,9 @@
 const mongoose = require('mongoose');
 
 const bookingSchema = new mongoose.Schema({
+  receiptId: { type: String, required: true, unique: true },
   userName: { type: String, required: true },
+  userEmail: { type: String, required: true },
   specialistId: { type: String, required: true },
   specialistName: { type: String },
   specialistCategory: { type: String },
