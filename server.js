@@ -7,11 +7,13 @@ const connectDb = require('./config/mongodb');
 const recommendationRoutes = require('./routes/recommendationRoutes');
 const specialistRoutes = require('./routes/specialistRoutes');
 const bookingRoutes = require('./routes/bookingRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 const {
   errorMiddleware,
   notFoundMiddleware
 } = require('./middleware/errorMiddleware');
+const { restrictOrigin } = require('./middleware/originMiddleware');
 
 const app = express();
 
@@ -39,11 +41,15 @@ app.get('/health', (req, res) => {
 |--------------------------------------------------------------------------
 */
 
+app.use('/api', restrictOrigin);
+
 app.use('/api/recommendations', recommendationRoutes);
 
 app.use('/api/specialists', specialistRoutes);
 
 app.use('/api/bookings', bookingRoutes);
+
+app.use('/api/admin', adminRoutes);
 
 /*
 |--------------------------------------------------------------------------
