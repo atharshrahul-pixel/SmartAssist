@@ -25,9 +25,9 @@ const Navbar = () => {
         }}>
           SmartAssist
         </Link>
-        <button className="pill-tag" style={{ border: 'none', cursor: 'pointer' }}>
-          Book Appointment
-        </button>
+        <Link to="/admin" className="pill-tag" style={{ border: 'none', cursor: 'pointer', textDecoration: 'none' }}>
+          Check Appointments
+        </Link>
       </div>
     </nav>
   );

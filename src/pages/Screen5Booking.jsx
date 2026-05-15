@@ -30,6 +30,7 @@ const Screen5Booking = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           userName: state.name,
+          userEmail: state.email,
           specialistId: state.finalSpecialist.id,
           bookingDate: selectedDate,
           bookingTime: selectedTime
@@ -41,7 +42,7 @@ const Screen5Booking = () => {
         updateState({ 
           bookedDate: selectedDate, 
           bookedTime: selectedTime,
-          bookingId: data.booking.id
+          bookingId: data.booking.receiptId
         });
         navigate('/confirmation');
       } else {

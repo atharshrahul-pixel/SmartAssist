@@ -10,13 +10,14 @@ const Screen1Input = () => {
   const { state, updateState } = useContext(AppContext);
   const navigate = useNavigate();
   const [name, setName] = useState(state.name || '');
+  const [email, setEmail] = useState(state.email || '');
   const [problem, setProblem] = useState(state.problem || '');
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!name.trim() || problem.length > 500) {
+    if (!name.trim() || !email.trim() || problem.length > 500) {
       setError(true);
       return;
     }
@@ -26,12 +27,12 @@ const Screen1Input = () => {
       const response = await fetch(`${BACKEND_URL}/recommendations/recommend`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, problemDescription: problem })
+        body: JSON.stringify({ name, email, problemDescription: problem })
       });
       const data = await response.json();
       
       if (data.success) {
-        updateState({ name, problem, recommendedSpecialist: data.recommendedSpecialist, source: data.source });
+        updateState({ name, email, problem, recommendedSpecialist: data.recommendedSpecialist, source: data.source });
         navigate('/recommendation');
       } else {
         alert(data.message || 'Failed to get recommendation');
@@ -90,6 +91,18 @@ const Screen1Input = () => {
               </div>
 
               <div className="mb-lg">
+                <label className="form-label">Email Address</label>
+                <input 
+                  type="email" 
+                  className="input-field" 
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  style={{ borderColor: error && !email.trim() ? 'red' : '' }}
+                />
+              </div>
+
+              <div className="mb-lg">
                 <label className="form-label">Describe your problem</label>
                 <textarea 
                   className="input-field" 
@@ -106,7 +119,7 @@ const Screen1Input = () => {
               <button 
                 type="submit" 
                 className="btn-primary w-full"
-                disabled={!name.trim() || problem.length > 500 || loading}
+                disabled={!name.trim() || !email.trim() || problem.length > 500 || loading}
                 style={{ padding: '16px' }}
               >
                 {loading ? 'Analyzing...' : 'Find My Specialist →'}

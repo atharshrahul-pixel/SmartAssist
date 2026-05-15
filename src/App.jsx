@@ -17,6 +17,7 @@ export const AppContext = createContext();
 function App() {
   const [state, setState] = useState({
     name: '',
+    email: '',
     problem: '',
     recommendedSpecialist: '',
     accepted: null,
