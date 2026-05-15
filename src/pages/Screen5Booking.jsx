@@ -33,7 +33,9 @@ const Screen5Booking = () => {
           userEmail: state.email,
           specialistId: state.finalSpecialist.id,
           bookingDate: selectedDate,
-          bookingTime: selectedTime
+          bookingTime: selectedTime,
+          rejectionReason: state.rejectionReason,
+          rejectionReasonOther: state.rejectionReasonOther
         })
       });
       const data = await response.json();
