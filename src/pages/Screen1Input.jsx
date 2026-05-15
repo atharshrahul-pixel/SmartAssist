@@ -1,5 +1,5 @@
 import { useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { AppContext } from '../App';
 import Stepper from '../components/Stepper';
 import { Upload, Zap, Shield, Clock } from 'lucide-react';
@@ -120,9 +120,9 @@ const Screen1Input = () => {
         <div className="footer-content">
           <div className="footer-brand">SmartAssist</div>
           <div className="footer-links">
-            <a href="#" className="footer-link">Privacy Policy</a>
-            <a href="#" className="footer-link">Terms of Service</a>
-            <a href="#" className="footer-link">Support</a>
+            <Link to="/privacy" className="footer-link">Privacy Policy</Link>
+            <Link to="/terms" className="footer-link">Terms of Service</Link>
+            <Link to="/support" className="footer-link">Support</Link>
           </div>
         </div>
         <div className="footer-content footer-copy">
