@@ -24,14 +24,14 @@ const Screen2Recommendation = () => {
   const [barWidth, setBarWidth] = useState(0);
 
   useEffect(() => {
-    if (!state.recommendedSpecialist) {
+    if (!state.name || !state.problem) {
       navigate('/');
     }
     const timer = setTimeout(() => {
       setBarWidth(85);
     }, 300);
     return () => clearTimeout(timer);
-  }, [state.recommendedSpecialist, navigate]);
+  }, [state.name, state.problem, navigate]);
 
   const handleAccept = () => {
     updateState({ accepted: true, finalSpecialist: null });

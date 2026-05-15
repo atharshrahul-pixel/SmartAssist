@@ -10,7 +10,7 @@ const Screen6Confirmation = () => {
   const [showContent, setShowContent] = useState(false);
 
   useEffect(() => {
-    if (!state.bookingId) {
+    if (!state.bookingId || !state.bookedDate) {
       navigate('/');
       return;
     }

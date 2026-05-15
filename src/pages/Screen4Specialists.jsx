@@ -14,13 +14,16 @@ const Screen4Specialists = () => {
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
+    if (state.accepted === null) {
+      navigate('/');
+    }
     fetch(`${BACKEND_URL}/specialists`)
       .then(res => res.json())
       .then(data => {
         if (data.success) setSpecialistsData(data.specialists);
       })
       .catch(err => console.error("Error fetching specialists:", err));
-  }, []);
+  }, [state.accepted, navigate]);
 
   const categories = ['All', 'Dentist', 'Physiotherapist', 'Gym Trainer', 'Salon Specialist'];
 
