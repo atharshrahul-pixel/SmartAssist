@@ -11,7 +11,7 @@ const Screen4Specialists = () => {
   const navigate = useNavigate();
   const [specialistsData, setSpecialistsData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [filter, setFilter] = useState('All');
+  const [filter, setFilter] = useState(state.recommendedSpecialist || 'All');
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
