@@ -1,5 +1,6 @@
 require('dotenv').config();
 
+console.log("DEBUG: DB_PROVIDER =", process.env.DB_PROVIDER);
 const env = {
   aiProvider: process.env.AI_PROVIDER || '',
   aiMaxRetries: Number(process.env.AI_MAX_RETRIES || 2),

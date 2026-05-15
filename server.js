@@ -29,9 +29,10 @@ app.use(
 app.use(express.json({ limit: '20kb' }));
 
 app.get('/health', (req, res) => {
-  res.status(200).json({
+  res.status(200).json({ dbProvider: env.dbProvider, dbProvider: env.dbProvider,
     success: true,
     message: 'SmartAssist backend is running',
+    dbProvider: env.dbProvider
   });
 });
 
