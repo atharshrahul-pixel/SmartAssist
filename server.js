@@ -8,6 +8,7 @@ const recommendationRoutes = require('./routes/recommendationRoutes');
 const specialistRoutes = require('./routes/specialistRoutes');
 const bookingRoutes = require('./routes/bookingRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const lookupRoutes = require('./routes/lookupRoutes');
 
 const {
   errorMiddleware,
@@ -50,6 +51,8 @@ app.use('/api/specialists', specialistRoutes);
 app.use('/api/bookings', bookingRoutes);
 
 app.use('/api/admin', adminRoutes);
+
+app.use('/api/lookup', lookupRoutes);
 
 /*
 |--------------------------------------------------------------------------
