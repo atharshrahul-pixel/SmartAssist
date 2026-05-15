@@ -4,22 +4,7 @@ import { AppContext } from '../App';
 import Stepper from '../components/Stepper';
 import { Upload, Zap, Shield, Clock } from 'lucide-react';
 
-const keywords = {
-  'Dentist': ['tooth','teeth','gum','dental','jaw','cavity','molar','ache','toothache'],
-  'Physiotherapist': ['muscle','back','knee','joint','sprain','physio','posture','shoulder','hip','neck','pain'],
-  'Gym Trainer': ['weight','fitness','gym','exercise','cardio','strength','workout','fat','bulk','slim','tone'],
-  'Salon Specialist': ['hair','skin','facial','salon','grooming','nails','beard','eyebrow','wax','cut','color']
-};
-
-const recommend = (text) => {
-  const lower = text.toLowerCase();
-  let best = null, max = 0;
-  for (const [specialist, words] of Object.entries(keywords)) {
-    const count = words.filter(w => lower.includes(w)).length;
-    if (count > max) { max = count; best = specialist; }
-  }
-  return best || 'Physiotherapist';
-};
+const BACKEND_URL = 'https://akeno7594-internship-project-backend.hf.space/api';
 
 const Screen1Input = () => {
   const { state, updateState } = useContext(AppContext);
@@ -27,17 +12,36 @@ const Screen1Input = () => {
   const [name, setName] = useState(state.name || '');
   const [problem, setProblem] = useState(state.problem || '');
   const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!name.trim() || problem.length > 500) {
       setError(true);
       return;
     }
     
-    const suggested = recommend(problem);
-    updateState({ name, problem, recommendedSpecialist: suggested });
-    navigate('/recommendation');
+    setLoading(true);
+    try {
+      const response = await fetch(`${BACKEND_URL}/recommendations/recommend`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, problemDescription: problem })
+      });
+      const data = await response.json();
+      
+      if (data.success) {
+        updateState({ name, problem, recommendedSpecialist: data.recommendedSpecialist });
+        navigate('/recommendation');
+      } else {
+        alert(data.message || 'Failed to get recommendation');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Could not connect to the recommendation service.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -99,29 +103,13 @@ const Screen1Input = () => {
                 </div>
               </div>
 
-              <div className="mb-xl">
-                <label className="form-label">Attach a report (optional)</label>
-                <div style={{
-                  border: '1.5px dashed var(--color-cream-dark)',
-                  borderRadius: 'var(--r-md)',
-                  padding: '24px 16px',
-                  textAlign: 'center',
-                  cursor: 'pointer',
-                  background: 'rgba(212, 201, 176, 0.1)'
-                }}>
-                  <Upload size={24} color="var(--color-muted)" style={{ marginBottom: '8px' }} />
-                  <div style={{ fontSize: '15px', color: 'var(--color-dark)', marginBottom: '4px' }}>Drop file here or click to browse</div>
-                  <div style={{ fontSize: '12px', color: 'var(--color-muted)' }}>PDF or image, max 5MB</div>
-                </div>
-              </div>
-
               <button 
                 type="submit" 
                 className="btn-primary w-full"
-                disabled={!name.trim() || problem.length > 500}
+                disabled={!name.trim() || problem.length > 500 || loading}
                 style={{ padding: '16px' }}
               >
-                Find My Specialist →
+                {loading ? 'Analyzing...' : 'Find My Specialist →'}
               </button>
             </form>
           </div>

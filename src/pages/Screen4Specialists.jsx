@@ -1,83 +1,26 @@
-import { useState, useContext, useMemo } from 'react';
+import { useState, useContext, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppContext } from '../App';
 import Stepper from '../components/Stepper';
-import { Star, Clock, MapPin, ChevronRight, Search, Filter } from 'lucide-react';
+import { Star, Clock, ChevronRight, Search, Filter } from 'lucide-react';
 
-const specialistsData = [
-  { 
-    id: 1, 
-    name: 'Dr. Arjun Mehta', 
-    category: 'Dentist', 
-    initials: 'AM', 
-    rating: 4.9, 
-    reviews: 124, 
-    experience: '12 years',
-    bio: 'Specializing in cosmetic dentistry and pain-free root canals with advanced laser technology.',
-    slots: ['Mon 9am', 'Tue 2pm', 'Thu 4pm'] 
-  },
-  { 
-    id: 2, 
-    name: 'Dr. Priya Sharma', 
-    category: 'Dentist', 
-    initials: 'PS', 
-    rating: 4.8, 
-    reviews: 98, 
-    experience: '8 years',
-    bio: 'Expert in pediatric dentistry and orthodontic treatments for all age groups.',
-    slots: ['Wed 10am', 'Fri 11am', 'Sat 9am'] 
-  },
-  { 
-    id: 3, 
-    name: 'Kavitha Nair', 
-    category: 'Physiotherapist', 
-    initials: 'KN', 
-    rating: 4.9, 
-    reviews: 210, 
-    experience: '15 years',
-    bio: 'Renowned sports physiotherapist helping athletes recover from ACL and joint injuries.',
-    slots: ['Mon 2pm', 'Wed 9am', 'Fri 3pm'] 
-  },
-  { 
-    id: 4, 
-    name: 'Rajesh Kumar', 
-    category: 'Physiotherapist', 
-    initials: 'RK', 
-    rating: 4.7, 
-    reviews: 85, 
-    experience: '6 years',
-    bio: 'Focused on postural correction and chronic back pain management through manual therapy.',
-    slots: ['Tue 10am', 'Thu 2pm', 'Sat 10am'] 
-  },
-  { 
-    id: 5, 
-    name: 'Sneha Pillai', 
-    category: 'Gym Trainer', 
-    initials: 'SP', 
-    rating: 5.0, 
-    reviews: 156, 
-    experience: '10 years',
-    bio: 'Certified strength coach specializing in sustainable weight loss and functional fitness.',
-    slots: ['Mon 7am', 'Wed 7am', 'Fri 7am'] 
-  },
-  { 
-    id: 6, 
-    name: 'Amit Tiwari', 
-    category: 'Salon Specialist', 
-    initials: 'AT', 
-    rating: 4.6, 
-    reviews: 72, 
-    experience: '5 years',
-    bio: 'Award-winning stylist focusing on modern hair aesthetics and skin rejuvenation treatments.',
-    slots: ['Tue 11am', 'Thu 11am', 'Sat 2pm'] 
-  }
-];
+const BACKEND_URL = 'https://akeno7594-internship-project-backend.hf.space/api';
 
 const Screen4Specialists = () => {
   const { state, updateState } = useContext(AppContext);
   const navigate = useNavigate();
+  const [specialistsData, setSpecialistsData] = useState([]);
   const [filter, setFilter] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
+
+  useEffect(() => {
+    fetch(`${BACKEND_URL}/specialists`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) setSpecialistsData(data.specialists);
+      })
+      .catch(err => console.error("Error fetching specialists:", err));
+  }, []);
 
   const categories = ['All', 'Dentist', 'Physiotherapist', 'Gym Trainer', 'Salon Specialist'];
 
@@ -85,10 +28,10 @@ const Screen4Specialists = () => {
     return specialistsData.filter(s => {
       const matchesFilter = filter === 'All' || s.category === filter;
       const matchesSearch = s.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          s.bio.toLowerCase().includes(searchQuery.toLowerCase());
+                          (s.bio && s.bio.toLowerCase().includes(searchQuery.toLowerCase()));
       return matchesFilter && matchesSearch;
     });
-  }, [filter, searchQuery]);
+  }, [filter, searchQuery, specialistsData]);
 
   const handleSelect = (specialist) => {
     updateState({ finalSpecialist: specialist });
@@ -139,27 +82,17 @@ const Screen4Specialists = () => {
                 </div>
               ))}
             </div>
-
-            <div className="card-light" style={{ padding: '20px', background: 'rgba(237, 184, 32, 0.05)', borderStyle: 'dashed' }}>
-              <div style={{ display: 'flex', gap: '8px', marginBottom: '8px', color: 'var(--color-orange)' }}>
-                <Filter size={16} />
-                <span style={{ fontSize: '14px', fontWeight: '700' }}>Smart Filter</span>
-              </div>
-              <p style={{ fontSize: '12px', lineHeight: '1.5', opacity: 0.7 }}>
-                Our AI recommended <strong>{state.recommendedSpecialist || 'Physiotherapist'}</strong> based on your input.
-              </p>
-            </div>
           </aside>
 
           <main className="listing-main">
             {filteredData.length > 0 ? filteredData.map((specialist, index) => (
               <div 
-                key={`${filter}-${specialist.id}`} 
+                key={specialist.id} 
                 className="specialist-card-h animate-card"
                 style={{ animationDelay: `${index * 0.05}s` }}
               >
                 <div className="specialist-avatar-lg">
-                  {specialist.initials}
+                  {specialist.initials || specialist.name.substring(0, 2).toUpperCase()}
                 </div>
                 
                 <div style={{ flex: 1 }}>
@@ -167,8 +100,8 @@ const Screen4Specialists = () => {
                     <div>
                       <h3 style={{ fontSize: '22px', fontWeight: '800', marginBottom: '4px' }}>{specialist.name}</h3>
                       <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                        <span className="pill-tag" style={{ fontSize: '10px' }}>{specialist.category}</span>
-                        <span className="experience-tag">{specialist.experience} exp.</span>
+                        <span className="pill-tag" style={{ fontSize: '10px' }}>{specialist.category || specialist.specialization}</span>
+                        <span className="experience-tag">{specialist.experience}</span>
                       </div>
                     </div>
                     <div className="rating-badge">
@@ -183,20 +116,6 @@ const Screen4Specialists = () => {
                   </p>
 
                   <div style={{ display: 'flex', alignItems: 'center', gap: '24px', flexWrap: 'wrap' }}>
-                    <div>
-                      <div style={{ fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px', color: 'var(--color-muted)' }}>
-                        Next Available
-                      </div>
-                      <div style={{ display: 'flex', gap: '8px' }}>
-                        {specialist.slots.slice(0, 2).map(slot => (
-                          <span key={slot} style={{ fontSize: '13px', fontWeight: '600', color: 'var(--color-dark)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                            <Clock size={14} color="var(--color-orange)" />
-                            {slot}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                    
                     <button 
                       className="btn-primary" 
                       style={{ marginLeft: 'auto', padding: '12px 24px' }}

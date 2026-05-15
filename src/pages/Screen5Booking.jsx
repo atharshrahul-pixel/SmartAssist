@@ -4,12 +4,15 @@ import { AppContext } from '../App';
 import Stepper from '../components/Stepper';
 import { ChevronLeft, ChevronRight, Calendar as CalIcon, Clock, User, AlertCircle } from 'lucide-react';
 
+const BACKEND_URL = 'https://akeno7594-internship-project-backend.hf.space/api';
+
 const Screen5Booking = () => {
   const { state, updateState, bookings } = useContext(AppContext);
   const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!state.finalSpecialist) {
@@ -17,28 +20,38 @@ const Screen5Booking = () => {
     }
   }, [state.finalSpecialist, navigate]);
 
-  const handleConfirm = () => {
-    const isBooked = bookings.some(b => 
-      b.specialistId === state.finalSpecialist.id && 
-      b.date === selectedDate && 
-      b.time === selectedTime
-    );
+  const handleConfirm = async () => {
+    setLoading(true);
+    setErrorMsg('');
+    
+    try {
+      const response = await fetch(`${BACKEND_URL}/bookings`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userName: state.name,
+          specialistId: state.finalSpecialist.id,
+          bookingDate: selectedDate,
+          bookingTime: selectedTime
+        })
+      });
+      const data = await response.json();
 
-    if (isBooked) {
-      setErrorMsg("This slot was just taken. Please choose another time.");
-      setSelectedTime('');
-      return;
+      if (data.success) {
+        updateState({ 
+          bookedDate: selectedDate, 
+          bookedTime: selectedTime,
+          bookingId: data.booking.id
+        });
+        navigate('/confirmation');
+      } else {
+        setErrorMsg(data.message || "Booking failed.");
+      }
+    } catch (err) {
+      setErrorMsg("Could not connect to the booking service.");
+    } finally {
+      setLoading(false);
     }
-
-    const bookingId = "SM-" + Date.now().toString(36).toUpperCase();
-    
-    updateState({ 
-      bookedDate: selectedDate, 
-      bookedTime: selectedTime,
-      bookingId: bookingId
-    });
-    
-    navigate('/confirmation');
   };
 
   if (!state.finalSpecialist) return null;
@@ -163,11 +176,11 @@ const Screen5Booking = () => {
 
                 <button 
                   className="btn-primary w-full"
-                  disabled={!selectedDate || !selectedTime}
+                  disabled={!selectedDate || !selectedTime || loading}
                   onClick={handleConfirm}
                   style={{ padding: '18px' }}
                 >
-                  Confirm Booking →
+                  {loading ? 'Confirming...' : 'Confirm Booking →'}
                 </button>
               </div>
             ) : (
