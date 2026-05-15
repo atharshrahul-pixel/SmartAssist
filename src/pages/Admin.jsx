@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ShieldCheck, Search, Users, Calendar, Mail, FileText } from 'lucide-react';
+import { ShieldCheck, Calendar, Mail, Clock } from 'lucide-react';
 
 const BACKEND_URL = 'https://akeno7594-internship-project-backend.hf.space/api';
 
@@ -57,7 +57,7 @@ const Admin = () => {
           <p style={{ opacity: 0.7 }}>Overview of all scheduled appointments and patient feedback.</p>
         </div>
         <div className="pill-tag" style={{ background: 'var(--color-dark)', color: 'var(--color-white)' }}>
-          {data.length} Total Bookings
+          {data && data.length} Total Bookings
         </div>
       </header>
 
@@ -72,12 +72,12 @@ const Admin = () => {
             </tr>
           </thead>
           <tbody>
-            {data.map(b => (
-              <tr key={b.receiptId} style={{ borderBottom: '1px solid #f0edeb', transition: 'background 0.2s' }} onMouseOver={e => e.currentTarget.style.backgroundColor = '#faf9f8'} onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'}>
+            {data && data.map(b => (
+              <tr key={b.receiptId} style={{ borderBottom: '1px solid #f0edeb' }}>
                 <td style={{ padding: '24px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--color-cream-dark)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', fontWeight: '800' }}>
-                      {b.userName.substring(0, 2).toUpperCase()}
+                      {b.userName ? b.userName.substring(0, 2).toUpperCase() : '??'}
                     </div>
                     <div>
                       <div style={{ fontWeight: '700' }}>{b.userName}</div>
@@ -115,7 +115,7 @@ const Admin = () => {
             ))}
           </tbody>
         </table>
-        {data.length === 0 && <div style={{ padding: '64px', textAlign: 'center', opacity: 0.5 }}>No appointment records found in database.</div>}
+        {data && data.length === 0 && <div style={{ padding: '64px', textAlign: 'center', opacity: 0.5 }}>No appointment records found in database.</div>}
       </div>
     </div>
   );
