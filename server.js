@@ -12,6 +12,7 @@ const {
   errorMiddleware,
   notFoundMiddleware
 } = require('./middleware/errorMiddleware');
+const { restrictOrigin } = require('./middleware/originMiddleware');
 
 const app = express();
 
@@ -39,6 +40,8 @@ app.get('/health', (req, res) => {
 | API Routes
 |--------------------------------------------------------------------------
 */
+
+app.use('/api', restrictOrigin);
 
 app.use('/api/recommendations', recommendationRoutes);
 
