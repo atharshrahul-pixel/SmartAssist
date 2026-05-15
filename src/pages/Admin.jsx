@@ -38,6 +38,8 @@ const Admin = () => {
       });
       if (res.ok) {
         setData(prev => prev.filter(b => b._id !== id));
+      } else {
+        alert('Failed to delete appointment');
       }
     } catch (err) {
       alert('Failed to delete appointment');
@@ -72,7 +74,7 @@ const Admin = () => {
           <p style={{ opacity: 0.7 }}>Overview of all scheduled appointments and patient feedback.</p>
         </div>
         <div className="pill-tag" style={{ background: 'var(--color-dark)', color: 'var(--color-white)' }}>
-          {data && data.length} Total Bookings
+          {data ? data.length : 0} Total Bookings
         </div>
       </header>
 
