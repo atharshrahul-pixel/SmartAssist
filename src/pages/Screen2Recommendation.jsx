@@ -59,6 +59,9 @@ const Screen2Recommendation = () => {
           <h1 style={{ fontSize: '48px', lineHeight: '1.1', marginBottom: 'var(--sp-md)' }}>
             We found your <span className="accent-word" style={{ color: 'var(--color-orange)' }}>specialist</span>
           </h1>
+          <p style={{ fontSize: '14px', opacity: 0.7, marginTop: '16px' }}>
+            Powered by: <strong>{state.source === 'AI' ? 'Artificial Intelligence' : 'Keyword Analysis'}</strong>
+          </p>
         </div>
 
         <div className="split-layout">

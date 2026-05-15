@@ -31,7 +31,7 @@ const Screen1Input = () => {
       const data = await response.json();
       
       if (data.success) {
-        updateState({ name, problem, recommendedSpecialist: data.recommendedSpecialist });
+        updateState({ name, problem, recommendedSpecialist: data.recommendedSpecialist, source: data.source });
         navigate('/recommendation');
       } else {
         alert(data.message || 'Failed to get recommendation');
