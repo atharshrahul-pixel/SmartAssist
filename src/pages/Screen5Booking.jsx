@@ -146,7 +146,7 @@ const Screen5Booking = () => {
                 </div>
                 
                 <div className="time-grid mb-xl">
-                  {state.finalSpecialist.slots.map(slot => {
+                  {state.finalSpecialist.availableSlots.map(slot => {
                     const isBooked = bookings.some(b => 
                       b.specialistId === state.finalSpecialist.id && 
                       b.date === selectedDate && 
