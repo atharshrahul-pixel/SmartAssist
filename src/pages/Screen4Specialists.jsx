@@ -10,26 +10,30 @@ const Screen4Specialists = () => {
   const { state, updateState } = useContext(AppContext);
   const navigate = useNavigate();
   const [specialistsData, setSpecialistsData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     if (state.accepted === null) {
       navigate('/');
+      return;
     }
     fetch(`${BACKEND_URL}/specialists`)
       .then(res => res.json())
       .then(data => {
         if (data.success) setSpecialistsData(data.specialists);
       })
-      .catch(err => console.error("Error fetching specialists:", err));
+      .catch(err => console.error("Error fetching specialists:", err))
+      .finally(() => setIsLoading(false));
   }, [state.accepted, navigate]);
 
   const categories = ['All', 'Dentist', 'Physiotherapist', 'Gym Trainer', 'Salon Specialist'];
 
   const filteredData = useMemo(() => {
     return specialistsData.filter(s => {
-      const matchesFilter = filter === 'All' || s.category === filter;
+      const categoryMatch = s.category || s.specialization;
+      const matchesFilter = filter === 'All' || categoryMatch === filter;
       const matchesSearch = s.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           (s.bio && s.bio.toLowerCase().includes(searchQuery.toLowerCase()));
       return matchesFilter && matchesSearch;
@@ -88,7 +92,11 @@ const Screen4Specialists = () => {
           </aside>
 
           <main className="listing-main">
-            {filteredData.length > 0 ? filteredData.map((specialist, index) => (
+            {isLoading ? (
+              <div className="card-light text-center" style={{ padding: '64px' }}>
+                <h3>Loading specialists...</h3>
+              </div>
+            ) : filteredData.length > 0 ? filteredData.map((specialist, index) => (
               <div 
                 key={specialist.id} 
                 className="specialist-card-h animate-card"
