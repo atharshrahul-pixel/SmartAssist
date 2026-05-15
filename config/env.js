@@ -1,17 +1,14 @@
 require('dotenv').config();
 
-console.log("DEBUG: DB_PROVIDER =", process.env.DB_PROVIDER);
 const env = {
   aiProvider: process.env.AI_PROVIDER || '',
   aiMaxRetries: Number(process.env.AI_MAX_RETRIES || 2),
   aiTimeoutMs: Number(process.env.AI_TIMEOUT_MS || 8000),
   dbProvider: process.env.DB_PROVIDER || 'firebase',
+  mongoDbUri: process.env.MONGODB_URI || '',
   frontendUrl: process.env.FRONTEND_URL || 'http://localhost:5173',
   geminiApiKey: process.env.GEMINI_API_KEY || '',
   geminiModel: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
-  groqApiKey: process.env.GROQ_API_KEY || '',
-  groqModel: process.env.GROQ_MODEL || 'llama-3.3-70b-versatile',
-  mongoDbUri: process.env.MONGODB_URI || '',
   nodeEnv: process.env.NODE_ENV || 'development',
   openAiApiKey: process.env.OPENAI_API_KEY || '',
   openAiModel: process.env.OPENAI_MODEL || 'gpt-4o-mini',

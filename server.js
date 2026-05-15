@@ -12,11 +12,9 @@ const {
   errorMiddleware,
   notFoundMiddleware
 } = require('./middleware/errorMiddleware');
-const { restrictOrigin } = require('./middleware/originMiddleware');
 
 const app = express();
 
-// Connect to MongoDB if selected
 connectDb();
 
 app.use(
@@ -29,10 +27,9 @@ app.use(
 app.use(express.json({ limit: '20kb' }));
 
 app.get('/health', (req, res) => {
-  res.status(200).json({ dbProvider: env.dbProvider, dbProvider: env.dbProvider,
+  res.status(200).json({
     success: true,
     message: 'SmartAssist backend is running',
-    dbProvider: env.dbProvider
   });
 });
 
@@ -41,8 +38,6 @@ app.get('/health', (req, res) => {
 | API Routes
 |--------------------------------------------------------------------------
 */
-
-app.use('/api', restrictOrigin);
 
 app.use('/api/recommendations', recommendationRoutes);
 
