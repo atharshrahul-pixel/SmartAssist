@@ -84,7 +84,7 @@ const Screen4Specialists = () => {
                 >
                   {cat}
                   <span style={{ fontSize: '12px', opacity: 0.5 }}>
-                    {cat === 'All' ? specialistsData.length : specialistsData.filter(s => s.category === cat).length}
+                    {cat === 'All' ? specialistsData.length : specialistsData.filter(s => (s.category || s.specialization) === cat).length}
                   </span>
                 </div>
               ))}
