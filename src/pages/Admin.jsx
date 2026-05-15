@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ShieldCheck, Calendar, Mail, Clock } from 'lucide-react';
+import { ShieldCheck, Calendar, Mail, Clock, Trash2 } from 'lucide-react';
 
 const BACKEND_URL = 'https://akeno7594-internship-project-backend.hf.space/api';
 
@@ -26,6 +26,21 @@ const Admin = () => {
       setError('Connection error. Please try again.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const deleteBooking = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this appointment?')) return;
+    try {
+      const res = await fetch(`${BACKEND_URL}/admin/dashboard/${id}`, {
+        method: 'DELETE',
+        headers: { 'x-admin-secret': secret }
+      });
+      if (res.ok) {
+        setData(prev => prev.filter(b => b._id !== id));
+      }
+    } catch (err) {
+      alert('Failed to delete appointment');
     }
   };
 
@@ -69,11 +84,12 @@ const Admin = () => {
               <th style={{ padding: '20px 24px', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-muted)' }}>Specialist</th>
               <th style={{ padding: '20px 24px', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-muted)' }}>Appointment Time</th>
               <th style={{ padding: '20px 24px', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-muted)' }}>Feedback</th>
+              <th style={{ padding: '20px 24px', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-muted)' }}>Actions</th>
             </tr>
           </thead>
           <tbody>
             {data && data.map(b => (
-              <tr key={b.receiptId} style={{ borderBottom: '1px solid #f0edeb' }}>
+              <tr key={b._id} style={{ borderBottom: '1px solid #f0edeb' }}>
                 <td style={{ padding: '24px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--color-cream-dark)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', fontWeight: '800' }}>
@@ -110,6 +126,11 @@ const Admin = () => {
                   ) : (
                     <span style={{ fontSize: '13px', opacity: 0.4 }}>No feedback provided</span>
                   )}
+                </td>
+                <td style={{ padding: '24px' }}>
+                    <button className="btn-danger" style={{ padding: '8px' }} onClick={() => deleteBooking(b._id)}>
+                        <Trash2 size={16} />
+                    </button>
                 </td>
               </tr>
             ))}
