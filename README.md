@@ -1,16 +1,29 @@
-# React + Vite
+# SmartAssist Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+SmartAssist is an AI-powered triage and specialist appointment booking interface built with React and Vite.
 
-Currently, two official plugins are available:
+## Tech Stack
+- **Framework:** React 19
+- **Build Tool:** Vite
+- **Routing:** React Router DOM v7
+- **Icons:** Lucide React
+- **Language:** JavaScript (ESM)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Features
+- **AI-Powered Triage:** Communicates with the SmartAssist backend to classify health concerns.
+- **Specialist Discovery:** Dynamic listing of medical and wellness specialists.
+- **Appointment Booking:** Real-time slot selection and booking confirmation.
+- **Legal & Support:** Includes Privacy Policy, Terms of Service, and Support pages.
 
-## React Compiler
+## Deployment
+- **Live Site:** [https://smart-assist-frontend-one.vercel.app](https://smart-assist-frontend-one.vercel.app)
+- **Deployment Platform:** Vercel
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Configuration
+The frontend communicates with the backend hosted on Hugging Face. The base API URL is configured in the component files. Ensure your backend CORS settings allow requests from this Vercel domain.
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Scripts
+- `npm run dev` - Start development server.
+- `npm run build` - Build for production.
+- `npm run lint` - Run ESLint.
+- `npm run preview` - Preview production build.
