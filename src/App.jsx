@@ -1,4 +1,4 @@
-import { useState, createContext } from 'react';
+import { useState, createContext, useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Screen1Input from './pages/Screen1Input';
@@ -12,6 +12,9 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
 import Support from './pages/Support';
 import Admin from './pages/Admin';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Dashboard from './pages/Dashboard';
 
 export const AppContext = createContext();
 
@@ -31,6 +34,15 @@ function App() {
   });
 
   const [bookings, setBookings] = useState([]);
+  const [user, setUser] = useState(() => {
+    try {
+      const savedUser = localStorage.getItem('user');
+      return savedUser ? JSON.parse(savedUser) : null;
+    } catch {
+      return null;
+    }
+  });
+  const [token, setToken] = useState(() => localStorage.getItem('token') || '');
 
   const updateState = (updates) => {
     setState(prev => ({ ...prev, ...updates }));
@@ -40,8 +52,29 @@ function App() {
     setBookings(prev => [...prev, booking]);
   };
 
+  const loginUser = (userData, userToken) => {
+    setUser(userData);
+    setToken(userToken);
+    localStorage.setItem('user', JSON.stringify(userData));
+    localStorage.setItem('token', userToken);
+    // sync simple name/email fields
+    updateState({ name: userData.name, email: userData.email });
+  };
+
+  const logoutUser = () => {
+    setUser(null);
+    setToken('');
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+  };
+
+  const refreshUser = (updatedUser) => {
+    setUser(updatedUser);
+    localStorage.setItem('user', JSON.stringify(updatedUser));
+  };
+
   return (
-    <AppContext.Provider value={{ state, updateState, bookings, addBooking }}>
+    <AppContext.Provider value={{ state, updateState, bookings, addBooking, user, token, loginUser, logoutUser, refreshUser }}>
       <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
         <Navbar />
         <div style={{ flex: 1 }}>
@@ -57,6 +90,9 @@ function App() {
             <Route path="/terms" element={<TermsOfService />} />
             <Route path="/support" element={<Support />} />
             <Route path="/admin" element={<Admin />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/dashboard" element={<Dashboard />} />
           </Routes>
         </div>
       </div>

@@ -2,23 +2,47 @@ import { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppContext } from '../App';
 import Stepper from '../components/Stepper';
-import { ChevronLeft, ChevronRight, Calendar as CalIcon, Clock, User, AlertCircle } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar as CalIcon, Clock, User, AlertCircle, Bell } from 'lucide-react';
 
-const BACKEND_URL = 'https://akeno7594-internship-project-backend.hf.space/api';
+const BACKEND_URL = window.location.hostname === 'localhost'
+  ? 'http://localhost:5000/api'
+  : 'https://akeno7594-internship-project-backend.hf.space/api';
 
 const Screen5Booking = () => {
-  const { state, updateState, bookings } = useContext(AppContext);
+  const { state, updateState, user, token } = useContext(AppContext);
   const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
   const [loading, setLoading] = useState(false);
+  
+  // Custom states for DB synced booking & waitlist
+  const [occupiedSlots, setOccupiedSlots] = useState([]);
+  const [bookedFor, setBookedFor] = useState('Myself');
 
   useEffect(() => {
     if (!state.finalSpecialist) {
       navigate('/specialists');
     }
   }, [state.finalSpecialist, navigate]);
+
+  useEffect(() => {
+    if (selectedDate && state.finalSpecialist) {
+      fetchOccupiedSlots();
+    }
+  }, [selectedDate, state.finalSpecialist]);
+
+  const fetchOccupiedSlots = async () => {
+    try {
+      const res = await fetch(`${BACKEND_URL}/bookings/occupied?specialistId=${state.finalSpecialist.id}&bookingDate=${selectedDate}`);
+      const json = await res.json();
+      if (json.success) {
+        setOccupiedSlots(json.slots);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const handleConfirm = async () => {
     setLoading(true);
@@ -29,13 +53,15 @@ const Screen5Booking = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          userName: state.name,
-          userEmail: state.email,
+          userName: user ? user.name : state.name,
+          userEmail: user ? user.email : state.email,
           specialistId: state.finalSpecialist.id,
           bookingDate: selectedDate,
           bookingTime: selectedTime,
           rejectionReason: state.rejectionReason,
-          rejectionReasonOther: state.rejectionReasonOther
+          rejectionReasonOther: state.rejectionReasonOther,
+          userId: user ? user.id : undefined,
+          bookedFor: bookedFor === 'Myself' ? (user ? user.name : state.name) : bookedFor
         })
       });
       const data = await response.json();
@@ -57,10 +83,48 @@ const Screen5Booking = () => {
     }
   };
 
+  const handleJoinWaitlist = async () => {
+    if (!user) {
+      alert('Please log in to join the waitlist.');
+      navigate('/login');
+      return;
+    }
+
+    setLoading(true);
+    setErrorMsg('');
+    try {
+      const response = await fetch(`${BACKEND_URL}/auth/waitlist`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          specialistId: state.finalSpecialist.id,
+          specialistName: state.finalSpecialist.name,
+          bookingDate: selectedDate,
+          bookingTime: selectedTime
+        })
+      });
+      const data = await response.json();
+      if (data.success) {
+        alert('Successfully joined the waitlist for this slot!');
+        navigate('/dashboard');
+      } else {
+        setErrorMsg(data.message || 'Failed to join waitlist.');
+      }
+    } catch (err) {
+      setErrorMsg('Could not connect to the waitlist service.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (!state.finalSpecialist) return null;
 
   const days = Array.from({length: 30}, (_, i) => i + 1);
   const today = 15;
+  const isSelectedTimeOccupied = occupiedSlots.includes(selectedTime);
 
   return (
     <div className="page-transition" style={{ minHeight: '100%', display: 'flex', flexDirection: 'column' }}>
@@ -141,6 +205,25 @@ const Screen5Booking = () => {
               </div>
             </div>
 
+            {user && (
+              <div className="card-light" style={{ padding: '20px', marginBottom: '24px' }}>
+                <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px' }}>
+                  <User size={14} /> Who is this appointment for?
+                </label>
+                <select 
+                  className="input-field" 
+                  value={bookedFor} 
+                  onChange={e => setBookedFor(e.target.value)}
+                  style={{ marginTop: '8px', padding: '10px 12px' }}
+                >
+                  <option value="Myself">Myself ({user.name})</option>
+                  {user.familyProfiles && user.familyProfiles.map(member => (
+                    <option key={member._id} value={member.name}>{member.name} ({member.relationship})</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
             {selectedDate ? (
               <div className="card-light" style={{ animation: 'fadeInSlideUp 0.3s ease' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
@@ -150,25 +233,38 @@ const Screen5Booking = () => {
                 
                 <div className="time-grid mb-xl">
                   {state.finalSpecialist.availableSlots.map(slot => {
-                    const isBooked = bookings.some(b => 
-                      b.specialistId === state.finalSpecialist.id && 
-                      b.date === selectedDate && 
-                      b.time === slot
-                    );
+                    const isOccupied = occupiedSlots.includes(slot);
                     const isSelected = selectedTime === slot;
 
                     return (
                       <button
                         key={slot}
-                        disabled={isBooked}
                         className={`time-slot ${isSelected ? 'active' : ''}`}
+                        style={{
+                          position: 'relative',
+                          border: isOccupied ? '1.5px solid var(--color-orange)' : undefined,
+                          color: isOccupied ? 'var(--color-orange)' : undefined,
+                        }}
                         onClick={() => { setSelectedTime(slot); setErrorMsg(''); }}
                       >
                         {slot}
+                        {isOccupied && (
+                          <span style={{
+                            position: 'absolute', top: '2px', right: '4px', width: '6px', height: '6px',
+                            borderRadius: '50%', background: 'var(--color-orange)'
+                          }} />
+                        )}
                       </button>
                     );
                   })}
                 </div>
+
+                {selectedTime && isSelectedTimeOccupied && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--color-orange)', fontSize: '13px', marginBottom: '16px', padding: '12px', background: 'rgba(224, 88, 48, 0.1)', borderRadius: '8px' }}>
+                    <AlertCircle size={16} />
+                    This slot is currently full. You can join the waitlist.
+                  </div>
+                )}
 
                 {errorMsg && (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--color-orange)', fontSize: '13px', marginBottom: '16px', padding: '12px', background: 'rgba(224, 88, 48, 0.1)', borderRadius: '8px' }}>
@@ -177,14 +273,26 @@ const Screen5Booking = () => {
                   </div>
                 )}
 
-                <button 
-                  className="btn-primary w-full"
-                  disabled={!selectedDate || !selectedTime || loading}
-                  onClick={handleConfirm}
-                  style={{ padding: '18px' }}
-                >
-                  {loading ? 'Confirming...' : 'Confirm Booking →'}
-                </button>
+                {isSelectedTimeOccupied ? (
+                  <button 
+                    className="btn-primary w-full"
+                    disabled={!selectedDate || !selectedTime || loading}
+                    onClick={handleJoinWaitlist}
+                    style={{ padding: '18px', background: 'var(--color-orange)', color: 'white' }}
+                  >
+                    <Bell size={16} style={{ marginRight: '8px' }} />
+                    {loading ? 'Joining...' : 'Join Waitlist'}
+                  </button>
+                ) : (
+                  <button 
+                    className="btn-primary w-full"
+                    disabled={!selectedDate || !selectedTime || loading}
+                    onClick={handleConfirm}
+                    style={{ padding: '18px' }}
+                  >
+                    {loading ? 'Confirming...' : 'Confirm Booking →'}
+                  </button>
+                )}
               </div>
             ) : (
               <div className="card-light" style={{ textAlign: 'center', padding: '48px 24px', borderStyle: 'dashed' }}>
