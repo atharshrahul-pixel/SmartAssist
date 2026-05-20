@@ -12,6 +12,8 @@ const bookingSchema = new mongoose.Schema({
   status: { type: String, default: 'confirmed' },
   rejectionReason: { type: String },
   rejectionReasonOther: { type: String },
+  userId: { type: String },
+  bookedFor: { type: String },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Booking', bookingSchema);

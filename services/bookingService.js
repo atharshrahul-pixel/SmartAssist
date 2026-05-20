@@ -9,7 +9,7 @@ const generateReceiptId = () => {
   return `SA-${timestamp}-${random}`.toUpperCase();
 };
 
-const createBooking = async ({ userName, userEmail, specialistId, bookingDate, bookingTime, rejectionReason, rejectionReasonOther }) => {
+const createBooking = async ({ userName, userEmail, specialistId, bookingDate, bookingTime, rejectionReason, rejectionReasonOther, userId, bookedFor }) => {
   const specialist = await getSpecialistById(specialistId);
 
   if (!specialist) {
@@ -28,10 +28,27 @@ const createBooking = async ({ userName, userEmail, specialistId, bookingDate, b
     status: 'confirmed',
     createdAt: new Date().toISOString(),
     rejectionReason,
-    rejectionReasonOther
+    rejectionReasonOther,
+    userId,
+    bookedFor: bookedFor ? bookedFor.trim() : userName.trim()
   };
 
   const booking = await Booking.create(bookingData);
+
+  if (userId) {
+    const User = require('../models/User');
+    const user = await User.findById(userId);
+    if (user) {
+      const waitlistEntry = user.waitlistAppointments.find(
+        (w) => w.specialistId === specialist.id && w.bookingDate === bookingDate && w.bookingTime === bookingTime && w.status !== 'claimed'
+      );
+      if (waitlistEntry) {
+        waitlistEntry.status = 'claimed';
+        await user.save();
+      }
+    }
+  }
+
   return { id: booking._id.toString(), ...bookingData };
 };
 

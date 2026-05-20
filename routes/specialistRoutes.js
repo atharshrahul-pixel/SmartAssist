@@ -6,8 +6,11 @@ const {
   listSpecialists,
   addSpecialist,
   editSpecialist,
-  deleteSpecialistById
+  deleteSpecialistById,
+  rateSpecialist
 } = require("../controllers/specialistController");
+
+const authMiddleware = require("../middleware/authMiddleware");
 
 router.get("/", listSpecialists);
 
@@ -16,5 +19,7 @@ router.patch("/:id", editSpecialist);
 router.delete("/:id", deleteSpecialistById);
 
 router.post("/", addSpecialist);
+
+router.post("/:id/rate", authMiddleware, rateSpecialist);
 
 module.exports = router;

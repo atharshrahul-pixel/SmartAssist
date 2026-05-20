@@ -9,6 +9,7 @@ const specialistRoutes = require('./routes/specialistRoutes');
 const bookingRoutes = require('./routes/bookingRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const lookupRoutes = require('./routes/lookupRoutes');
+const authRoutes = require('./routes/authRoutes');
 
 const {
   errorMiddleware,
@@ -43,6 +44,8 @@ app.get('/health', (req, res) => {
 */
 
 app.use('/api', restrictOrigin);
+
+app.use('/api/auth', authRoutes);
 
 app.use('/api/recommendations', recommendationRoutes);
 

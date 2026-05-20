@@ -13,6 +13,7 @@ const env = {
   openAiApiKey: process.env.OPENAI_API_KEY || '',
   openAiModel: process.env.OPENAI_MODEL || 'gpt-4o-mini',
   port: Number(process.env.PORT || 5000),
+  jwtSecret: process.env.JWT_SECRET || 'smartassist-secret-jwt-key',
 };
 
 module.exports = env;
