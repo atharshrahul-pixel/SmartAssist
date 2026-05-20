@@ -875,3 +875,54 @@ a {
     flex-direction: column !important;
   }
 }
+
+/* Text Rotator Animation */
+.text-rotator-container {
+  display: inline-block;
+  position: relative;
+  overflow: hidden;
+  vertical-align: bottom;
+  padding-right: 6px;
+}
+
+.text-rotator-ghost {
+  visibility: hidden;
+  pointer-events: none;
+  user-select: none;
+  display: inline-block;
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  padding-right: 6px;
+}
+
+.text-rotator-word {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(100%);
+  color: var(--color-orange);
+  white-space: nowrap;
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  padding-right: 6px;
+}
+
+.text-rotator-word.idle {
+  transform: translateY(100%);
+  transition: none;
+}
+
+.text-rotator-word.active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: transform 0.6s cubic-bezier(0.76, 0, 0.24, 1), opacity 0.6s ease;
+}
+
+.text-rotator-word.exit {
+  opacity: 0;
+  transform: translateY(-100%);
+  transition: transform 0.6s cubic-bezier(0.76, 0, 0.24, 1), opacity 0.6s ease;
+}
+

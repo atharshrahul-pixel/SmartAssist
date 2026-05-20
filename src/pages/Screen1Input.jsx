@@ -1,10 +1,11 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { AppContext } from '../App';
 import Stepper from '../components/Stepper';
-import { Upload, Zap, Shield, Clock } from 'lucide-react';
+import { Zap, Shield, Clock } from 'lucide-react';
 
 const BACKEND_URL = 'https://akeno7594-internship-project-backend.hf.space/api';
+const words = ['health', 'smile', 'fitness', 'muscles', 'wellness'];
 
 const Screen1Input = () => {
   const { state, updateState } = useContext(AppContext);
@@ -14,6 +15,16 @@ const Screen1Input = () => {
   const [problem, setProblem] = useState(state.problem || '');
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const [wordIndex, setWordIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setWordIndex((prev) => (prev + 1) % words.length);
+    }, 2500);
+    return () => clearInterval(interval);
+  }, []);
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -54,7 +65,26 @@ const Screen1Input = () => {
           <div className="split-content">
             <span className="pill-tag mb-lg">AI-POWERED TRIAGE</span>
             <h1 style={{ fontSize: '64px', lineHeight: '1', marginBottom: 'var(--sp-lg)', maxWidth: '600px' }}>
-              Tell us your <span className="accent-word" style={{ color: 'var(--color-orange)' }}>health</span> concern
+              Tell us your{' '}
+              <span className="text-rotator-container">
+                <span className="text-rotator-ghost" aria-hidden="true">wellness</span>
+                {words.map((word, idx) => {
+                  let className = 'text-rotator-word';
+                  if (idx === wordIndex) {
+                    className += ' active';
+                  } else if (idx === (wordIndex - 1 + words.length) % words.length) {
+                    className += ' exit';
+                  } else {
+                    className += ' idle';
+                  }
+                  return (
+                    <span key={word} className={className}>
+                      {word}
+                    </span>
+                  );
+                })}
+              </span>{' '}
+              concern
             </h1>
             <p style={{ color: 'var(--color-dark)', fontSize: '18px', lineHeight: '1.6', maxWidth: '520px', marginBottom: 'var(--sp-xl)', opacity: 0.8 }}>
               Describe what you're experiencing and our system will recommend the right specialist for you — instantly.

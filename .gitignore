@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+.vercel/README.txt
+.vercel/project.json
+future-ideas.txt
+CurrentlyImplemented.txt
