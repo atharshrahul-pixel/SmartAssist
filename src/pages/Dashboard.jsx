@@ -16,7 +16,7 @@ const Dashboard = () => {
   
   const [activeTab, setActiveTab] = useState('appointments');
   const [bookings, setBookings] = useState([]);
-  const [loadingBookings, setLoadingBookings] = useState(false);
+  const [loadingBookings, setLoadingBookings] = useState(true);
 
   // Rating Modal/Form State
   const [ratingSpecialist, setRatingSpecialist] = useState(null);
