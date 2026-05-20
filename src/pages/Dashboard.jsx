@@ -25,6 +25,7 @@ const Dashboard = () => {
 
   // Family Form State
   const [familyFields, setFamilyFields] = useState({ name: '', relationship: 'Child' });
+  const [otherRelationship, setOtherRelationship] = useState('');
   const [familyLoading, setFamilyLoading] = useState(false);
 
   useEffect(() => {
@@ -72,17 +73,19 @@ const Dashboard = () => {
 
     setFamilyLoading(true);
     try {
+      const relationshipToSend = familyFields.relationship === 'Other' ? otherRelationship : familyFields.relationship;
       const res = await fetch(`${BACKEND_URL}/auth/family`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify(familyFields)
+        body: JSON.stringify({ name: familyFields.name, relationship: relationshipToSend })
       });
       const json = await res.json();
       if (json.success) {
         setFamilyFields({ name: '', relationship: 'Child' });
+        setOtherRelationship('');
         fetchProfile();
       }
     } catch (err) {
@@ -345,6 +348,20 @@ const Dashboard = () => {
                         <option value="Other">Other</option>
                       </select>
                     </div>
+
+                    {familyFields.relationship === 'Other' && (
+                      <div className="mb-lg" style={{ animation: 'fadeInSlideUp 0.25s ease' }}>
+                        <label className="form-label">Specify Relationship</label>
+                        <input
+                          type="text"
+                          className="input-field"
+                          value={otherRelationship}
+                          onChange={e => setOtherRelationship(e.target.value)}
+                          placeholder="e.g. Sibling, Aunt, Friend"
+                          required
+                        />
+                      </div>
+                    )}
 
                     <button type="submit" className="btn-primary w-full" disabled={familyLoading}>
                       <Plus size={16} style={{ marginRight: '6px' }} /> Add Member
