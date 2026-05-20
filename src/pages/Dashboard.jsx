@@ -16,7 +16,7 @@ const Dashboard = () => {
   
   const [activeTab, setActiveTab] = useState('appointments');
   const [bookings, setBookings] = useState([]);
-  const [loadingBookings, setLoadingBookings] = useState(true);
+  const [hasLoaded, setHasLoaded] = useState(false);
 
   // Rating Modal/Form State
   const [ratingSpecialist, setRatingSpecialist] = useState(null);
@@ -37,7 +37,6 @@ const Dashboard = () => {
   }, [token, user, navigate]);
 
   const fetchBookings = async () => {
-    setLoadingBookings(true);
     try {
       const res = await fetch(`${BACKEND_URL}/bookings/user`, {
         headers: { 'Authorization': `Bearer ${token}` }
@@ -49,7 +48,7 @@ const Dashboard = () => {
     } catch (err) {
       console.error(err);
     } finally {
-      setLoadingBookings(false);
+      setHasLoaded(true);
     }
   };
 
@@ -251,7 +250,7 @@ const Dashboard = () => {
           {activeTab === 'appointments' && (
             <div>
               <h2 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '20px' }}>Your Appointments</h2>
-              {loadingBookings ? (
+              {!hasLoaded ? (
                 <p style={{ opacity: 0.6 }}>Loading appointments...</p>
               ) : bookings.length === 0 ? (
                 <div className="card-light" style={{ textAlign: 'center', padding: '48px' }}>
