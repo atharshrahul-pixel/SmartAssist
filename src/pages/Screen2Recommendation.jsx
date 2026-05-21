@@ -23,15 +23,16 @@ const Screen2Recommendation = () => {
   const navigate = useNavigate();
   const [barWidth, setBarWidth] = useState(0);
 
+  const hasExpired = !state.name || !state.problem || !state.recommendationExplanation;
+
   useEffect(() => {
-    if (!state.name || !state.problem) {
-      navigate('/');
+    if (!hasExpired) {
+      const timer = setTimeout(() => {
+        setBarWidth(85);
+      }, 300);
+      return () => clearTimeout(timer);
     }
-    const timer = setTimeout(() => {
-      setBarWidth(85);
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [state.name, state.problem, navigate]);
+  }, [hasExpired]);
 
   const handleAccept = () => {
     updateState({ accepted: true, finalSpecialist: null });
@@ -43,7 +44,47 @@ const Screen2Recommendation = () => {
     navigate('/rejection');
   };
 
-  if (!state.recommendedSpecialist) return null;
+  if (hasExpired) {
+    return (
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '80vh',
+        padding: '24px',
+        background: 'var(--color-bg)',
+      }}>
+        <div className="card-light" style={{
+          maxWidth: '480px',
+          textAlign: 'center',
+          padding: '48px 32px',
+          borderRadius: '16px',
+          boxShadow: '0 20px 40px rgba(0,0,0,0.05)',
+          border: '1px solid rgba(237,184,32,0.1)'
+        }}>
+          <div style={{
+            width: '64px',
+            height: '64px',
+            borderRadius: '50%',
+            background: 'rgba(237,184,32,0.1)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            margin: '0 auto 24px'
+          }}>
+            <Info size={32} color="var(--color-orange)" />
+          </div>
+          <h2 style={{ fontSize: '24px', fontWeight: '800', marginBottom: '12px' }}>Triage Session Expired</h2>
+          <p style={{ color: 'var(--color-dark)', opacity: 0.7, marginBottom: '32px', lineHeight: '1.6' }}>
+            To protect your privacy and ensure clinical accuracy, inactive triage sessions are automatically cleared. Please restart the assessment.
+          </p>
+          <button className="btn-primary w-full" onClick={() => navigate('/')}>
+            Restart Assessment
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const detectedKeywords = specialistKeywords[state.recommendedSpecialist].filter(word => 
     state.problem.toLowerCase().includes(word)
@@ -63,7 +104,7 @@ const Screen2Recommendation = () => {
             Powered by: <strong>{state.source === 'AI' ? 'Artificial Intelligence' : 'Keyword Analysis'}</strong>
           </p>
         </div>
-
+ 
         <div className="split-layout">
           <div className="split-content">
             <div className="analysis-card mb-lg">
@@ -75,7 +116,7 @@ const Screen2Recommendation = () => {
               <p style={{ fontSize: '15px', lineHeight: '1.6', color: 'var(--color-dark)', opacity: 0.8, marginBottom: '24px' }}>
                 Our triage engine analyzed your description and detected key medical markers that strongly correlate with <strong>{state.recommendedSpecialist}</strong> expertise.
               </p>
-
+ 
               <div style={{ marginBottom: '24px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', fontSize: '14px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                   <BarChart3 size={16} />
@@ -93,7 +134,7 @@ const Screen2Recommendation = () => {
                   {barWidth}% Match
                 </div>
               </div>
-
+ 
               <div>
                 <div style={{ fontSize: '14px', fontWeight: '600', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Detected Keywords</div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
@@ -103,7 +144,7 @@ const Screen2Recommendation = () => {
                 </div>
               </div>
             </div>
-
+ 
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', padding: '0 16px' }}>
               <Info size={18} style={{ marginTop: '2px', flexShrink: 0, color: 'var(--color-orange)' }} />
               <p className="footer-text">
@@ -111,7 +152,7 @@ const Screen2Recommendation = () => {
               </p>
             </div>
           </div>
-
+ 
           <div className="split-form">
             <div className="card-dark" style={{ padding: '40px', textAlign: 'center' }}>
               <div style={{
@@ -137,9 +178,9 @@ const Screen2Recommendation = () => {
               </h2>
               
               <p style={{ fontSize: '15px', color: 'var(--color-muted)', marginBottom: '40px', lineHeight: 1.6 }}>
-                Expert care tailored for your specific symptoms and health history.
+                {state.recommendationExplanation}
               </p>
-
+ 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <button className="btn-primary w-full" onClick={handleAccept} style={{ padding: '16px' }}>
                   Accept & Book Appointment
