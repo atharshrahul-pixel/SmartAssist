@@ -2,7 +2,7 @@ import { useState, useContext, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { AppContext } from '../App';
 import Stepper from '../components/Stepper';
-import { Zap, Shield, Clock } from 'lucide-react';
+import { Zap, Shield, Clock, Mic, Square, AlertCircle } from 'lucide-react';
 
 const BACKEND_URL = window.location.hostname === 'localhost'
   ? 'http://localhost:5000/api'
@@ -24,6 +24,142 @@ const Screen1Input = () => {
 
   const [wordIndex, setWordIndex] = useState(0);
   const chatBottomRef = useRef(null);
+
+  const [recording, setRecording] = useState(false);
+  const [transcribing, setTranscribing] = useState(false);
+  const [micError, setMicError] = useState(null);
+  const [recordingSeconds, setRecordingSeconds] = useState(0);
+
+  const mediaRecorderRef = useRef(null);
+  const streamRef = useRef(null);
+  const timerRef = useRef(null);
+  const audioChunksRef = useRef([]);
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+        mediaRecorderRef.current.stop();
+      }
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((track) => track.stop());
+      }
+    };
+  }, []);
+
+  const startRecording = async () => {
+    setMicError(null);
+    audioChunksRef.current = [];
+    
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      setMicError('Audio recording is not supported in this browser.');
+      return;
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
+
+      const mimeTypes = [
+        'audio/webm;codecs=opus',
+        'audio/webm',
+        'audio/ogg;codecs=opus',
+        'audio/mp4',
+        'audio/aac',
+      ];
+      let selectedMimeType = '';
+      for (const mime of mimeTypes) {
+        if (MediaRecorder.isTypeSupported(mime)) {
+          selectedMimeType = mime;
+          break;
+        }
+      }
+
+      const options = selectedMimeType ? { mimeType: selectedMimeType } : undefined;
+      const mediaRecorder = new MediaRecorder(stream, options);
+      mediaRecorderRef.current = mediaRecorder;
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data && event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = async () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: selectedMimeType || 'audio/webm' });
+        await handleTranscribe(audioBlob);
+      };
+
+      mediaRecorder.start();
+      setRecording(true);
+      setRecordingSeconds(0);
+
+      timerRef.current = setInterval(() => {
+        setRecordingSeconds((prev) => {
+          if (prev >= 59) {
+            stopRecording();
+            return 60;
+          }
+          return prev + 1;
+        });
+      }, 1000);
+
+    } catch (err) {
+      console.error(err);
+      setMicError('Microphone access denied or error occurred.');
+    }
+  };
+
+  const stopRecording = () => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      mediaRecorderRef.current.stop();
+    }
+
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
+    }
+
+    setRecording(false);
+  };
+
+  const handleTranscribe = async (audioBlob) => {
+    setTranscribing(true);
+    setMicError(null);
+
+    const formData = new FormData();
+    formData.append('audio', audioBlob, 'recording.wav');
+
+    try {
+      const response = await fetch(`${BACKEND_URL}/recommendations/transcribe`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Server returned error response');
+      }
+
+      const data = await response.json();
+      if (data.success && data.text) {
+        setChatInput(data.text);
+      } else {
+        throw new Error(data.message || 'Transcription failed.');
+      }
+    } catch (err) {
+      console.error(err);
+      setMicError('Failed to transcribe audio. Please try again.');
+    } finally {
+      setTranscribing(false);
+    }
+  };
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -358,6 +494,38 @@ const Screen1Input = () => {
                   <div ref={chatBottomRef} />
                 </div>
 
+                {micError && (
+                  <div style={{
+                    margin: '8px 16px',
+                    padding: '10px 14px',
+                    background: '#fef2f2',
+                    border: '1px solid #fee2e2',
+                    borderRadius: '8px',
+                    color: '#b91c1c',
+                    fontSize: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}>
+                    <AlertCircle size={16} />
+                    <span style={{ flex: 1 }}>{micError}</span>
+                    <button 
+                      type="button"
+                      onClick={() => setMicError(null)}
+                      style={{
+                        background: 'transparent',
+                        border: 'none',
+                        color: '#b91c1c',
+                        fontWeight: 'bold',
+                        cursor: 'pointer',
+                        padding: '0 4px'
+                      }}
+                    >
+                      ×
+                    </button>
+                  </div>
+                )}
+
                 <form onSubmit={handleSendMessage} style={{
                   padding: '16px',
                   background: 'var(--color-white)',
@@ -366,20 +534,49 @@ const Screen1Input = () => {
                   flexDirection: 'column',
                   gap: '8px'
                 }}>
-                  <div style={{ display: 'flex', gap: '8px' }}>
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <button
+                      type="button"
+                      onClick={recording ? stopRecording : startRecording}
+                      disabled={loading || transcribing || userTurnCount >= 3}
+                      style={{
+                        padding: '12px',
+                        borderRadius: '8px',
+                        background: recording ? '#ef4444' : 'var(--color-dark)',
+                        color: 'var(--color-white)',
+                        border: 'none',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        transition: 'background 0.3s'
+                      }}
+                      title={recording ? "Stop recording" : "Record voice input"}
+                    >
+                      {recording ? <Square size={18} /> : <Mic size={18} />}
+                    </button>
+
                     <input
                       type="text"
                       className="input-field"
-                      placeholder={userTurnCount >= 3 ? "Triage completed." : "Type your response..."}
+                      placeholder={
+                        recording 
+                          ? `Recording... ${recordingSeconds}s` 
+                          : transcribing 
+                            ? "Transcribing..." 
+                            : userTurnCount >= 3 
+                              ? "Triage completed." 
+                              : "Type or record your response..."
+                      }
                       value={chatInput}
                       onChange={(e) => setChatInput(e.target.value)}
-                      disabled={loading || userTurnCount >= 3}
+                      disabled={loading || userTurnCount >= 3 || recording || transcribing}
                       style={{ flex: 1, margin: 0 }}
                     />
                     <button
                       type="submit"
                       className="btn-primary"
-                      disabled={loading || !chatInput.trim() || chatInput.length > 500 || userTurnCount >= 3}
+                      disabled={loading || !chatInput.trim() || chatInput.length > 500 || userTurnCount >= 3 || recording || transcribing}
                       style={{ padding: '0 20px', minWidth: '80px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                     >
                       Send
