@@ -187,4 +187,6 @@ const getAiRecommendation = async ({ problemDescription }) => {
 
 module.exports = {
   getAiRecommendation,
+  fetchWithRetry,
+  fetchWithTimeout,
 };

@@ -12,6 +12,8 @@ const env = {
   nodeEnv: process.env.NODE_ENV || 'development',
   openAiApiKey: process.env.OPENAI_API_KEY || '',
   openAiModel: process.env.OPENAI_MODEL || 'gpt-4o-mini',
+  groqApiKey: process.env.GROQ_API_KEY || '',
+  groqModel: process.env.GROQ_MODEL || 'llama-3.3-70b-versatile',
   port: Number(process.env.PORT || 5000),
   jwtSecret: process.env.JWT_SECRET || 'smartassist-secret-jwt-key',
 };
