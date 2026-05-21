@@ -18,7 +18,15 @@ const Screen5Booking = () => {
   
   // Custom states for DB synced booking & waitlist
   const [occupiedSlots, setOccupiedSlots] = useState([]);
-  const [bookedFor, setBookedFor] = useState('Myself');
+  const [bookedFor, setBookedFor] = useState(() => {
+    if (state.appointmentFor) {
+      if (state.appointmentFor === 'myself') return 'Myself';
+      if (state.appointmentFor === 'other') return state.otherName || 'Someone else';
+      return state.appointmentFor;
+    }
+    return 'Myself';
+  });
+  const [otherName, setOtherName] = useState(state.otherName || '');
 
   useEffect(() => {
     if (!state.finalSpecialist) {
@@ -48,6 +56,16 @@ const Screen5Booking = () => {
     setLoading(true);
     setErrorMsg('');
     
+    const finalBookedFor = bookedFor === 'Myself'
+      ? (user ? user.name : state.name)
+      : (bookedFor === 'Someone else' ? otherName : bookedFor);
+
+    if (user && bookedFor === 'Someone else' && !otherName.trim()) {
+      setErrorMsg("Please enter patient name.");
+      setLoading(false);
+      return;
+    }
+
     try {
       const response = await fetch(`${BACKEND_URL}/bookings`, {
         method: 'POST',
@@ -61,7 +79,7 @@ const Screen5Booking = () => {
           rejectionReason: state.rejectionReason,
           rejectionReasonOther: state.rejectionReasonOther,
           userId: user ? user.id : undefined,
-          bookedFor: bookedFor === 'Myself' ? (user ? user.name : state.name) : bookedFor
+          bookedFor: finalBookedFor
         })
       });
       const data = await response.json();
@@ -212,15 +230,41 @@ const Screen5Booking = () => {
                 </label>
                 <select 
                   className="input-field" 
-                  value={bookedFor} 
-                  onChange={e => setBookedFor(e.target.value)}
+                  value={(bookedFor === 'Myself' || (user.familyProfiles && user.familyProfiles.some(m => m.name === bookedFor))) ? bookedFor : 'Someone else'} 
+                  onChange={e => {
+                    const val = e.target.value;
+                    if (val === 'Someone else') {
+                      setBookedFor(otherName || 'Someone else');
+                    } else {
+                      setBookedFor(val);
+                    }
+                  }}
                   style={{ marginTop: '8px', padding: '10px 12px' }}
                 >
                   <option value="Myself">Myself ({user.name})</option>
                   {user.familyProfiles && user.familyProfiles.map(member => (
                     <option key={member._id} value={member.name}>{member.name} ({member.relationship})</option>
                   ))}
+                  <option value="Someone else">Someone else</option>
                 </select>
+
+                {bookedFor !== 'Myself' && (!user.familyProfiles || !user.familyProfiles.some(m => m.name === bookedFor)) && (
+                  <div style={{ marginTop: '12px' }}>
+                    <label className="form-label" style={{ fontSize: '11px' }}>Patient Name</label>
+                    <input 
+                      type="text" 
+                      className="input-field" 
+                      placeholder="Enter patient's full name"
+                      value={otherName}
+                      onChange={e => {
+                        const val = e.target.value;
+                        setOtherName(val);
+                        setBookedFor(val);
+                      }}
+                      style={{ marginTop: '4px', padding: '10px 12px' }}
+                    />
+                  </div>
+                )}
               </div>
             )}
 

@@ -11,12 +11,30 @@ const BACKEND_URL = window.location.hostname === 'localhost'
 const words = ['health', 'smile', 'fitness', 'muscles', 'wellness'];
 
 const Screen1Input = () => {
-  const { state, updateState } = useContext(AppContext);
+  const { state, updateState, user } = useContext(AppContext);
   const navigate = useNavigate();
   const [name, setName] = useState(state.name || '');
   const [email, setEmail] = useState(state.email || '');
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const [appointmentFor, setAppointmentFor] = useState(state.appointmentFor || 'myself');
+  const [otherName, setOtherName] = useState(state.otherName || '');
+
+  useEffect(() => {
+    if (user) {
+      if (appointmentFor === 'myself') {
+        setName(user.name);
+        setEmail(user.email);
+      } else if (appointmentFor === 'other') {
+        setName(otherName);
+        setEmail(user.email);
+      } else {
+        setName(appointmentFor);
+        setEmail(user.email);
+      }
+    }
+  }, [appointmentFor, otherName, user]);
 
   const [triageStarted, setTriageStarted] = useState(false);
   const [chatHistory, setChatHistory] = useState([]);
@@ -183,6 +201,12 @@ const Screen1Input = () => {
       return;
     }
     setError(false);
+    updateState({
+      name: name.trim(),
+      email: email.trim(),
+      appointmentFor,
+      otherName: appointmentFor === 'other' ? otherName.trim() : ''
+    });
     setTriageStarted(true);
     setChatHistory([
       {
@@ -235,6 +259,8 @@ const Screen1Input = () => {
           updateState({
             name,
             email,
+            appointmentFor,
+            otherName: appointmentFor === 'other' ? otherName.trim() : '',
             problem: updatedHistory.find(m => m.role === 'user')?.content || messageText,
             recommendedSpecialist: data.specialistCategory,
             source: data.source,
@@ -355,29 +381,66 @@ const Screen1Input = () => {
           <div className="split-form">
             {!triageStarted ? (
               <form className="card-light" onSubmit={handleStartTriage}>
-                <div className="mb-lg">
-                  <label className="form-label">Your name</label>
-                  <input 
-                    type="text" 
-                    className="input-field" 
-                    placeholder="Enter your full name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    style={{ borderColor: error && !name.trim() ? 'red' : '' }}
-                  />
-                </div>
+                {user ? (
+                  <>
+                    <div className="mb-lg">
+                      <label className="form-label">Who is this appointment for?</label>
+                      <select 
+                        className="input-field" 
+                        value={appointmentFor} 
+                        onChange={(e) => setAppointmentFor(e.target.value)}
+                      >
+                        <option value="myself">Myself ({user.name})</option>
+                        {user.familyProfiles && user.familyProfiles.map((member) => (
+                          <option key={member._id} value={member.name}>
+                            {member.name} ({member.relationship})
+                          </option>
+                        ))}
+                        <option value="other">Someone else</option>
+                      </select>
+                    </div>
 
-                <div className="mb-lg">
-                  <label className="form-label">Email Address</label>
-                  <input 
-                    type="email" 
-                    className="input-field" 
-                    placeholder="Enter your email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    style={{ borderColor: error && !email.trim() ? 'red' : '' }}
-                  />
-                </div>
+                    {appointmentFor === 'other' && (
+                      <div className="mb-lg">
+                        <label className="form-label">Patient Name</label>
+                        <input 
+                          type="text" 
+                          className="input-field" 
+                          placeholder="Enter patient's full name"
+                          value={otherName}
+                          onChange={(e) => setOtherName(e.target.value)}
+                          style={{ borderColor: error && !otherName.trim() ? 'red' : '' }}
+                        />
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <div className="mb-lg">
+                      <label className="form-label">Your name</label>
+                      <input 
+                        type="text" 
+                        className="input-field" 
+                        placeholder="Enter your full name"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        style={{ borderColor: error && !name.trim() ? 'red' : '' }}
+                      />
+                    </div>
+
+                    <div className="mb-lg">
+                      <label className="form-label">Email Address</label>
+                      <input 
+                        type="email" 
+                        className="input-field" 
+                        placeholder="Enter your email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        style={{ borderColor: error && !email.trim() ? 'red' : '' }}
+                      />
+                    </div>
+                  </>
+                )}
 
                 <button 
                   type="submit" 
