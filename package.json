@@ -23,7 +23,8 @@
     "firebase": "^12.13.0",
     "firebase-admin": "^13.9.0",
     "jsonwebtoken": "^9.0.3",
-    "mongoose": "^9.6.2"
+    "mongoose": "^9.6.2",
+    "multer": "^2.1.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.9"

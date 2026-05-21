@@ -1,6 +1,8 @@
 const env = require('../config/env');
 const { generateRecommendationPrompt } = require('../prompts/promptGenerator');
 const { normalizeSpecialistName } = require('../utils/responseValidator');
+const { execFile } = require('child_process');
+const path = require('path');
 
 const TRANSIENT_STATUS_CODES = new Set([408, 429, 500, 502, 503, 504]);
 
@@ -185,8 +187,23 @@ const getAiRecommendation = async ({ problemDescription }) => {
   return specialist;
 };
 
+const transcribeAudioLocal = (filePath) => {
+  return new Promise((resolve, reject) => {
+    const pythonPath = path.join(__dirname, '../venv/bin/python');
+    const scriptPath = path.join(__dirname, '../transcribe.py');
+
+    execFile(pythonPath, [scriptPath, filePath], (error, stdout, stderr) => {
+      if (error) {
+        return reject(new Error(stderr || error.message));
+      }
+      resolve(stdout.trim());
+    });
+  });
+};
+
 module.exports = {
   getAiRecommendation,
   fetchWithRetry,
   fetchWithTimeout,
+  transcribeAudioLocal,
 };

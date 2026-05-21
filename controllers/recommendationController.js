@@ -1,6 +1,9 @@
 const { getRecommendation } = require('../services/recommendationService');
 const { getTriageResponse } = require('../services/triageService');
+const { transcribeAudioLocal } = require('../services/aiService');
 const CustomError = require('../utils/customError');
+const fs = require('fs');
+const path = require('path');
 
 const recommendSpecialist = async (req, res) => {
   const { name, problemDescription, problem } = req.body;
@@ -79,7 +82,34 @@ const triageConversation = async (req, res) => {
   });
 };
 
+const transcribeAudio = async (req, res) => {
+  if (!req.file) {
+    throw new CustomError('No audio file provided', 400);
+  }
+
+  const tempDir = path.join(__dirname, '../temp_uploads');
+  if (!fs.existsSync(tempDir)) {
+    fs.mkdirSync(tempDir, { recursive: true });
+  }
+
+  const tempFilePath = path.join(tempDir, `${Date.now()}-${req.file.originalname || 'audio.webm'}`);
+  await fs.promises.writeFile(tempFilePath, req.file.buffer);
+
+  try {
+    const text = await transcribeAudioLocal(tempFilePath);
+    res.status(200).json({
+      success: true,
+      text
+    });
+  } finally {
+    if (fs.existsSync(tempFilePath)) {
+      await fs.promises.unlink(tempFilePath).catch(err => console.error('Failed to delete temp file:', err));
+    }
+  }
+};
+
 module.exports = {
   recommendSpecialist,
   triageConversation,
+  transcribeAudio,
 };
