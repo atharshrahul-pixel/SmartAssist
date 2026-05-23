@@ -14,6 +14,9 @@ const bookingSchema = new mongoose.Schema({
   rejectionReasonOther: { type: String },
   userId: { type: String },
   bookedFor: { type: String },
+  appointmentMode: { type: String, default: 'In-Person' },
+  price: { type: Number },
+  duration: { type: String }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Booking', bookingSchema);

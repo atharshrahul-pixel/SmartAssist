@@ -9,7 +9,7 @@ const generateReceiptId = () => {
   return `SA-${timestamp}-${random}`.toUpperCase();
 };
 
-const createBooking = async ({ userName, userEmail, specialistId, bookingDate, bookingTime, rejectionReason, rejectionReasonOther, userId, bookedFor }) => {
+const createBooking = async ({ userName, userEmail, specialistId, bookingDate, bookingTime, rejectionReason, rejectionReasonOther, userId, bookedFor, appointmentMode, price, duration }) => {
   const specialist = await getSpecialistById(specialistId);
 
   if (!specialist) {
@@ -22,7 +22,7 @@ const createBooking = async ({ userName, userEmail, specialistId, bookingDate, b
     userEmail: userEmail.trim(),
     specialistId: specialist.id,
     specialistName: specialist.name,
-    specialistCategory: specialist.category,
+    specialistCategory: specialist.category || specialist.specialization,
     bookingDate,
     bookingTime,
     status: 'confirmed',
@@ -30,7 +30,10 @@ const createBooking = async ({ userName, userEmail, specialistId, bookingDate, b
     rejectionReason,
     rejectionReasonOther,
     userId,
-    bookedFor: bookedFor ? bookedFor.trim() : userName.trim()
+    bookedFor: bookedFor ? bookedFor.trim() : userName.trim(),
+    appointmentMode: appointmentMode || 'In-Person',
+    price,
+    duration
   };
 
   const booking = await Booking.create(bookingData);
