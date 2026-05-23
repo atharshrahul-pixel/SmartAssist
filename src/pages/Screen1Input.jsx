@@ -263,6 +263,7 @@ const Screen1Input = () => {
             otherName: appointmentFor === 'other' ? otherName.trim() : '',
             problem: updatedHistory.find(m => m.role === 'user')?.content || messageText,
             recommendedSpecialist: data.specialistCategory,
+            idealCategory: data.idealCategory || data.specialistCategory,
             source: data.source,
             recommendationExplanation: data.text
           });

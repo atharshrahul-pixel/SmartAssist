@@ -176,6 +176,22 @@ const Screen2Recommendation = () => {
               <h2 style={{ fontSize: '32px', fontWeight: '800', color: 'var(--color-white)', marginBottom: '12px' }}>
                 {state.recommendedSpecialist}
               </h2>
+
+              {state.idealCategory && state.idealCategory.toLowerCase() !== state.recommendedSpecialist.toLowerCase() && (
+                <div style={{
+                  background: 'rgba(237, 184, 32, 0.1)',
+                  border: '1.5px solid var(--color-orange)',
+                  borderRadius: '12px',
+                  padding: '14px 16px',
+                  marginBottom: '24px',
+                  textAlign: 'left',
+                  fontSize: '13px',
+                  lineHeight: '1.5',
+                  color: 'rgba(255, 255, 255, 0.9)',
+                }}>
+                  We don't have a <strong>{state.idealCategory}</strong> right now, but we suggest you visit a <strong>{state.recommendedSpecialist}</strong> first.
+                </div>
+              )}
               
               <p style={{ fontSize: '15px', color: 'var(--color-muted)', marginBottom: '40px', lineHeight: 1.6 }}>
                 {state.recommendationExplanation}
