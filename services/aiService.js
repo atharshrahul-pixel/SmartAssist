@@ -1,7 +1,7 @@
 const env = require('../config/env');
 const { generateRecommendationPrompt } = require('../prompts/promptGenerator');
 const { normalizeSpecialistName } = require('../utils/responseValidator');
-const { execFile } = require('child_process');
+const { execFile, spawn } = require('child_process');
 const path = require('path');
 
 const TRANSIENT_STATUS_CODES = new Set([408, 429, 500, 502, 503, 504]);
@@ -187,17 +187,113 @@ const getAiRecommendation = async ({ problemDescription }) => {
   return specialist;
 };
 
+let daemonProcess = null;
+let daemonReady = false;
+const queue = [];
+let processing = false;
+
+const startDaemon = () => {
+  if (daemonProcess) return;
+
+  const pythonPath = path.join(__dirname, '../venv/bin/python');
+  const scriptPath = path.join(__dirname, '../transcribe_daemon.py');
+
+  console.log('Starting Whisper daemon...');
+  daemonProcess = spawn(pythonPath, [scriptPath]);
+
+  let buffer = '';
+
+  daemonProcess.stdout.on('data', (data) => {
+    buffer += data.toString();
+    const lines = buffer.split('\n');
+    buffer = lines.pop();
+
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed) continue;
+
+      if (trimmed === 'READY') {
+        console.log('Whisper daemon is READY.');
+        daemonReady = true;
+        processQueue();
+      } else if (trimmed.startsWith('INIT_ERROR:')) {
+        console.error('Whisper daemon initialization error:', trimmed);
+        cleanupDaemon();
+      } else {
+        if (queue.length > 0) {
+          const { resolve, reject } = queue.shift();
+          try {
+            const result = JSON.parse(trimmed);
+            if (result.success) {
+              resolve(result.text);
+            } else {
+              reject(new Error(result.error));
+            }
+          } catch (err) {
+            reject(new Error(`Failed to parse daemon response: ${trimmed}`));
+          }
+          processing = false;
+          processQueue();
+        }
+      }
+    }
+  });
+
+  daemonProcess.stderr.on('data', (data) => {
+    const msg = data.toString().trim();
+    if (msg.toLowerCase().includes('error')) {
+      console.error(`Whisper daemon stderr: ${msg}`);
+    }
+  });
+
+  daemonProcess.on('error', (err) => {
+    console.error('Failed to start Whisper daemon:', err);
+    cleanupDaemon();
+  });
+
+  daemonProcess.on('exit', (code) => {
+    console.warn(`Whisper daemon exited with code ${code}`);
+    cleanupDaemon();
+    setTimeout(startDaemon, 5000);
+  });
+};
+
+const cleanupDaemon = () => {
+  daemonReady = false;
+  daemonProcess = null;
+  processing = false;
+  while (queue.length > 0) {
+    const { reject } = queue.shift();
+    reject(new Error('Whisper daemon died unexpectedly'));
+  }
+};
+
+const processQueue = () => {
+  if (processing || !daemonReady || queue.length === 0) return;
+
+  processing = true;
+  const { filePath } = queue[0];
+  daemonProcess.stdin.write(filePath + '\n');
+};
+
+startDaemon();
+
+process.on('exit', () => {
+  if (daemonProcess) daemonProcess.kill();
+});
+process.on('SIGINT', () => {
+  if (daemonProcess) daemonProcess.kill();
+  process.exit();
+});
+process.on('SIGTERM', () => {
+  if (daemonProcess) daemonProcess.kill();
+  process.exit();
+});
+
 const transcribeAudioLocal = (filePath) => {
   return new Promise((resolve, reject) => {
-    const pythonPath = path.join(__dirname, '../venv/bin/python');
-    const scriptPath = path.join(__dirname, '../transcribe.py');
-
-    execFile(pythonPath, [scriptPath, filePath], (error, stdout, stderr) => {
-      if (error) {
-        return reject(new Error(stderr || error.message));
-      }
-      resolve(stdout.trim());
-    });
+    queue.push({ filePath, resolve, reject });
+    processQueue();
   });
 };
 
