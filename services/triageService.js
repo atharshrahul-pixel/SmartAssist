@@ -54,6 +54,23 @@ const parseJsonResponse = (text) => {
   return parsed;
 };
 
+const detectIdealCategory = (messages, assignedCategory) => {
+  const text = messages.map(m => m.content).join(' ').toLowerCase();
+  if (text.includes('broken') || text.includes('fracture') || text.includes('bone') || text.includes('ortho')) {
+    return 'Orthopedist';
+  }
+  if (text.includes('heart') || text.includes('chest pain') || text.includes('cardiac') || text.includes('cardio')) {
+    return 'Cardiologist';
+  }
+  if (text.includes('skin') || text.includes('dermatology') || text.includes('rash') || text.includes('eczema')) {
+    return 'Dermatologist';
+  }
+  if (text.includes('diet') || text.includes('nutrition') || text.includes('weight loss')) {
+    return 'Dietitian';
+  }
+  return assignedCategory;
+};
+
 const getFallbackResponse = (category, userMsgs) => {
   const count = userMsgs.length;
   if (count === 1) {
@@ -67,21 +84,27 @@ const getFallbackResponse = (category, userMsgs) => {
       text: FALLBACK_QUESTIONS[category]?.[1] || 'Are you experiencing any other related symptoms?'
     };
   } else {
+    const idealCategory = detectIdealCategory(userMsgs, category);
     let text = `Based on your answers, we recommend a ${category} for your symptoms.`;
-    if (category === 'Physiotherapist') {
-      text = 'Based on your answers, we recommend a Physiotherapist to assess and guide you.';
-    } else if (category === 'Dentist') {
-      text = 'Based on your answers, we recommend a Dentist for your dental symptoms.';
-    } else if (category === 'Gym Trainer') {
-      text = 'Based on your answers, we recommend a Gym Trainer to design your fitness plan.';
-    } else if (category === 'Salon Specialist') {
-      text = 'Based on your answers, we recommend a Salon Specialist to assist you.';
+    
+    if (idealCategory !== category) {
+      text = `We don't have a ${idealCategory} right now, but we suggest you visit a ${category} first.`;
+    } else {
+      if (category === 'Physiotherapist') {
+        text = 'Based on your answers, we recommend a Physiotherapist to assess and guide you.';
+      } else if (category === 'Dentist') {
+        text = 'Based on your answers, we recommend a Dentist for your dental symptoms.';
+      } else if (category === 'Gym Trainer') {
+        text = 'Based on your answers, we recommend a Gym Trainer to design your fitness plan.';
+      } else if (category === 'Salon Specialist') {
+        text = 'Based on your answers, we recommend a Salon Specialist to assist you.';
+      }
     }
     
     return {
       type: 'recommendation',
       specialistCategory: category,
-      idealCategory: category,
+      idealCategory: idealCategory,
       text
     };
   }
