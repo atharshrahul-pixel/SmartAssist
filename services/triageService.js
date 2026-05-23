@@ -1,6 +1,7 @@
 const env = require('../config/env');
 const { fetchWithRetry } = require('./aiService');
 const { getKeywordRecommendation } = require('../utils/fallbackKeywordEngine');
+const { KEYWORD_MAPPINGS } = require('../constants/specialists');
 
 const FALLBACK_QUESTIONS = {
   Dentist: [
@@ -47,6 +48,9 @@ const parseJsonResponse = (text) => {
     if (typeof parsed.text !== 'string' || !parsed.text.trim()) {
       throw new Error('Invalid recommendation text');
     }
+    if (typeof parsed.confidence !== 'number' || parsed.confidence < 0 || parsed.confidence > 100) {
+      parsed.confidence = 85;
+    }
   } else {
     throw new Error(`Unknown response type: ${parsed.type}`);
   }
@@ -85,6 +89,15 @@ const getFallbackResponse = (category, userMsgs) => {
     };
   } else {
     const idealCategory = detectIdealCategory(userMsgs, category);
+    
+    const detectedCount = userMsgs.reduce((acc, msg) => {
+      const lowerMsg = msg.content.toLowerCase();
+      const keywords = KEYWORD_MAPPINGS[category] || [];
+      const matches = keywords.filter(kw => lowerMsg.includes(kw.toLowerCase())).length;
+      return acc + matches;
+    }, 0);
+    const confidence = Math.min(60 + (detectedCount * 10), 98);
+
     let text = `Based on your answers, we recommend a ${category} for your symptoms.`;
     
     if (idealCategory !== category) {
@@ -105,6 +118,7 @@ const getFallbackResponse = (category, userMsgs) => {
       type: 'recommendation',
       specialistCategory: category,
       idealCategory: idealCategory,
+      confidence,
       text
     };
   }
@@ -246,6 +260,7 @@ Choose one of the two formats:
   "type": "recommendation",
   "specialistCategory": "One of: Dentist, Physiotherapist, Gym Trainer, Salon Specialist",
   "idealCategory": "The ideal specialist they need (e.g. Orthopedist, Cardiologist, Dentist, etc.)",
+  "confidence": 85, // integer percentage score representing match confidence from 50 to 99
   "text": "Explanation of the recommendation, including the alternative specialist mapping disclaimer if applicable."
 }`;
 
