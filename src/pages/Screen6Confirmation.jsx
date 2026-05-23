@@ -142,6 +142,20 @@ const Screen6Confirmation = () => {
                   <div className="ticket-label"><Clock size={14} style={{ marginRight: '8px', verticalAlign: 'middle' }} />Time</div>
                   <div className="ticket-value">{state.bookedTime}</div>
                 </div>
+
+                {state.bookedMode && (
+                  <div className="ticket-row">
+                    <div className="ticket-label"><ShieldCheck size={14} style={{ marginRight: '8px', verticalAlign: 'middle' }} />Mode</div>
+                    <div className="ticket-value">{state.bookedMode} ({state.bookedDuration})</div>
+                  </div>
+                )}
+
+                {state.bookedPrice !== undefined && (
+                  <div className="ticket-row">
+                    <div className="ticket-label"><span style={{ fontWeight: '800', marginRight: '8px', verticalAlign: 'middle' }}>$</span>Fee</div>
+                    <div className="ticket-value" style={{ fontWeight: '700', color: 'var(--color-orange)' }}>${state.bookedPrice}</div>
+                  </div>
+                )}
               </div>
 
               <div className="ticket-divider"></div>

@@ -2,7 +2,7 @@ import { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppContext } from '../App';
 import Stepper from '../components/Stepper';
-import { ChevronLeft, ChevronRight, Calendar as CalIcon, Clock, User, AlertCircle, Bell } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar as CalIcon, Clock, User, AlertCircle, Bell, MapPin, Video, MessageSquare } from 'lucide-react';
 
 const BACKEND_URL = window.location.hostname === 'localhost'
   ? 'http://localhost:5000/api'
@@ -27,6 +27,15 @@ const Screen5Booking = () => {
     return 'Myself';
   });
   const [otherName, setOtherName] = useState(state.otherName || '');
+  const [selectedMode, setSelectedMode] = useState('inPerson');
+
+  const getAvailableSlots = () => {
+    const modes = state.finalSpecialist?.appointmentModes;
+    if (modes && modes[selectedMode] && Array.isArray(modes[selectedMode].slots)) {
+      return modes[selectedMode].slots;
+    }
+    return state.finalSpecialist?.availableSlots || [];
+  };
 
   useEffect(() => {
     if (!state.finalSpecialist) {
@@ -67,6 +76,11 @@ const Screen5Booking = () => {
     }
 
     try {
+      const modeData = state.finalSpecialist.appointmentModes?.[selectedMode] || {
+        price: selectedMode === 'inPerson' ? 100 : (selectedMode === 'video' ? 60 : 30),
+        duration: selectedMode === 'inPerson' ? '30 mins' : (selectedMode === 'video' ? '20 mins' : '15 mins')
+      };
+
       const response = await fetch(`${BACKEND_URL}/bookings`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -79,7 +93,10 @@ const Screen5Booking = () => {
           rejectionReason: state.rejectionReason,
           rejectionReasonOther: state.rejectionReasonOther,
           userId: user ? user.id : undefined,
-          bookedFor: finalBookedFor
+          bookedFor: finalBookedFor,
+          appointmentMode: selectedMode === 'inPerson' ? 'In-Person' : (selectedMode === 'video' ? 'Video Call' : 'Chat Consultation'),
+          price: modeData.price,
+          duration: modeData.duration
         })
       });
       const data = await response.json();
@@ -88,7 +105,10 @@ const Screen5Booking = () => {
         updateState({ 
           bookedDate: selectedDate, 
           bookedTime: selectedTime,
-          bookingId: data.booking.receiptId
+          bookingId: data.booking.receiptId,
+          bookedMode: selectedMode === 'inPerson' ? 'In-Person' : (selectedMode === 'video' ? 'Video Call' : 'Chat Consultation'),
+          bookedPrice: modeData.price,
+          bookedDuration: modeData.duration
         });
         navigate('/confirmation');
       } else {
@@ -223,6 +243,57 @@ const Screen5Booking = () => {
               </div>
             </div>
 
+            <div className="card-light" style={{ padding: '20px', marginBottom: '24px' }}>
+              <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', marginBottom: '12px' }}>
+                <Clock size={14} /> Appointment Mode
+              </label>
+              
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
+                {[
+                  { key: 'inPerson', label: 'In-Person', icon: <MapPin size={14} />, defaultPrice: 100, defaultDuration: '30 mins' },
+                  { key: 'video', label: 'Video Call', icon: <Video size={14} />, defaultPrice: 60, defaultDuration: '20 mins' },
+                  { key: 'chat', label: 'Chat Consult', icon: <MessageSquare size={14} />, defaultPrice: 30, defaultDuration: '15 mins' }
+                ].map(m => {
+                  const modeConfig = state.finalSpecialist.appointmentModes?.[m.key] || {
+                    enabled: true,
+                    price: m.defaultPrice,
+                    duration: m.defaultDuration
+                  };
+                  
+                  if (!modeConfig.enabled) return null;
+
+                  const isSel = selectedMode === m.key;
+                  
+                  return (
+                    <button
+                      key={m.key}
+                      type="button"
+                      onClick={() => { setSelectedMode(m.key); setSelectedTime(''); setErrorMsg(''); }}
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        padding: '10px 4px',
+                        borderRadius: '8px',
+                        background: isSel ? 'var(--color-orange)' : 'rgba(0,0,0,0.03)',
+                        border: isSel ? '1px solid var(--color-orange)' : '1px solid rgba(0,0,0,0.08)',
+                        color: isSel ? 'white' : 'var(--color-dark)',
+                        cursor: 'pointer',
+                        transition: 'all 0.15s ease',
+                        gap: '2px',
+                        outline: 'none'
+                      }}
+                    >
+                      <div style={{ opacity: isSel ? 1 : 0.6 }}>{m.icon}</div>
+                      <span style={{ fontSize: '11px', fontWeight: '800' }}>{m.label}</span>
+                      <span style={{ fontSize: '9px', opacity: 0.6 }}>{modeConfig.duration}</span>
+                      <span style={{ fontSize: '10px', fontWeight: '700', marginTop: '2px' }}>${modeConfig.price}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
             {user && (
               <div className="card-light" style={{ padding: '20px', marginBottom: '24px' }}>
                 <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px' }}>
@@ -276,7 +347,7 @@ const Screen5Booking = () => {
                 </div>
                 
                 <div className="time-grid mb-xl">
-                  {state.finalSpecialist.availableSlots.map(slot => {
+                  {getAvailableSlots().map(slot => {
                     const isOccupied = occupiedSlots.includes(slot);
                     const isSelected = selectedTime === slot;
 
