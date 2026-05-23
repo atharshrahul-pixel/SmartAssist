@@ -2,7 +2,7 @@ import { useEffect, useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppContext } from '../App';
 import Stepper from '../components/Stepper';
-import { Activity, Scissors, Dumbbell, Stethoscope, Search, BarChart3, Info } from 'lucide-react';
+import { Activity, Scissors, Dumbbell, Stethoscope, Search, BarChart3, Info, AlertTriangle, Clock, CheckCircle } from 'lucide-react';
 
 const icons = {
   'Dentist': <Stethoscope size={40} color="var(--color-orange)" />,
@@ -176,9 +176,60 @@ const Screen2Recommendation = () => {
                 {icons[state.recommendedSpecialist]}
               </div>
               
-              <span className="pill-tag mb-md" style={{ background: 'rgba(255,255,255,0.1)', color: 'var(--color-white)' }}>
-                RECOMMENDED
-              </span>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '16px' }}>
+                <span className="pill-tag" style={{ background: 'rgba(255,255,255,0.1)', color: 'var(--color-white)', margin: 0 }}>
+                  RECOMMENDED
+                </span>
+                {state.urgency && (() => {
+                  const u = state.urgency;
+                  const config = {
+                    Urgent: {
+                      text: 'Urgent — consider ER',
+                      bgColor: 'rgba(239, 68, 68, 0.15)',
+                      borderColor: '#ef4444',
+                      textColor: '#f87171',
+                      icon: <AlertTriangle size={12} color="#f87171" style={{ marginRight: '4px' }} />
+                    },
+                    Soon: {
+                      text: 'Soon — within days',
+                      bgColor: 'rgba(245, 158, 11, 0.15)',
+                      borderColor: '#f59e0b',
+                      textColor: '#fbbf24',
+                      icon: <Clock size={12} color="#fbbf24" style={{ marginRight: '4px' }} />
+                    },
+                    Routine: {
+                      text: 'Routine — book anytime',
+                      bgColor: 'rgba(16, 185, 129, 0.15)',
+                      borderColor: '#10b981',
+                      textColor: '#34d399',
+                      icon: <CheckCircle size={12} color="#34d399" style={{ marginRight: '4px' }} />
+                    }
+                  }[u] || {
+                    text: 'Routine — book anytime',
+                    bgColor: 'rgba(16, 185, 129, 0.15)',
+                    borderColor: '#10b981',
+                    textColor: '#34d399',
+                    icon: <CheckCircle size={12} color="#34d399" style={{ marginRight: '4px' }} />
+                  };
+
+                  return (
+                    <span 
+                      className="pill-tag" 
+                      style={{
+                        background: config.bgColor,
+                        border: `1px solid ${config.borderColor}`,
+                        color: config.textColor,
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        margin: 0
+                      }}
+                    >
+                      {config.icon}
+                      {config.text.toUpperCase()}
+                    </span>
+                  );
+                })()}
+              </div>
               
               <h2 style={{ fontSize: '32px', fontWeight: '800', color: 'var(--color-white)', marginBottom: '12px' }}>
                 {state.recommendedSpecialist}
@@ -203,6 +254,29 @@ const Screen2Recommendation = () => {
               <p style={{ fontSize: '15px', color: 'var(--color-muted)', marginBottom: '40px', lineHeight: 1.6 }}>
                 {state.recommendationExplanation}
               </p>
+
+              {state.urgency === 'Urgent' && (
+                <div style={{
+                  background: 'rgba(239, 68, 68, 0.1)',
+                  border: '1.5px solid #ef4444',
+                  borderRadius: '12px',
+                  padding: '16px',
+                  marginBottom: '24px',
+                  textAlign: 'left',
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '12px',
+                  animation: 'fadeInSlideUp 0.3s ease'
+                }}>
+                  <AlertTriangle size={20} color="#f87171" style={{ marginTop: '2px', flexShrink: 0 }} />
+                  <div>
+                    <h4 style={{ margin: '0 0 4px 0', fontSize: '14px', fontWeight: '700', color: '#f87171' }}>Emergency Warning</h4>
+                    <p style={{ margin: 0, fontSize: '13px', lineHeight: '1.5', color: '#fca5a5' }}>
+                      Potential emergency detected. If you are experiencing chest pain, breathing difficulty, or severe symptoms, please visit the nearest Emergency Room (ER) immediately.
+                    </p>
+                  </div>
+                </div>
+              )}
  
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <button className="btn-primary w-full" onClick={handleAccept} style={{ padding: '16px' }}>

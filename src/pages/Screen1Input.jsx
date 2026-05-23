@@ -264,6 +264,8 @@ const Screen1Input = () => {
             problem: updatedHistory.find(m => m.role === 'user')?.content || messageText,
             recommendedSpecialist: data.specialistCategory,
             idealCategory: data.idealCategory || data.specialistCategory,
+            confidence: data.confidence || 85,
+            urgency: data.urgency || 'Soon',
             source: data.source,
             recommendationExplanation: data.text
           });
