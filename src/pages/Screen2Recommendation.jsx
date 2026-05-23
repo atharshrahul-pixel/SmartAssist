@@ -25,14 +25,25 @@ const Screen2Recommendation = () => {
 
   const hasExpired = !state.name || !state.problem || !state.recommendationExplanation;
 
+  const detectedKeywords = hasExpired
+    ? []
+    : (specialistKeywords[state.recommendedSpecialist] || []).filter(word => 
+        state.problem.toLowerCase().includes(word)
+      );
+
+  const calculateConfidence = () => {
+    if (hasExpired) return 0;
+    return state.confidence || 85;
+  };
+
   useEffect(() => {
     if (!hasExpired) {
       const timer = setTimeout(() => {
-        setBarWidth(85);
+        setBarWidth(calculateConfidence());
       }, 300);
       return () => clearTimeout(timer);
     }
-  }, [hasExpired]);
+  }, [hasExpired, state.confidence]);
 
   const handleAccept = () => {
     updateState({ accepted: true, finalSpecialist: null });
@@ -85,10 +96,6 @@ const Screen2Recommendation = () => {
       </div>
     );
   }
-
-  const detectedKeywords = specialistKeywords[state.recommendedSpecialist].filter(word => 
-    state.problem.toLowerCase().includes(word)
-  );
 
   return (
     <div className="page-transition" style={{ minHeight: '100%', display: 'flex', flexDirection: 'column' }}>
