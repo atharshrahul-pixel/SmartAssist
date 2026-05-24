@@ -152,8 +152,8 @@ const Screen6Confirmation = () => {
 
                 {state.bookedPrice !== undefined && (
                   <div className="ticket-row">
-                    <div className="ticket-label"><span style={{ fontWeight: '800', marginRight: '8px', verticalAlign: 'middle' }}>$</span>Fee</div>
-                    <div className="ticket-value" style={{ fontWeight: '700', color: 'var(--color-orange)' }}>${state.bookedPrice}</div>
+                    <div className="ticket-label"><span style={{ fontWeight: '800', marginRight: '8px', verticalAlign: 'middle' }}>₹</span>Fee</div>
+                    <div className="ticket-value" style={{ fontWeight: '700', color: 'var(--color-orange)' }}>₹{state.bookedPrice}</div>
                   </div>
                 )}
               </div>

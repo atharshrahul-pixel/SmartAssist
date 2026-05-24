@@ -287,7 +287,7 @@ const Screen5Booking = () => {
                       <div style={{ opacity: isSel ? 1 : 0.6 }}>{m.icon}</div>
                       <span style={{ fontSize: '11px', fontWeight: '800' }}>{m.label}</span>
                       <span style={{ fontSize: '9px', opacity: 0.6 }}>{modeConfig.duration}</span>
-                      <span style={{ fontSize: '10px', fontWeight: '700', marginTop: '2px' }}>${modeConfig.price}</span>
+                      <span style={{ fontSize: '10px', fontWeight: '700', marginTop: '2px' }}>₹{modeConfig.price}</span>
                     </button>
                   );
                 })}
