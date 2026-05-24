@@ -10,6 +10,40 @@ const BACKEND_URL = window.location.hostname === 'localhost'
   ? 'http://localhost:5000/api'
   : 'https://akeno7594-internship-project-backend.hf.space/api';
 
+const WaitlistHoldTimer = ({ notifiedAt, onExpire }) => {
+  const [timeLeft, setTimeLeft] = useState('');
+
+  useEffect(() => {
+    const calculateTimeLeft = () => {
+      const notifiedTime = new Date(notifiedAt).getTime();
+      const diffSinceNotification = Date.now() - notifiedTime;
+      const isDevHold = diffSinceNotification < 60 * 1000 && (notifiedTime + 60 * 1000 - Date.now() > 0);
+      const holdDuration = isDevHold ? 60 * 1000 : 10 * 60 * 1000;
+      const difference = notifiedTime + holdDuration - Date.now();
+
+      if (difference <= 0) {
+        setTimeLeft('Expired');
+        if (onExpire) onExpire();
+        return;
+      }
+
+      const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+      setTimeLeft(`${minutes}m ${seconds}s left`);
+    };
+
+    calculateTimeLeft();
+    const interval = setInterval(calculateTimeLeft, 1000);
+    return () => clearInterval(interval);
+  }, [notifiedAt, onExpire]);
+
+  return (
+    <span style={{ fontSize: '12px', color: 'var(--color-orange)', fontWeight: 'bold' }}>
+      ({timeLeft})
+    </span>
+  );
+};
+
 const Dashboard = () => {
   const { user, token, logoutUser, refreshUser } = useContext(AppContext);
   const navigate = useNavigate();
@@ -404,9 +438,15 @@ const Dashboard = () => {
                             {entry.status}
                           </span>
                         </div>
-                        <div style={{ display: 'flex', gap: '20px', fontSize: '14px', opacity: 0.8 }}>
+                        <div style={{ display: 'flex', gap: '20px', fontSize: '14px', opacity: 0.8, alignItems: 'center' }}>
                           <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Calendar size={14} /> {entry.bookingDate}</span>
                           <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Clock size={14} /> {entry.bookingTime}</span>
+                          {entry.status === 'notified' && (
+                            <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--color-orange)' }}>
+                              <Clock size={12} />
+                              <WaitlistHoldTimer notifiedAt={entry.notifiedAt} onExpire={fetchProfile} />
+                            </span>
+                          )}
                         </div>
                       </div>
 
