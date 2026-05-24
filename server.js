@@ -77,6 +77,11 @@ app.listen(env.port, () => {
   console.log(
     `SmartAssist backend running on http://localhost:${env.port}`
   );
+  
+  // Start background task checking for expired waitlist holds
+  const { checkExpiredWaitlistHolds } = require('./services/waitlistService');
+  // Check every 30 seconds
+  setInterval(checkExpiredWaitlistHolds, 30000);
 });
 
 module.exports = app;

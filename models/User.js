@@ -10,7 +10,7 @@ const waitlistAppointmentSchema = new mongoose.Schema({
   specialistName: { type: String, required: true },
   bookingDate: { type: String, required: true },
   bookingTime: { type: String, required: true },
-  status: { type: String, enum: ['pending', 'notified', 'claimed'], default: 'pending' },
+  status: { type: String, enum: ['pending', 'notified', 'claimed', 'expired'], default: 'pending' },
   notifiedAt: { type: Date }
 }, { timestamps: true });
 
