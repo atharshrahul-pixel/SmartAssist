@@ -15,6 +15,8 @@ import Admin from './pages/Admin';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import SpecialistRegister from './pages/SpecialistRegister';
+import SpecialistDashboard from './pages/SpecialistDashboard';
 import SupportChatWidget from './components/SupportChatWidget';
 
 export const AppContext = createContext();
@@ -93,6 +95,8 @@ function App() {
             <Route path="/admin" element={<Admin />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/specialist/register" element={<SpecialistRegister />} />
+            <Route path="/specialist/dashboard" element={<SpecialistDashboard />} />
             <Route path="/dashboard" element={<Dashboard />} />
           </Routes>
         </div>

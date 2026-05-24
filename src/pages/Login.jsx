@@ -48,9 +48,16 @@ const Login = () => {
       });
 
       const json = await res.json();
-      if (json.success) {
+      if (res.status === 200 && json.success) {
         loginUser(json.user, json.token);
-        navigate('/dashboard');
+        if (json.user.role === 'specialist') {
+          navigate('/specialist/dashboard');
+        } else {
+          navigate('/dashboard');
+        }
+      } else if (res.status === 403 && json.user && json.user.role === 'specialist') {
+        loginUser(json.user, json.token);
+        navigate('/specialist/dashboard', { state: { infoMessage: translateError(json.message) } });
       } else {
         setError(translateError(json.message || 'Invalid email or password.'));
       }
@@ -137,11 +144,19 @@ const Login = () => {
           </button>
         </form>
 
-        <div style={{ textAlign: 'center', marginTop: '24px', fontSize: '14px', opacity: 0.8 }}>
-          Don't have an account?{' '}
-          <Link to="/register" style={{ color: 'var(--color-orange)', fontWeight: '600' }}>
-            Sign Up
-          </Link>
+        <div style={{ textAlign: 'center', marginTop: '24px', fontSize: '14px', opacity: 0.8, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <div>
+            Don't have an account?{' '}
+            <Link to="/register" style={{ color: 'var(--color-orange)', fontWeight: '600' }}>
+              Sign Up
+            </Link>
+          </div>
+          <div style={{ fontSize: '13px', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '12px', marginTop: '4px' }}>
+            Are you a healthcare professional?{' '}
+            <Link to="/specialist/register" style={{ color: 'var(--color-accent)', fontWeight: '700' }}>
+              Join our network
+            </Link>
+          </div>
         </div>
         </div>
       </div>

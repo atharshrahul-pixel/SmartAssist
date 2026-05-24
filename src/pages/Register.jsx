@@ -161,11 +161,19 @@ const Register = () => {
           </button>
         </form>
 
-        <div style={{ textAlign: 'center', marginTop: '24px', fontSize: '14px', opacity: 0.8 }}>
-          Already have an account?{' '}
-          <Link to="/login" style={{ color: 'var(--color-orange)', fontWeight: '600' }}>
-            Log In
-          </Link>
+        <div style={{ textAlign: 'center', marginTop: '24px', fontSize: '14px', opacity: 0.8, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <div>
+            Already have an account?{' '}
+            <Link to="/login" style={{ color: 'var(--color-orange)', fontWeight: '600' }}>
+              Log In
+            </Link>
+          </div>
+          <div style={{ fontSize: '13px', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '12px', marginTop: '4px' }}>
+            Are you a specialist?{' '}
+            <Link to="/specialist/register" style={{ color: 'var(--color-accent)', fontWeight: '700' }}>
+              Register as a specialist
+            </Link>
+          </div>
         </div>
         </div>
       </div>

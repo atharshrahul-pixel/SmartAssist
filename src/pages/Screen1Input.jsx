@@ -772,6 +772,7 @@ const Screen1Input = () => {
             <Link to="/privacy" className="footer-link">Privacy Policy</Link>
             <Link to="/terms" className="footer-link">Terms of Service</Link>
             <Link to="/support" className="footer-link">Support</Link>
+            <Link to="/specialist/register" className="footer-link" style={{ color: 'var(--color-accent)', fontWeight: '700' }}>Specialist Onboarding</Link>
           </div>
         </div>
         <div className="footer-content footer-copy">

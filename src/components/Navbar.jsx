@@ -41,7 +41,7 @@ const Navbar = () => {
             Check Appointments
           </Link>
           {user ? (
-            <Link to="/dashboard" style={{
+            <Link to={user.role === 'specialist' ? '/specialist/dashboard' : '/dashboard'} style={{
               display: 'flex',
               alignItems: 'center',
               gap: '8px',
@@ -123,7 +123,7 @@ const Navbar = () => {
           </Link>
           {user ? (
             <Link 
-              to="/dashboard" 
+              to={user.role === 'specialist' ? '/specialist/dashboard' : '/dashboard'} 
               style={{
                 display: 'flex',
                 alignItems: 'center',

@@ -43,5 +43,22 @@ export function translateError(error) {
     return 'We could not locate this doctor. Please go back and select another doctor.';
   }
 
+  if (lowercaseMsg.includes('license number already exists') || lowercaseMsg.includes('license number is already registered')) {
+    return 'This medical license number is already registered. Please verify your details or contact support.';
+  }
+
+  if (lowercaseMsg.includes('under review') || lowercaseMsg.includes('status is pending')) {
+    return 'Your application is currently under review by our administrative team. We will notify you once verified.';
+  }
+
+  if (lowercaseMsg.includes('rejected')) {
+    const reasonIndex = msg.toLowerCase().indexOf('rejected:');
+    if (reasonIndex !== -1) {
+      const reason = msg.substring(reasonIndex + 9).trim();
+      return `Your specialist onboarding application was declined. Reason: "${reason}". Please review, correct your information, and resubmit.`;
+    }
+    return 'Your specialist onboarding application was declined. Please review, update your credentials, and resubmit.';
+  }
+
   return msg;
 }
