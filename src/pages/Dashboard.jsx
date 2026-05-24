@@ -44,6 +44,48 @@ const WaitlistHoldTimer = ({ notifiedAt, onExpire }) => {
   );
 };
 
+const HelpTooltip = ({ text }) => {
+  const [show, setShow] = useState(false);
+  return (
+    <span style={{ display: 'inline-block', position: 'relative', marginLeft: '6px' }}>
+      <button
+        type="button"
+        onMouseEnter={() => setShow(true)}
+        onMouseLeave={() => setShow(false)}
+        onClick={() => setShow(!show)}
+        style={{
+          width: '16px', height: '16px', borderRadius: '50%',
+          background: 'rgba(0,0,0,0.06)', display: 'inline-flex',
+          alignItems: 'center', justifyContent: 'center', fontSize: '11px',
+          fontWeight: 'bold', color: 'var(--color-dark)', border: 'none',
+          outline: 'none', cursor: 'pointer', verticalAlign: 'middle'
+        }}
+      >
+        ?
+      </button>
+      {show && (
+        <span style={{
+          position: 'absolute', bottom: '24px', left: '50%',
+          transform: 'translateX(-50%)', width: '220px',
+          background: 'var(--color-dark)', color: 'var(--color-white)',
+          padding: '10px 12px', borderRadius: '8px', fontSize: '11px',
+          lineHeight: '1.4', zIndex: 100, boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+          pointerEvents: 'none', display: 'block', textTransform: 'none',
+          fontWeight: 'normal', letterSpacing: 'normal'
+        }}>
+          {text}
+          <span style={{
+            position: 'absolute', top: '100%', left: '50%',
+            transform: 'translateX(-50%)', width: '0', height: '0',
+            borderLeft: '6px solid transparent', borderRight: '6px solid transparent',
+            borderTop: '6px solid var(--color-dark)', display: 'block'
+          }} />
+        </span>
+      )}
+    </span>
+  );
+};
+
 const Dashboard = () => {
   const { user, token, logoutUser, refreshUser } = useContext(AppContext);
   const navigate = useNavigate();
@@ -358,7 +400,10 @@ const Dashboard = () => {
                     <h3 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '16px' }}>Add Family Member</h3>
                     
                     <div className="mb-md">
-                      <label className="form-label">Full Name</label>
+                      <label className="form-label">
+                        Full Name
+                        <HelpTooltip text="Enter the full name of your family member as it should appear on their appointment ticket." />
+                      </label>
                       <input 
                         type="text" 
                         className="input-field" 
@@ -370,7 +415,10 @@ const Dashboard = () => {
                     </div>
 
                     <div className="mb-lg">
-                      <label className="form-label">Relationship</label>
+                      <label className="form-label">
+                        Relationship
+                        <HelpTooltip text="Select how this person is related to you." />
+                      </label>
                       <select 
                         className="input-field"
                         value={familyFields.relationship}
@@ -385,7 +433,10 @@ const Dashboard = () => {
 
                     {familyFields.relationship === 'Other' && (
                       <div className="mb-lg" style={{ animation: 'fadeInSlideUp 0.25s ease' }}>
-                        <label className="form-label">Specify Relationship</label>
+                        <label className="form-label">
+                          Specify Relationship
+                          <HelpTooltip text="Tell us how you are related to this person (e.g. Sibling, Cousin, Friend)." />
+                        </label>
                         <input
                           type="text"
                           className="input-field"

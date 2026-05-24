@@ -10,6 +10,48 @@ const BACKEND_URL = window.location.hostname === 'localhost'
 
 const words = ['health', 'smile', 'fitness', 'muscles', 'wellness'];
 
+const HelpTooltip = ({ text }) => {
+  const [show, setShow] = useState(false);
+  return (
+    <span style={{ display: 'inline-block', position: 'relative', marginLeft: '6px' }}>
+      <button
+        type="button"
+        onMouseEnter={() => setShow(true)}
+        onMouseLeave={() => setShow(false)}
+        onClick={() => setShow(!show)}
+        style={{
+          width: '16px', height: '16px', borderRadius: '50%',
+          background: 'rgba(0,0,0,0.06)', display: 'inline-flex',
+          alignItems: 'center', justifyContent: 'center', fontSize: '11px',
+          fontWeight: 'bold', color: 'var(--color-dark)', border: 'none',
+          outline: 'none', cursor: 'pointer', verticalAlign: 'middle'
+        }}
+      >
+        ?
+      </button>
+      {show && (
+        <span style={{
+          position: 'absolute', bottom: '24px', left: '50%',
+          transform: 'translateX(-50%)', width: '220px',
+          background: 'var(--color-dark)', color: 'var(--color-white)',
+          padding: '10px 12px', borderRadius: '8px', fontSize: '11px',
+          lineHeight: '1.4', zIndex: 100, boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+          pointerEvents: 'none', display: 'block', textTransform: 'none',
+          fontWeight: 'normal', letterSpacing: 'normal'
+        }}>
+          {text}
+          <span style={{
+            position: 'absolute', top: '100%', left: '50%',
+            transform: 'translateX(-50%)', width: '0', height: '0',
+            borderLeft: '6px solid transparent', borderRight: '6px solid transparent',
+            borderTop: '6px solid var(--color-dark)', display: 'block'
+          }} />
+        </span>
+      )}
+    </span>
+  );
+};
+
 const Screen1Input = () => {
   const { state, updateState, user } = useContext(AppContext);
   const navigate = useNavigate();
@@ -384,14 +426,41 @@ const Screen1Input = () => {
           <div className="split-form">
             {!triageStarted ? (
               <form className="card-light" onSubmit={handleStartTriage}>
+                {error && (
+                  <div style={{
+                    padding: '12px',
+                    background: 'rgba(224, 88, 48, 0.1)',
+                    color: 'var(--color-orange)',
+                    borderRadius: '8px',
+                    fontSize: '13px',
+                    marginBottom: '16px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}>
+                    <AlertCircle size={16} />
+                    <span>
+                      {appointmentFor === 'other' && !otherName.trim()
+                        ? "Please enter the patient's full name to continue."
+                        : "Please fill in all details above to start your AI triage."}
+                    </span>
+                  </div>
+                )}
+
                 {user ? (
                   <>
                     <div className="mb-lg">
-                      <label className="form-label">Who is this appointment for?</label>
+                      <label className="form-label">
+                        Who is this appointment for?
+                        <HelpTooltip text="Tell us if this is for you or someone else so we put the correct name on the appointment ticket." />
+                      </label>
                       <select 
                         className="input-field" 
                         value={appointmentFor} 
-                        onChange={(e) => setAppointmentFor(e.target.value)}
+                        onChange={(e) => {
+                          setAppointmentFor(e.target.value);
+                          setError(false);
+                        }}
                       >
                         <option value="myself">Myself ({user.name})</option>
                         {user.familyProfiles && user.familyProfiles.map((member) => (
@@ -405,13 +474,19 @@ const Screen1Input = () => {
 
                     {appointmentFor === 'other' && (
                       <div className="mb-lg">
-                        <label className="form-label">Patient Name</label>
+                        <label className="form-label">
+                          Patient Name
+                          <HelpTooltip text="Enter the full legal name of the person who will see the doctor." />
+                        </label>
                         <input 
                           type="text" 
                           className="input-field" 
                           placeholder="Enter patient's full name"
                           value={otherName}
-                          onChange={(e) => setOtherName(e.target.value)}
+                          onChange={(e) => {
+                            setOtherName(e.target.value);
+                            setError(false);
+                          }}
                           style={{ borderColor: error && !otherName.trim() ? 'red' : '' }}
                         />
                       </div>
@@ -420,25 +495,37 @@ const Screen1Input = () => {
                 ) : (
                   <>
                     <div className="mb-lg">
-                      <label className="form-label">Your name</label>
+                      <label className="form-label">
+                        Your name
+                        <HelpTooltip text="Please enter your full name so doctors and staff know who is attending." />
+                      </label>
                       <input 
                         type="text" 
                         className="input-field" 
                         placeholder="Enter your full name"
                         value={name}
-                        onChange={(e) => setName(e.target.value)}
+                        onChange={(e) => {
+                          setName(e.target.value);
+                          setError(false);
+                        }}
                         style={{ borderColor: error && !name.trim() ? 'red' : '' }}
                       />
                     </div>
 
                     <div className="mb-lg">
-                      <label className="form-label">Email Address</label>
+                      <label className="form-label">
+                        Email Address
+                        <HelpTooltip text="Your email is used to send booking confirmations, ticket receipts, and waitlist notifications." />
+                      </label>
                       <input 
                         type="email" 
                         className="input-field" 
                         placeholder="Enter your email"
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        onChange={(e) => {
+                          setEmail(e.target.value);
+                          setError(false);
+                        }}
                         style={{ borderColor: error && !email.trim() ? 'red' : '' }}
                       />
                     </div>
@@ -448,7 +535,7 @@ const Screen1Input = () => {
                 <button 
                   type="submit" 
                   className="btn-primary w-full"
-                  disabled={!name.trim() || !email.trim() || loading}
+                  disabled={loading}
                   style={{ padding: '16px' }}
                 >
                   Start AI Triage Chat →
