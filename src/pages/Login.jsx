@@ -2,65 +2,38 @@ import { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { AppContext } from '../App';
 import { LogIn, Key, Mail } from 'lucide-react';
+import HelpTooltip from '../components/HelpTooltip';
+import { translateError } from '../utils/errorTranslator';
+import Stepper from '../components/Stepper';
 
 const BACKEND_URL = window.location.hostname === 'localhost'
   ? 'http://localhost:5000/api'
   : 'https://akeno7594-internship-project-backend.hf.space/api';
-
-const HelpTooltip = ({ text }) => {
-  const [show, setShow] = useState(false);
-  return (
-    <span style={{ display: 'inline-block', position: 'relative', marginLeft: '6px' }}>
-      <button
-        type="button"
-        onMouseEnter={() => setShow(true)}
-        onMouseLeave={() => setShow(false)}
-        onClick={() => setShow(!show)}
-        style={{
-          width: '16px', height: '16px', borderRadius: '50%',
-          background: 'rgba(0,0,0,0.06)', display: 'inline-flex',
-          alignItems: 'center', justifyContent: 'center', fontSize: '11px',
-          fontWeight: 'bold', color: 'var(--color-dark)', border: 'none',
-          outline: 'none', cursor: 'pointer', verticalAlign: 'middle'
-        }}
-      >
-        ?
-      </button>
-      {show && (
-        <span style={{
-          position: 'absolute', bottom: '24px', left: '50%',
-          transform: 'translateX(-50%)', width: '220px',
-          background: 'var(--color-dark)', color: 'var(--color-white)',
-          padding: '10px 12px', borderRadius: '8px', fontSize: '11px',
-          lineHeight: '1.4', zIndex: 100, boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-          pointerEvents: 'none', display: 'block', textTransform: 'none',
-          fontWeight: 'normal', letterSpacing: 'normal'
-        }}>
-          {text}
-          <span style={{
-            position: 'absolute', top: '100%', left: '50%',
-            transform: 'translateX(-50%)', width: '0', height: '0',
-            borderLeft: '6px solid transparent', borderRight: '6px solid transparent',
-            borderTop: '6px solid var(--color-dark)', display: 'block'
-          }} />
-        </span>
-      )}
-    </span>
-  );
-};
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { loginUser } = useContext(AppContext);
+  const { state, loginUser } = useContext(AppContext);
   const navigate = useNavigate();
+  
+  const flow = state.finalSpecialist ? 'booking' : 'account';
+  const currentStep = state.finalSpecialist ? 5 : 1;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!email.trim() || !password.trim()) {
-      setError('Please fill in all fields.');
+    if (!email.trim()) {
+      setError('Please enter your email address.');
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      setError('Please enter a valid email format (like name@example.com).');
+      return;
+    }
+    if (!password.trim()) {
+      setError('Please enter your password.');
       return;
     }
 
@@ -79,17 +52,19 @@ const Login = () => {
         loginUser(json.user, json.token);
         navigate('/dashboard');
       } else {
-        setError(json.message || 'Invalid email or password.');
+        setError(translateError(json.message || 'Invalid email or password.'));
       }
     } catch (err) {
-      setError('Connection failed. Please try again.');
+      setError(translateError('Connection failed. Please try again.'));
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="container page-transition" style={{ maxWidth: '480px', paddingTop: '80px' }}>
+    <div className="page-transition" style={{ display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
+      <Stepper currentStep={currentStep} flow={flow} />
+      <div className="container" style={{ maxWidth: '480px', paddingTop: '40px', flex: 1 }}>
       <div className="card-light" style={{ padding: '40px' }}>
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
           <div style={{
@@ -167,6 +142,7 @@ const Login = () => {
           <Link to="/register" style={{ color: 'var(--color-orange)', fontWeight: '600' }}>
             Sign Up
           </Link>
+        </div>
         </div>
       </div>
     </div>

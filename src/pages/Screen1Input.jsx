@@ -2,6 +2,8 @@ import { useState, useContext, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { AppContext } from '../App';
 import Stepper from '../components/Stepper';
+import HelpTooltip from '../components/HelpTooltip';
+import { translateError } from '../utils/errorTranslator';
 import { Zap, Shield, Clock, Mic, Square, AlertCircle } from 'lucide-react';
 
 const BACKEND_URL = window.location.hostname === 'localhost'
@@ -10,54 +12,13 @@ const BACKEND_URL = window.location.hostname === 'localhost'
 
 const words = ['health', 'smile', 'fitness', 'muscles', 'wellness'];
 
-const HelpTooltip = ({ text }) => {
-  const [show, setShow] = useState(false);
-  return (
-    <span style={{ display: 'inline-block', position: 'relative', marginLeft: '6px' }}>
-      <button
-        type="button"
-        onMouseEnter={() => setShow(true)}
-        onMouseLeave={() => setShow(false)}
-        onClick={() => setShow(!show)}
-        style={{
-          width: '16px', height: '16px', borderRadius: '50%',
-          background: 'rgba(0,0,0,0.06)', display: 'inline-flex',
-          alignItems: 'center', justifyContent: 'center', fontSize: '11px',
-          fontWeight: 'bold', color: 'var(--color-dark)', border: 'none',
-          outline: 'none', cursor: 'pointer', verticalAlign: 'middle'
-        }}
-      >
-        ?
-      </button>
-      {show && (
-        <span style={{
-          position: 'absolute', bottom: '24px', left: '50%',
-          transform: 'translateX(-50%)', width: '220px',
-          background: 'var(--color-dark)', color: 'var(--color-white)',
-          padding: '10px 12px', borderRadius: '8px', fontSize: '11px',
-          lineHeight: '1.4', zIndex: 100, boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-          pointerEvents: 'none', display: 'block', textTransform: 'none',
-          fontWeight: 'normal', letterSpacing: 'normal'
-        }}>
-          {text}
-          <span style={{
-            position: 'absolute', top: '100%', left: '50%',
-            transform: 'translateX(-50%)', width: '0', height: '0',
-            borderLeft: '6px solid transparent', borderRight: '6px solid transparent',
-            borderTop: '6px solid var(--color-dark)', display: 'block'
-          }} />
-        </span>
-      )}
-    </span>
-  );
-};
-
 const Screen1Input = () => {
   const { state, updateState, user } = useContext(AppContext);
   const navigate = useNavigate();
   const [name, setName] = useState(state.name || '');
   const [email, setEmail] = useState(state.email || '');
-  const [error, setError] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+  const [triageError, setTriageError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const [appointmentFor, setAppointmentFor] = useState(state.appointmentFor || 'myself');
@@ -238,11 +199,27 @@ const Screen1Input = () => {
 
   const handleStartTriage = (e) => {
     e.preventDefault();
-    if (!name.trim() || !email.trim()) {
-      setError(true);
+    setTriageError('');
+    if (appointmentFor === 'other' && !otherName.trim()) {
+      setErrorMsg("Please enter patient's full name to continue.");
       return;
     }
-    setError(false);
+    if (!user) {
+      if (!name.trim()) {
+        setErrorMsg("Please enter your name so the clinic and doctors know who you are.");
+        return;
+      }
+      if (!email.trim()) {
+        setErrorMsg("Please enter your email address so we can send you booking confirmations and waitlist notifications.");
+        return;
+      }
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email.trim())) {
+        setErrorMsg("Please enter a valid email format (like name@example.com). We need this to send booking confirmations.");
+        return;
+      }
+    }
+    setErrorMsg('');
     updateState({
       name: name.trim(),
       email: email.trim(),
@@ -314,11 +291,11 @@ const Screen1Input = () => {
           navigate('/recommendation');
         }
       } else {
-        alert(data.message || 'Triage assistant failed. Please try again.');
+        setTriageError(translateError(data.message || 'Triage assistant failed. Please try again.'));
       }
     } catch (err) {
       console.error(err);
-      alert('Could not connect to the triage service.');
+      setTriageError(translateError('Could not connect to the triage service.'));
     } finally {
       setLoading(false);
     }
@@ -426,7 +403,7 @@ const Screen1Input = () => {
           <div className="split-form">
             {!triageStarted ? (
               <form className="card-light" onSubmit={handleStartTriage}>
-                {error && (
+                {errorMsg && (
                   <div style={{
                     padding: '12px',
                     background: 'rgba(224, 88, 48, 0.1)',
@@ -440,9 +417,7 @@ const Screen1Input = () => {
                   }}>
                     <AlertCircle size={16} />
                     <span>
-                      {appointmentFor === 'other' && !otherName.trim()
-                        ? "Please enter the patient's full name to continue."
-                        : "Please fill in all details above to start your AI triage."}
+                      {errorMsg}
                     </span>
                   </div>
                 )}
@@ -459,7 +434,7 @@ const Screen1Input = () => {
                         value={appointmentFor} 
                         onChange={(e) => {
                           setAppointmentFor(e.target.value);
-                          setError(false);
+                          setErrorMsg('');
                         }}
                       >
                         <option value="myself">Myself ({user.name})</option>
@@ -485,9 +460,9 @@ const Screen1Input = () => {
                           value={otherName}
                           onChange={(e) => {
                             setOtherName(e.target.value);
-                            setError(false);
+                            setErrorMsg('');
                           }}
-                          style={{ borderColor: error && !otherName.trim() ? 'red' : '' }}
+                          style={{ borderColor: errorMsg && appointmentFor === 'other' && !otherName.trim() ? 'red' : '' }}
                         />
                       </div>
                     )}
@@ -506,9 +481,9 @@ const Screen1Input = () => {
                         value={name}
                         onChange={(e) => {
                           setName(e.target.value);
-                          setError(false);
+                          setErrorMsg('');
                         }}
-                        style={{ borderColor: error && !name.trim() ? 'red' : '' }}
+                        style={{ borderColor: errorMsg && !name.trim() ? 'red' : '' }}
                       />
                     </div>
 
@@ -524,9 +499,9 @@ const Screen1Input = () => {
                         value={email}
                         onChange={(e) => {
                           setEmail(e.target.value);
-                          setError(false);
+                          setErrorMsg('');
                         }}
-                        style={{ borderColor: error && !email.trim() ? 'red' : '' }}
+                        style={{ borderColor: errorMsg && (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) ? 'red' : '' }}
                       />
                     </div>
                   </>
@@ -665,6 +640,38 @@ const Screen1Input = () => {
                     <button 
                       type="button"
                       onClick={() => setMicError(null)}
+                      style={{
+                        background: 'transparent',
+                        border: 'none',
+                        color: '#b91c1c',
+                        fontWeight: 'bold',
+                        cursor: 'pointer',
+                        padding: '0 4px'
+                      }}
+                    >
+                      ×
+                    </button>
+                  </div>
+                )}
+
+                {triageError && (
+                  <div style={{
+                    margin: '8px 16px',
+                    padding: '10px 14px',
+                    background: '#fef2f2',
+                    border: '1px solid #fee2e2',
+                    borderRadius: '8px',
+                    color: '#b91c1c',
+                    fontSize: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}>
+                    <AlertCircle size={16} />
+                    <span style={{ flex: 1 }}>{triageError}</span>
+                    <button 
+                      type="button"
+                      onClick={() => setTriageError('')}
                       style={{
                         background: 'transparent',
                         border: 'none',

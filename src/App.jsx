@@ -15,6 +15,7 @@ import Admin from './pages/Admin';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import SupportChatWidget from './components/SupportChatWidget';
 
 export const AppContext = createContext();
 
@@ -43,7 +44,6 @@ function App() {
     }
   });
   const [token, setToken] = useState(() => localStorage.getItem('token') || '');
-  const [showHelpModal, setShowHelpModal] = useState(false);
 
   const updateState = (updates) => {
     setState(prev => ({ ...prev, ...updates }));
@@ -97,73 +97,8 @@ function App() {
           </Routes>
         </div>
 
-        {/* Global Floating Help Widget */}
-        <div style={{ position: 'fixed', bottom: '24px', right: '24px', zIndex: 9999 }}>
-          <button
-            onClick={() => setShowHelpModal(prev => !prev)}
-            style={{
-              width: '56px', height: '56px', borderRadius: '50%',
-              background: 'var(--color-orange, #E05830)',
-              color: 'white', display: 'flex', alignItems: 'center',
-              justifyContent: 'center', boxShadow: '0 8px 24px rgba(224, 88, 48, 0.3)',
-              border: 'none', cursor: 'pointer', outline: 'none',
-              transition: 'transform 0.2s ease-in-out'
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-            onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-            title="Need help?"
-          >
-            {showHelpModal ? (
-              <span style={{ fontSize: '24px', fontWeight: 'bold', lineHeight: 1 }}>×</span>
-            ) : (
-              <span style={{ fontSize: '28px', fontWeight: 'bold', lineHeight: 1 }}>?</span>
-            )}
-          </button>
-
-          {showHelpModal && (
-            <div className="card-light page-transition" style={{
-              position: 'absolute', bottom: '72px', right: '0',
-              width: '320px', padding: '24px', borderRadius: '16px',
-              boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
-              border: '1px solid rgba(0,0,0,0.08)',
-              background: '#FFFFFF',
-              animation: 'fadeInSlideUp 0.2s ease forwards'
-            }}>
-              <h3 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                Instant Guidance
-              </h3>
-              
-              <p style={{ fontSize: '13px', lineHeight: '1.5', opacity: 0.8, marginBottom: '16px' }}>
-                Welcome to SmartAssist! We make it super easy to find and book appointments with the right healthcare specialists.
-              </p>
-
-              <div style={{ display: 'grid', gap: '12px', fontSize: '13px' }}>
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                  <span style={{ fontWeight: '800', color: 'var(--color-orange)' }}>Step 1:</span>
-                  <span>Tell us your symptoms in plain language (e.g. "my tooth hurts").</span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                  <span style={{ fontWeight: '800', color: 'var(--color-orange)' }}>Step 2:</span>
-                  <span>AI suggests the most relevant specialist.</span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                  <span style={{ fontWeight: '800', color: 'var(--color-orange)' }}>Step 3:</span>
-                  <span>Select a slot and choose In-Person, Video Call, or Chat Consultation.</span>
-                </div>
-              </div>
-
-              <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid rgba(0,0,0,0.08)' }}>
-                <div style={{ fontWeight: '800', fontSize: '12px', textTransform: 'uppercase', color: 'var(--color-muted)', marginBottom: '8px' }}>Contact Support</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', marginBottom: '6px' }}>
-                  <span>Phone:</span> <strong>+91 98765 43210</strong>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px' }}>
-                  <span>Email:</span> <strong>support@smartassist.ai</strong>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
+        {/* Global Floating Help Chat Widget */}
+        <SupportChatWidget />
       </div>
     </AppContext.Provider>
   );

@@ -496,12 +496,6 @@ a {
     position: static;
     margin-bottom: var(--sp-xl);
   }
-  .specialist-card-h {
-    flex-direction: column;
-    gap: var(--sp-lg);
-    text-align: center;
-    align-items: center;
-  }
 }
 
 @keyframes cardEntrance {
@@ -926,3 +920,50 @@ a {
   transition: transform 0.6s cubic-bezier(0.76, 0, 0.24, 1), opacity 0.6s ease;
 }
 
+/* Responsive Navbar & Mobile Adjustments */
+@media (max-width: 600px) {
+  .nav-desktop {
+    display: none !important;
+  }
+  .nav-mobile-toggle {
+    display: flex !important;
+  }
+  .specialist-card-h {
+    flex-direction: column !important;
+    gap: var(--sp-md) !important;
+    text-align: center !important;
+    align-items: center !important;
+    padding: var(--sp-md) !important;
+  }
+  .specialist-avatar-lg {
+    width: 72px !important;
+    height: 72px !important;
+    font-size: 24px !important;
+  }
+  .specialist-card-h .btn-primary {
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .cal-day {
+    height: 40px !important;
+    font-size: 14px !important;
+  }
+  .cal-day-label {
+    padding: 6px 0 !important;
+    font-size: 11px !important;
+  }
+}
+
+@keyframes fadeInSlideDown {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

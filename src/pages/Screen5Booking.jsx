@@ -2,53 +2,13 @@ import { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppContext } from '../App';
 import Stepper from '../components/Stepper';
+import HelpTooltip from '../components/HelpTooltip';
+import { translateError } from '../utils/errorTranslator';
 import { ChevronLeft, ChevronRight, Calendar as CalIcon, Clock, User, AlertCircle, Bell, MapPin, Video, MessageSquare } from 'lucide-react';
 
 const BACKEND_URL = window.location.hostname === 'localhost'
   ? 'http://localhost:5000/api'
   : 'https://akeno7594-internship-project-backend.hf.space/api';
-
-const HelpTooltip = ({ text }) => {
-  const [show, setShow] = useState(false);
-  return (
-    <span style={{ display: 'inline-block', position: 'relative', marginLeft: '6px' }}>
-      <button
-        type="button"
-        onMouseEnter={() => setShow(true)}
-        onMouseLeave={() => setShow(false)}
-        onClick={() => setShow(!show)}
-        style={{
-          width: '16px', height: '16px', borderRadius: '50%',
-          background: 'rgba(0,0,0,0.06)', display: 'inline-flex',
-          alignItems: 'center', justifyContent: 'center', fontSize: '11px',
-          fontWeight: 'bold', color: 'var(--color-dark)', border: 'none',
-          outline: 'none', cursor: 'pointer', verticalAlign: 'middle'
-        }}
-      >
-        ?
-      </button>
-      {show && (
-        <span style={{
-          position: 'absolute', bottom: '24px', left: '50%',
-          transform: 'translateX(-50%)', width: '220px',
-          background: 'var(--color-dark)', color: 'var(--color-white)',
-          padding: '10px 12px', borderRadius: '8px', fontSize: '11px',
-          lineHeight: '1.4', zIndex: 100, boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-          pointerEvents: 'none', display: 'block', textTransform: 'none',
-          fontWeight: 'normal', letterSpacing: 'normal'
-        }}>
-          {text}
-          <span style={{
-            position: 'absolute', top: '100%', left: '50%',
-            transform: 'translateX(-50%)', width: '0', height: '0',
-            borderLeft: '6px solid transparent', borderRight: '6px solid transparent',
-            borderTop: '6px solid var(--color-dark)', display: 'block'
-          }} />
-        </span>
-      )}
-    </span>
-  );
-};
 
 const Screen5Booking = () => {
   const { state, updateState, user, token } = useContext(AppContext);
@@ -154,10 +114,10 @@ const Screen5Booking = () => {
         });
         navigate('/confirmation');
       } else {
-        setErrorMsg(data.message || "Booking failed.");
+        setErrorMsg(translateError(data.message || "Booking failed."));
       }
     } catch (err) {
-      setErrorMsg("Could not connect to the booking service.");
+      setErrorMsg(translateError("Could not connect to the booking service."));
     } finally {
       setLoading(false);
     }
@@ -191,10 +151,10 @@ const Screen5Booking = () => {
         alert('Successfully joined the waitlist for this slot!');
         navigate('/dashboard');
       } else {
-        setErrorMsg(data.message || 'Failed to join waitlist.');
+        setErrorMsg(translateError(data.message || 'Failed to join waitlist.'));
       }
     } catch (err) {
-      setErrorMsg('Could not connect to the waitlist service.');
+      setErrorMsg(translateError('Could not connect to the waitlist service.'));
     } finally {
       setLoading(false);
     }
@@ -288,6 +248,7 @@ const Screen5Booking = () => {
             <div className="card-light" style={{ padding: '20px', marginBottom: '24px' }}>
               <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', marginBottom: '12px' }}>
                 <Clock size={14} /> Appointment Mode
+                <HelpTooltip text="In-Person: visit clinic. Video Call: home consultation. Chat Consult: text-based advice." />
               </label>
               
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
@@ -385,13 +346,13 @@ const Screen5Booking = () => {
               </div>
             )}
 
-            {selectedDate ? (
-              <div className="card-light" style={{ animation: 'fadeInSlideUp 0.3s ease' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
-                  <Clock size={18} color="var(--color-orange)" />
-                  <h3 style={{ fontSize: '18px', fontWeight: '800' }}>Available Times</h3>
-                </div>
-                
+            <div className="card-light" style={{ padding: '20px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
+                <Clock size={18} color="var(--color-orange)" />
+                <h3 style={{ fontSize: '18px', fontWeight: '800' }}>Available Times</h3>
+              </div>
+              
+              {selectedDate ? (
                 <div className="time-grid mb-xl">
                   {getAvailableSlots().map(slot => {
                     const isOccupied = occupiedSlots.includes(slot);
@@ -419,48 +380,68 @@ const Screen5Booking = () => {
                     );
                   })}
                 </div>
+              ) : (
+                <div style={{ textAlign: 'center', padding: '36px 12px', border: '1px dashed rgba(0,0,0,0.1)', borderRadius: '8px', marginBottom: '24px' }}>
+                  <CalIcon size={24} color="var(--color-muted)" style={{ marginBottom: '8px' }} />
+                  <p style={{ fontSize: '13px', opacity: 0.6 }}>Please select a date from the calendar to view available time slots.</p>
+                </div>
+              )}
 
-                {selectedTime && isSelectedTimeOccupied && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--color-orange)', fontSize: '13px', marginBottom: '16px', padding: '12px', background: 'rgba(224, 88, 48, 0.1)', borderRadius: '8px' }}>
-                    <AlertCircle size={16} />
-                    This slot is currently full. You can join the waitlist.
-                  </div>
-                )}
+              {selectedDate && selectedTime && isSelectedTimeOccupied && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--color-orange)', fontSize: '13px', marginBottom: '16px', padding: '12px', background: 'rgba(224, 88, 48, 0.1)', borderRadius: '8px' }}>
+                  <AlertCircle size={16} />
+                  This slot is currently full. You can join the waitlist.
+                </div>
+              )}
 
-                {errorMsg && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--color-orange)', fontSize: '13px', marginBottom: '16px', padding: '12px', background: 'rgba(224, 88, 48, 0.1)', borderRadius: '8px' }}>
-                    <AlertCircle size={16} />
-                    {errorMsg}
-                  </div>
-                )}
+              {errorMsg && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--color-orange)', fontSize: '13px', marginBottom: '16px', padding: '12px', background: 'rgba(224, 88, 48, 0.1)', borderRadius: '8px' }}>
+                  <AlertCircle size={16} />
+                  {errorMsg}
+                </div>
+              )}
 
-                {isSelectedTimeOccupied ? (
-                  <button 
-                    className="btn-primary w-full"
-                    disabled={!selectedDate || !selectedTime || loading}
-                    onClick={handleJoinWaitlist}
-                    style={{ padding: '18px', background: 'var(--color-orange)', color: 'white' }}
-                  >
-                    <Bell size={16} style={{ marginRight: '8px' }} />
-                    {loading ? 'Joining...' : 'Join Waitlist'}
-                  </button>
-                ) : (
-                  <button 
-                    className="btn-primary w-full"
-                    disabled={!selectedDate || !selectedTime || loading}
-                    onClick={handleConfirm}
-                    style={{ padding: '18px' }}
-                  >
-                    {loading ? 'Confirming...' : 'Confirm Booking →'}
-                  </button>
-                )}
-              </div>
-            ) : (
-              <div className="card-light" style={{ textAlign: 'center', padding: '48px 24px', borderStyle: 'dashed' }}>
-                <CalIcon size={32} color="var(--color-muted)" style={{ marginBottom: '16px' }} />
-                <p style={{ fontSize: '14px', opacity: 0.6 }}>Please select a date from the calendar to view available time slots.</p>
-              </div>
-            )}
+              {selectedDate && isSelectedTimeOccupied ? (
+                <button 
+                  className="btn-primary w-full"
+                  disabled={loading}
+                  onClick={() => {
+                    if (!selectedDate) {
+                      setErrorMsg("Please select a date by tapping a day on the calendar, then tap an available time slot.");
+                      return;
+                    }
+                    if (!selectedTime) {
+                      setErrorMsg("Please select a time slot by tapping one of the available times.");
+                      return;
+                    }
+                    handleJoinWaitlist();
+                  }}
+                  style={{ padding: '18px', background: 'var(--color-orange)', color: 'white' }}
+                >
+                  <Bell size={16} style={{ marginRight: '8px' }} />
+                  {loading ? 'Joining...' : 'Join Waitlist'}
+                </button>
+              ) : (
+                <button 
+                  className="btn-primary w-full"
+                  disabled={loading}
+                  onClick={() => {
+                    if (!selectedDate) {
+                      setErrorMsg("Please select a date by tapping a day on the calendar, then tap an available time slot.");
+                      return;
+                    }
+                    if (!selectedTime) {
+                      setErrorMsg("Please select a time slot by tapping one of the available times.");
+                      return;
+                    }
+                    handleConfirm();
+                  }}
+                  style={{ padding: '18px' }}
+                >
+                  {loading ? 'Confirming...' : 'Confirm Booking →'}
+                </button>
+              )}
+            </div>
           </aside>
         </div>
       </div>

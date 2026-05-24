@@ -46,7 +46,7 @@ const Screen6Confirmation = () => {
 
   return (
     <div className="page-transition" style={{ display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
-      <Stepper currentStep={6} />
+      <Stepper currentStep={7} />
       
       <div className="container" style={{ flex: 1, paddingTop: '48px' }}>
         <div className="conf-grid">
