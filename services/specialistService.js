@@ -2,6 +2,7 @@ const Specialist = require('../models/Specialist');
 
 const getSpecialists = async ({ category }) => {
   const query = category ? { specialization: category } : {};
+  query.status = { $nin: ['pending', 'rejected'] };
   const specialists = await Specialist.find(query).lean();
   return specialists.map(s => ({
     id: s._id.toString(),
