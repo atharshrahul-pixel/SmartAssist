@@ -5,7 +5,9 @@ import Stepper from '../components/Stepper';
 import HelpTooltip from '../components/HelpTooltip';
 import { Star, Clock, ChevronRight, Search, Filter } from 'lucide-react';
 
-const BACKEND_URL = 'https://akeno7594-internship-project-backend.hf.space/api';
+const BACKEND_URL = window.location.hostname === 'localhost'
+  ? 'http://localhost:5000/api'
+  : 'https://akeno7594-internship-project-backend.hf.space/api';
 
 const Screen4Specialists = () => {
   const { state, updateState } = useContext(AppContext);
@@ -29,7 +31,13 @@ const Screen4Specialists = () => {
       .finally(() => setIsLoading(false));
   }, [state.accepted, navigate]);
 
-  const categories = ['All', 'Dentist', 'Physiotherapist', 'Gym Trainer', 'Salon Specialist'];
+  const categories = useMemo(() => {
+    const catsSet = new Set(specialistsData.map(s => s.category || s.specialization).filter(Boolean));
+    if (state.recommendedSpecialist) {
+      catsSet.add(state.recommendedSpecialist);
+    }
+    return ['All', ...Array.from(catsSet).sort()];
+  }, [specialistsData, state.recommendedSpecialist]);
 
   const filteredData = useMemo(() => {
     return specialistsData.filter(s => {

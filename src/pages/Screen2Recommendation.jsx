@@ -8,14 +8,16 @@ const icons = {
   'Dentist': <Stethoscope size={40} color="var(--color-orange)" />,
   'Physiotherapist': <Activity size={40} color="var(--color-orange)" />,
   'Gym Trainer': <Dumbbell size={40} color="var(--color-orange)" />,
-  'Salon Specialist': <Scissors size={40} color="var(--color-orange)" />
+  'Salon Specialist': <Scissors size={40} color="var(--color-orange)" />,
+  'General Practitioner': <Stethoscope size={40} color="var(--color-orange)" />
 };
 
 const specialistKeywords = {
   'Dentist': ['tooth','teeth','gum','dental','jaw','cavity','molar','ache','toothache'],
   'Physiotherapist': ['muscle','back','knee','joint','sprain','physio','posture','shoulder','hip','neck','pain'],
   'Gym Trainer': ['weight','fitness','gym','exercise','cardio','strength','workout','fat','bulk','slim','tone'],
-  'Salon Specialist': ['hair','skin','facial','salon','grooming','nails','beard','eyebrow','wax','cut','color']
+  'Salon Specialist': ['hair','skin','facial','salon','grooming','nails','beard','eyebrow','wax','cut','color'],
+  'General Practitioner': ['headache','fever','sore throat','cough','throat','stomach','cold','flu','chest pain','breathing','vomiting','nausea','doctor','physician','gp']
 };
 
 const Screen2Recommendation = () => {
@@ -235,7 +237,23 @@ const Screen2Recommendation = () => {
                 {state.recommendedSpecialist}
               </h2>
 
-              {state.idealCategory && state.idealCategory.toLowerCase() !== state.recommendedSpecialist.toLowerCase() && (
+              {state.recommendedSpecialist === 'General Practitioner' && (
+                <div style={{
+                  background: 'rgba(239, 68, 68, 0.1)',
+                  border: '1.5px solid #ef4444',
+                  borderRadius: '12px',
+                  padding: '14px 16px',
+                  marginBottom: '24px',
+                  textAlign: 'left',
+                  fontSize: '13px',
+                  lineHeight: '1.5',
+                  color: 'rgba(255, 255, 255, 0.9)',
+                }}>
+                  ⚠️ <strong>Important Notice:</strong> SmartAssist does not currently have General Practitioners or medical doctors in our booking network. We strongly recommend visiting a local doctor, clinic, or emergency room for clinical assessment of these symptoms.
+                </div>
+              )}
+
+              {state.idealCategory && state.idealCategory.toLowerCase() !== state.recommendedSpecialist.toLowerCase() && state.recommendedSpecialist !== 'General Practitioner' && (
                 <div style={{
                   background: 'rgba(237, 184, 32, 0.1)',
                   border: '1.5px solid var(--color-orange)',
@@ -278,14 +296,36 @@ const Screen2Recommendation = () => {
                 </div>
               )}
  
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                <button className="btn-primary w-full" onClick={handleAccept} style={{ padding: '16px' }}>
-                  Accept & Book Appointment
-                </button>
-                <button className="btn-danger w-full" onClick={handleReject} style={{ background: 'transparent' }}>
-                  Not right for me
-                </button>
-              </div>
+              {state.recommendedSpecialist === 'General Practitioner' ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <button 
+                    className="btn-primary w-full" 
+                    onClick={() => {
+                      updateState({ accepted: true, finalSpecialist: null, recommendedSpecialist: 'All' });
+                      navigate('/specialists');
+                    }} 
+                    style={{ padding: '16px' }}
+                  >
+                    Browse Available Specialists
+                  </button>
+                  <button 
+                    className="btn-danger w-full" 
+                    onClick={() => navigate('/')} 
+                    style={{ background: 'transparent' }}
+                  >
+                    Go Back to Homepage
+                  </button>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <button className="btn-primary w-full" onClick={handleAccept} style={{ padding: '16px' }}>
+                    Accept & Book Appointment
+                  </button>
+                  <button className="btn-danger w-full" onClick={handleReject} style={{ background: 'transparent' }}>
+                    Not right for me
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
