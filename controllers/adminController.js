@@ -59,6 +59,14 @@ const approveSpecialist = async (req, res) => {
   specialist.status = 'approved';
   await specialist.save();
 
+  const User = require('../models/User');
+  const user = await User.findById(specialist.userId);
+  const email = user ? user.email : 'unknown@example.com';
+  const name = specialist.name || (user ? user.name : 'Doctor');
+
+  const { sendSpecialistApprovalEmail } = require('../services/emailService');
+  await sendSpecialistApprovalEmail(email, name);
+
   res.status(200).json({ success: true, message: 'Specialist approved successfully' });
 };
 
@@ -86,8 +94,12 @@ const rejectSpecialist = async (req, res) => {
   const User = require('../models/User');
   const user = await User.findById(specialist.userId);
   const email = user ? user.email : 'unknown@example.com';
+  const name = specialist.name || (user ? user.name : 'Doctor');
 
   console.log(`[Notification] Email sent to specialist ${email}: Application rejected. Reason: ${reason}`);
+
+  const { sendSpecialistRejectionEmail } = require('../services/emailService');
+  await sendSpecialistRejectionEmail(email, name, reason.trim());
 
   res.status(200).json({ success: true, message: 'Specialist application rejected' });
 };
