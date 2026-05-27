@@ -17,6 +17,7 @@ const Screen5Booking = () => {
   const [selectedTime, setSelectedTime] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
   const [loading, setLoading] = useState(false);
+  const [currentDate, setCurrentDate] = useState(new Date());
   
   // Custom states for DB synced booking & waitlist
   const [occupiedSlots, setOccupiedSlots] = useState([]);
@@ -162,8 +163,52 @@ const Screen5Booking = () => {
 
   if (!state.finalSpecialist) return null;
 
-  const days = Array.from({length: 30}, (_, i) => i + 1);
-  const today = 15;
+  const currentMonth = currentDate.getMonth();
+  const currentYear = currentDate.getFullYear();
+  
+  const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const monthAbbrs = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  
+  const getDaysInMonth = (year, month) => new Date(year, month + 1, 0).getDate();
+  const getFirstDayOfMonth = (year, month) => new Date(year, month, 1).getDay();
+
+  const firstDayIndex = getFirstDayOfMonth(currentYear, currentMonth);
+  const totalDays = getDaysInMonth(currentYear, currentMonth);
+  
+  const calendarCells = [];
+  
+  for (let i = 0; i < firstDayIndex; i++) {
+    calendarCells.push(null);
+  }
+  
+  for (let d = 1; d <= totalDays; d++) {
+    calendarCells.push(new Date(currentYear, currentMonth, d));
+  }
+
+  const todayDate = new Date();
+  todayDate.setHours(0, 0, 0, 0);
+
+  const getFormattedDateString = (dObj) => {
+    if (!dObj) return '';
+    return `${monthAbbrs[dObj.getMonth()]} ${dObj.getDate()}, ${dObj.getFullYear()}`;
+  };
+
+  const handlePrevMonth = () => {
+    setCurrentDate(prev => {
+      const prevDate = new Date(prev.getFullYear(), prev.getMonth() - 1, 1);
+      const limit = new Date();
+      limit.setDate(1);
+      limit.setHours(0, 0, 0, 0);
+      if (prevDate < limit) return prev;
+      return prevDate;
+    });
+  };
+
+  const handleNextMonth = () => {
+    setCurrentDate(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
+  };
+
+  const isPrevMonthDisabled = currentMonth === todayDate.getMonth() && currentYear === todayDate.getFullYear();
   const isSelectedTimeOccupied = occupiedSlots.includes(selectedTime);
 
   return (
@@ -186,13 +231,22 @@ const Screen5Booking = () => {
                 <h3 style={{ fontSize: '20px', fontWeight: '800' }}>Select Date</h3>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                <button className="btn-ghost" style={{ padding: '8px', borderRadius: '50%' }}>
+                <button 
+                  className="btn-ghost" 
+                  onClick={handlePrevMonth} 
+                  disabled={isPrevMonthDisabled} 
+                  style={{ padding: '8px', borderRadius: '50%', opacity: isPrevMonthDisabled ? 0.3 : 1, cursor: isPrevMonthDisabled ? 'not-allowed' : 'pointer' }}
+                >
                   <ChevronLeft size={20} />
                 </button>
-                <div style={{ fontWeight: '700', fontSize: '16px', minWidth: '120px', textAlign: 'center' }}>
-                  October 2024
+                <div style={{ fontWeight: '700', fontSize: '16px', minWidth: '160px', textAlign: 'center' }}>
+                  {months[currentMonth]} {currentYear}
                 </div>
-                <button className="btn-ghost" style={{ padding: '8px', borderRadius: '50%' }}>
+                <button 
+                  className="btn-ghost" 
+                  onClick={handleNextMonth} 
+                  style={{ padding: '8px', borderRadius: '50%', cursor: 'pointer' }}
+                >
                   <ChevronRight size={20} />
                 </button>
               </div>
@@ -202,18 +256,25 @@ const Screen5Booking = () => {
               {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
                 <div key={d} className="cal-day-label">{d}</div>
               ))}
-              {days.map(d => {
-                const isPast = d < today;
-                const isSelected = selectedDate === `Oct ${d}, 2024`;
-                const isToday = d === today;
+              {calendarCells.map((dayDate, index) => {
+                if (dayDate === null) {
+                  return <div key={`empty-${index}`} className="cal-day empty" style={{ visibility: 'hidden' }}></div>;
+                }
+                const isPast = dayDate < todayDate;
+                const formattedStr = getFormattedDateString(dayDate);
+                const isSelected = selectedDate === formattedStr;
+                const isToday = dayDate.getDate() === todayDate.getDate() && 
+                                dayDate.getMonth() === todayDate.getMonth() && 
+                                dayDate.getFullYear() === todayDate.getFullYear();
                 return (
                   <button
-                    key={d}
+                    key={`day-${dayDate.getTime()}`}
                     disabled={isPast}
                     className={`cal-day ${isSelected ? 'selected' : ''} ${isToday ? 'today' : ''}`}
-                    onClick={() => { setSelectedDate(`Oct ${d}, 2024`); setSelectedTime(''); setErrorMsg(''); }}
+                    onClick={() => { setSelectedDate(formattedStr); setSelectedTime(''); setErrorMsg(''); }}
+                    style={isPast ? { opacity: 0.3, cursor: 'not-allowed' } : {}}
                   >
-                    {d}
+                    {dayDate.getDate()}
                   </button>
                 );
               })}
