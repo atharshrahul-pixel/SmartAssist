@@ -275,18 +275,31 @@ const Screen1Input = () => {
         if (data.type === 'question') {
           setChatHistory([...updatedHistory, { role: 'assistant', content: data.text }]);
         } else if (data.type === 'recommendation') {
+          const problemText = updatedHistory.find(m => m.role === 'user')?.content || messageText;
+          const specialistKeywords = {
+            'Dentist': ['tooth','teeth','gum','dental','jaw','cavity','molar','ache','toothache'],
+            'Physiotherapist': ['muscle','back','knee','joint','sprain','physio','posture','shoulder','hip','neck','pain'],
+            'Gym Trainer': ['weight','fitness','gym','exercise','cardio','strength','workout','fat','bulk','slim','tone'],
+            'Salon Specialist': ['hair','skin','facial','salon','grooming','nails','beard','eyebrow','wax','cut','color']
+          };
+          const keywords = (specialistKeywords[data.specialistCategory] || []).filter(word => 
+            problemText.toLowerCase().includes(word)
+          );
+
           updateState({
             name,
             email,
             appointmentFor,
             otherName: appointmentFor === 'other' ? otherName.trim() : '',
-            problem: updatedHistory.find(m => m.role === 'user')?.content || messageText,
+            problem: problemText,
             recommendedSpecialist: data.specialistCategory,
             idealCategory: data.idealCategory || data.specialistCategory,
             confidence: data.confidence || 85,
             urgency: data.urgency || 'Soon',
             source: data.source,
-            recommendationExplanation: data.text
+            recommendationExplanation: data.text,
+            chatHistory: updatedHistory,
+            detectedKeywords: keywords
           });
           navigate('/recommendation');
         }

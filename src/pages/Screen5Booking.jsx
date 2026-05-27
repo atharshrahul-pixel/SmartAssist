@@ -99,7 +99,12 @@ const Screen5Booking = () => {
           bookedFor: finalBookedFor,
           appointmentMode: selectedMode === 'inPerson' ? 'In-Person' : (selectedMode === 'video' ? 'Video Call' : 'Chat Consultation'),
           price: modeData.price,
-          duration: modeData.duration
+          duration: modeData.duration,
+          triageUrgency: state.urgency,
+          triageExplanation: state.recommendationExplanation,
+          triageHistory: state.chatHistory,
+          triageKeywords: state.detectedKeywords,
+          symptoms: state.problem
         })
       });
       const data = await response.json();

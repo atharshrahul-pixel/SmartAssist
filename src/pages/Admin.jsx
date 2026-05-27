@@ -1,11 +1,14 @@
 import { useState } from 'react';
-import { ShieldCheck, Calendar, Mail, Clock, Trash2, Award, Shield, User, MapPin } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { ShieldCheck, Calendar, Mail, Clock, Trash2, Award, Shield, MapPin } from 'lucide-react';
 
 const BACKEND_URL = window.location.hostname === 'localhost'
   ? 'http://localhost:5000/api'
   : 'https://akeno7594-internship-project-backend.hf.space/api';
 
 const Admin = () => {
+  const navigate = useNavigate();
+
   const [secret, setSecret] = useState('');
   const [data, setData] = useState(null);
   const [specialists, setSpecialists] = useState([]);
@@ -127,7 +130,7 @@ const Admin = () => {
 
   return (
     <div className="container" style={{ padding: '48px 16px' }}>
-      <header style={{ marginBottom: '32px', display: 'flex', alignItems: 'center', justifyBetween: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
+      <header style={{ marginBottom: '32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
         <div>
           <h1 style={{ fontSize: '32px', marginBottom: '8px', fontFamily: 'Playfair Display' }}>Admin Dashboard</h1>
           <p style={{ opacity: 0.7 }}>Manage appointments and verify incoming healthcare specialist registrations.</p>

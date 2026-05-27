@@ -836,43 +836,145 @@ const SpecialistDashboard = () => {
           background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center',
           zIndex: 2000, padding: '16px'
         }}>
-          <div className="card-light" style={{ maxWidth: '480px', width: '100%', padding: '32px', position: 'relative' }}>
+          <div className="card-light" style={{ maxWidth: '640px', width: '100%', padding: '32px', position: 'relative', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}>
             <button 
               onClick={() => setActiveSummary(null)} 
               style={{ position: 'absolute', top: '16px', right: '16px', background: 'transparent', border: 'none', cursor: 'pointer' }}
             >
               <X size={20} />
             </button>
-            <h3 style={{ fontSize: '20px', fontWeight: '800', marginBottom: '20px' }}>Pre-Visit Case Summary</h3>
+            <h3 style={{ fontSize: '20px', fontWeight: '800', marginBottom: '16px', borderBottom: '1px solid var(--color-cream-dark)', paddingBottom: '12px' }}>Pre-Visit Case Summary</h3>
             
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <div>
-                <label style={{ fontSize: '11px', opacity: 0.5, textTransform: 'uppercase' }}>Patient Name</label>
-                <div style={{ fontWeight: '700', fontSize: '15px' }}>{activeSummary.patientName}</div>
-              </div>
+            <div style={{ overflowY: 'auto', flex: 1, display: 'flex', flexDirection: 'column', gap: '16px', paddingRight: '4px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <div>
+                  <label style={{ fontSize: '11px', opacity: 0.5, textTransform: 'uppercase' }}>Patient Name</label>
+                  <div style={{ fontWeight: '700', fontSize: '15px' }}>{activeSummary.patientName}</div>
+                </div>
 
-              <div>
-                <label style={{ fontSize: '11px', opacity: 0.5, textTransform: 'uppercase' }}>Patient Contact</label>
-                <div style={{ fontSize: '14px' }}>{activeSummary.patientEmail}</div>
-              </div>
+                <div>
+                  <label style={{ fontSize: '11px', opacity: 0.5, textTransform: 'uppercase' }}>Patient Contact</label>
+                  <div style={{ fontSize: '14px' }}>{activeSummary.patientEmail}</div>
+                </div>
 
-              <div>
-                <label style={{ fontSize: '11px', opacity: 0.5, textTransform: 'uppercase' }}>Appointment Time</label>
-                <div style={{ fontSize: '14px' }}>{activeSummary.date} at {activeSummary.time} ({activeSummary.appointmentMode})</div>
-              </div>
-
-              <div>
-                <label style={{ fontSize: '11px', opacity: 0.5, textTransform: 'uppercase' }}>Primary Symptoms & Triage Context</label>
-                <div style={{
-                  padding: '12px', background: 'var(--color-cream)', borderRadius: '8px', 
-                  fontSize: '14px', lineHeight: '1.5', fontStyle: 'italic'
-                }}>
-                  {activeSummary.rejectionReasonOther ? `"${activeSummary.rejectionReasonOther}"` : 'Patient completed self-triage process.'}
+                <div style={{ gridColumn: 'span 2' }}>
+                  <label style={{ fontSize: '11px', opacity: 0.5, textTransform: 'uppercase' }}>Appointment Details</label>
+                  <div style={{ fontSize: '14px', fontWeight: '600' }}>
+                    {activeSummary.date} at {activeSummary.time} ({activeSummary.appointmentMode})
+                  </div>
                 </div>
               </div>
+
+              {activeSummary.triageUrgency && (() => {
+                const u = activeSummary.triageUrgency;
+                const config = {
+                  Urgent: { bgColor: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', text: 'Urgent — Attention Recommended' },
+                  Soon: { bgColor: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b', text: 'Soon — Within Days' },
+                  Routine: { bgColor: 'rgba(16, 185, 129, 0.1)', color: '#10b981', text: 'Routine — Standard Visit' }
+                }[u] || { bgColor: 'rgba(16, 185, 129, 0.1)', color: '#10b981', text: 'Routine' };
+
+                return (
+                  <div>
+                    <label style={{ fontSize: '11px', opacity: 0.5, textTransform: 'uppercase', display: 'block', marginBottom: '4px' }}>Urgency Level</label>
+                    <div style={{
+                      backgroundColor: config.bgColor,
+                      color: config.color,
+                      border: `1.5px solid ${config.color}`,
+                      padding: '6px 12px',
+                      borderRadius: '6px',
+                      fontSize: '11px',
+                      fontWeight: '800',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em',
+                      display: 'inline-block'
+                    }}>
+                      {config.text}
+                    </div>
+                  </div>
+                );
+              })()}
+
+              <div>
+                <label style={{ fontSize: '11px', opacity: 0.5, textTransform: 'uppercase' }}>Primary Symptoms & Concerns</label>
+                <div style={{
+                  padding: '12px', background: 'var(--color-cream)', borderRadius: '8px', 
+                  fontSize: '14px', lineHeight: '1.5', fontStyle: 'italic', marginTop: '4px'
+                }}>
+                  {activeSummary.symptoms ? `"${activeSummary.symptoms}"` : (activeSummary.rejectionReasonOther ? `"${activeSummary.rejectionReasonOther}"` : 'No symptom description provided.')}
+                </div>
+              </div>
+
+              {activeSummary.triageExplanation && (
+                <div>
+                  <label style={{ fontSize: '11px', opacity: 0.5, textTransform: 'uppercase' }}>AI Triage Recommendation</label>
+                  <div style={{
+                    padding: '12px', background: 'rgba(237, 184, 32, 0.05)', border: '1px solid rgba(237, 184, 32, 0.2)', borderRadius: '8px', 
+                    fontSize: '14px', lineHeight: '1.5', marginTop: '4px'
+                  }}>
+                    {activeSummary.triageExplanation}
+                  </div>
+                </div>
+              )}
+
+              {activeSummary.triageKeywords && activeSummary.triageKeywords.length > 0 && (
+                <div>
+                  <label style={{ fontSize: '11px', opacity: 0.5, textTransform: 'uppercase', display: 'block', marginBottom: '6px' }}>Detected Symptoms Markers</label>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                    {activeSummary.triageKeywords.map(keyword => (
+                      <span key={keyword} style={{
+                        backgroundColor: 'rgba(237, 184, 32, 0.1)',
+                        border: '1px solid var(--color-orange)',
+                        color: 'var(--color-dark)',
+                        padding: '4px 10px',
+                        borderRadius: '12px',
+                        fontSize: '11px',
+                        fontWeight: '700'
+                      }}>
+                        {keyword}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {activeSummary.triageHistory && activeSummary.triageHistory.length > 0 && (
+                <div>
+                  <label style={{ fontSize: '11px', opacity: 0.5, textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Triage Conversation History</label>
+                  <div style={{
+                    background: 'var(--color-cream)',
+                    border: '1px solid var(--color-cream-dark)',
+                    borderRadius: '12px',
+                    padding: '16px',
+                    maxHeight: '220px',
+                    overflowY: 'auto',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '10px'
+                  }}>
+                    {activeSummary.triageHistory.map((msg, i) => {
+                      const isUser = msg.role === 'user';
+                      return (
+                        <div key={i} style={{
+                          alignSelf: isUser ? 'flex-end' : 'flex-start',
+                          backgroundColor: isUser ? 'var(--color-orange)' : 'var(--color-white)',
+                          color: isUser ? 'var(--color-white)' : 'var(--color-dark)',
+                          padding: '10px 14px',
+                          borderRadius: isUser ? '14px 14px 0 14px' : '14px 14px 14px 0',
+                          maxWidth: '85%',
+                          fontSize: '13px',
+                          lineHeight: '1.45',
+                          boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+                        }}>
+                          {msg.content}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
 
-            <button onClick={() => setActiveSummary(null)} className="btn-primary w-full" style={{ marginTop: '24px', padding: '12px' }}>
+            <button onClick={() => setActiveSummary(null)} className="btn-primary w-full" style={{ marginTop: '20px', padding: '14px' }}>
               Close Summary
             </button>
           </div>
