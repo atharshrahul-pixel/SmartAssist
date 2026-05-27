@@ -22,7 +22,7 @@ const FALLBACK_QUESTIONS = {
   ]
 };
 
-const parseJsonResponse = (text) => {
+const parseJsonResponse = (text, allowedCategories) => {
   let cleaned = text.trim();
   if (cleaned.startsWith('```')) {
     cleaned = cleaned.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '').trim();
@@ -38,9 +38,8 @@ const parseJsonResponse = (text) => {
       throw new Error('Invalid question format');
     }
   } else if (parsed.type === 'recommendation') {
-    const validCategories = ['Dentist', 'Physiotherapist', 'Gym Trainer', 'Salon Specialist', 'General Practitioner'];
-    if (!validCategories.includes(parsed.specialistCategory)) {
-      throw new Error('Invalid specialist category');
+    if (!allowedCategories.includes(parsed.specialistCategory)) {
+      throw new Error(`Invalid specialist category: ${parsed.specialistCategory}`);
     }
     if (typeof parsed.idealCategory !== 'string' || !parsed.idealCategory.trim()) {
       throw new Error('Invalid ideal category');
@@ -244,6 +243,25 @@ const getTriageResponse = async ({ name, messages, forceFallback = false }) => {
   const firstMsg = userMsgs[0]?.content || '';
   const classifiedCategory = getKeywordRecommendation(firstMsg);
 
+  const Specialist = require('../models/Specialist');
+  let dbCategories = [];
+  try {
+    const docs = await Specialist.find({ status: 'approved' }).select('specialization').lean();
+    dbCategories = Array.from(new Set(docs.map(s => s.specialization).filter(Boolean)));
+  } catch (err) {
+    console.error('Failed to load database categories:', err);
+  }
+
+  const baseCategories = [
+    'Dentist',
+    'Physiotherapist',
+    'Gym Trainer',
+    'Salon Specialist',
+    'General Practitioner',
+    'Emergency Services'
+  ];
+  const allAvailableCategories = Array.from(new Set([...baseCategories, ...dbCategories]));
+
   if (forceFallback) {
     return {
       ...getFallbackResponse(classifiedCategory, userMsgs),
@@ -257,22 +275,35 @@ const getTriageResponse = async ({ name, messages, forceFallback = false }) => {
     .map(m => `${m.role === 'user' ? 'Patient' : 'Nurse'}: ${m.content}`)
     .join('\n');
 
+  const baseDescriptions = {
+    'Dentist': 'for teeth, gums, jaw pain, cavities, or general oral health issues.',
+    'Physiotherapist': 'for joint pain, muscle pain, posture, physical injuries, back/knee/neck pain.',
+    'Gym Trainer': 'for fitness, exercise, weight loss/gain, strength, and workout plans.',
+    'Salon Specialist': 'for skin care, hair styling, nails, cosmetics, and general grooming/beauty.',
+    'General Practitioner': 'for general medical concerns, fever, infections, cough, sore throat, headache, abdominal pain, or any condition requiring a primary care medical doctor.',
+    'Emergency Services': 'for serious or life-threatening symptoms requiring immediate emergency care.'
+  };
+
+  const supportedSpecialistsText = allAvailableCategories.map((cat, idx) => {
+    const desc = baseDescriptions[cat] || `for professional health and wellness services relating to ${cat}.`;
+    return `${idx + 1}. ${cat}: ${desc}`;
+  }).join('\n');
+
   const systemInstructions = `You are a conversational AI triage nurse assistant (not a real doctor).
 Your goal is to ask 2-3 clarifying questions to understand the patient's symptoms, and then recommend the most relevant specialist.
 The patient's name is "${name}". Address them by name when appropriate.
 
 Supported specialists on our platform:
-1. Dentist: for teeth, gums, jaw pain, cavities, or general oral health issues.
-2. Physiotherapist: for joint pain, muscle pain, posture, physical injuries, back/knee/neck pain.
-3. Gym Trainer: for fitness, exercise, weight loss/gain, strength, and workout plans.
-4. Salon Specialist: for skin care, hair styling, nails, cosmetics, and general grooming/beauty.
-5. General Practitioner: for general medical concerns, fever, infections, cough, sore throat, headache, abdominal pain, or any condition requiring a primary care medical doctor.
+${supportedSpecialistsText}
+
+EMERGENCY RULE:
+If you evaluate the patient's symptoms as "Urgent" (red flags like chest pain, severe shortness of breath, sudden numbness, severe head injury, heavy bleeding), you MUST set "specialistCategory" to "Emergency Services", "idealCategory" to "Emergency Services", and "urgency" to "Urgent". Your explanation text must advise the patient to seek immediate emergency care or call emergency services.
 
 CRITICAL MAPPING RULE:
-If the patient needs a specialist that is NOT directly available on our platform (e.g., Orthopedist, Cardiologist, Dermatologist, Podiatrist, Neurologist, etc.), you MUST recommend the closest available alternative of the 5 supported categories above, and explain it gracefully in the text.
+If the symptoms are NOT urgent, but the patient needs a specialist that is NOT directly available on our platform (e.g., Orthopedist, Cardiologist, Dermatologist, Podiatrist, Neurologist, etc.), you MUST recommend the closest available alternative of the supported categories listed above, and explain it gracefully in the text.
 Examples:
 - Orthopedist / Chiropractor -> recommend Physiotherapist (e.g. "We don't have an Orthopedist at the moment, but a Physiotherapist can assess your knee and guide you further.")
-- Cardiologist -> recommend General Practitioner (and suggest seeing a physician).
+- Cardiologist (non-urgent) -> recommend General Practitioner (and suggest seeing a physician).
 - Dermatologist -> recommend Salon Specialist (for minor skin/grooming issues) or General Practitioner (for medical skin issues like rash, infection, eczema).
 - Dietitian -> Gym Trainer.
 - General medical issues (fever, sore throat, cough, headache) -> recommend General Practitioner.
@@ -301,8 +332,8 @@ Choose one of the two formats:
 2. If making a recommendation:
 {
   "type": "recommendation",
-  "specialistCategory": "One of: Dentist, Physiotherapist, Gym Trainer, Salon Specialist, General Practitioner",
-  "idealCategory": "The ideal specialist they need (e.g. Orthopedist, Cardiologist, Dentist, General Practitioner, etc.)",
+  "specialistCategory": "One of: ${allAvailableCategories.join(', ')}",
+  "idealCategory": "The ideal specialist they need (e.g. Orthopedist, Cardiologist, Dentist, General Practitioner, Emergency Services, etc.)",
   "confidence": 85, // integer percentage score representing match confidence from 50 to 99
   "urgency": "Routine", // exactly one of: Routine, Soon, Urgent
   "text": "Explanation of the recommendation, including the alternative specialist mapping disclaimer if applicable."
@@ -327,7 +358,7 @@ Output JSON:`;
       rawOutput = await callGemini(finalPrompt);
     }
 
-    const parsed = parseJsonResponse(rawOutput);
+    const parsed = parseJsonResponse(rawOutput, allAvailableCategories);
     return { ...parsed, source: 'AI' };
   } catch (error) {
     console.error('LLM Triage query failed, falling back to deterministic engine:', error.message);
