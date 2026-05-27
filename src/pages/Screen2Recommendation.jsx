@@ -1,15 +1,21 @@
-import { useEffect, useState, useContext } from 'react';
+import { useEffect, useState, useContext, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppContext } from '../App';
 import Stepper from '../components/Stepper';
 import { Activity, Scissors, Dumbbell, Stethoscope, Search, BarChart3, Info, AlertTriangle, Clock, CheckCircle } from 'lucide-react';
 
-const icons = {
-  'Dentist': <Stethoscope size={40} color="var(--color-orange)" />,
-  'Physiotherapist': <Activity size={40} color="var(--color-orange)" />,
-  'Gym Trainer': <Dumbbell size={40} color="var(--color-orange)" />,
-  'Salon Specialist': <Scissors size={40} color="var(--color-orange)" />,
-  'General Practitioner': <Stethoscope size={40} color="var(--color-orange)" />
+const BACKEND_URL = window.location.hostname === 'localhost'
+  ? 'http://localhost:5000/api'
+  : 'https://akeno7594-internship-project-backend.hf.space/api';
+
+const getSpecialistIcon = (category) => {
+  const normalized = (category || '').toLowerCase();
+  if (normalized.includes('dent')) return <Stethoscope size={40} color="var(--color-orange)" />;
+  if (normalized.includes('physio') || normalized.includes('therap')) return <Activity size={40} color="var(--color-orange)" />;
+  if (normalized.includes('gym') || normalized.includes('trainer') || normalized.includes('fit')) return <Dumbbell size={40} color="var(--color-orange)" />;
+  if (normalized.includes('salon') || normalized.includes('groom') || normalized.includes('style') || normalized.includes('cut')) return <Scissors size={40} color="var(--color-orange)" />;
+  if (normalized.includes('emerg') || normalized.includes('service') || normalized.includes('er')) return <AlertTriangle size={40} color="#ef4444" />;
+  return <Stethoscope size={40} color="var(--color-orange)" />;
 };
 
 const specialistKeywords = {
@@ -17,7 +23,8 @@ const specialistKeywords = {
   'Physiotherapist': ['muscle','back','knee','joint','sprain','physio','posture','shoulder','hip','neck','pain'],
   'Gym Trainer': ['weight','fitness','gym','exercise','cardio','strength','workout','fat','bulk','slim','tone'],
   'Salon Specialist': ['hair','skin','facial','salon','grooming','nails','beard','eyebrow','wax','cut','color'],
-  'General Practitioner': ['headache','fever','sore throat','cough','throat','stomach','cold','flu','chest pain','breathing','vomiting','nausea','doctor','physician','gp']
+  'General Practitioner': ['headache','fever','sore throat','cough','throat','stomach','cold','flu','chest pain','breathing','vomiting','nausea','doctor','physician','gp'],
+  'Emergency Services': ['chest pain','shortness of breath','breathing difficulty','heavy bleeding','severe head injury','unconscious','sudden weakness','stroke','heart attack']
 };
 
 const Screen2Recommendation = () => {
@@ -27,11 +34,30 @@ const Screen2Recommendation = () => {
 
   const hasExpired = !state.name || !state.problem || !state.recommendationExplanation;
 
-  const detectedKeywords = hasExpired
-    ? []
-    : (specialistKeywords[state.recommendedSpecialist] || []).filter(word => 
-        state.problem.toLowerCase().includes(word)
-      );
+  const detectedKeywords = useMemo(() => {
+    if (hasExpired) return [];
+    const allKeywords = Array.from(new Set(Object.values(specialistKeywords).flat()));
+    return allKeywords.filter(word => 
+      state.problem.toLowerCase().includes(word.toLowerCase())
+    );
+  }, [hasExpired, state.problem]);
+
+  const [hasSpecialists, setHasSpecialists] = useState(true);
+
+  useEffect(() => {
+    if (hasExpired) return;
+    fetch(`${BACKEND_URL}/specialists`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && state.recommendedSpecialist) {
+          const matching = data.specialists.filter(s => 
+            (s.category || s.specialization || '').toLowerCase() === state.recommendedSpecialist.toLowerCase()
+          );
+          setHasSpecialists(matching.length > 0);
+        }
+      })
+      .catch(err => console.error("Error checking specialist availability:", err));
+  }, [hasExpired, state.recommendedSpecialist]);
 
   const calculateConfidence = () => {
     if (hasExpired) return 0;
@@ -175,7 +201,7 @@ const Screen2Recommendation = () => {
                 margin: '0 auto 24px',
                 border: '1px solid rgba(237,184,32,0.2)'
               }}>
-                {icons[state.recommendedSpecialist]}
+                {getSpecialistIcon(state.recommendedSpecialist)}
               </div>
               
               <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '16px' }}>
@@ -237,6 +263,24 @@ const Screen2Recommendation = () => {
                 {state.recommendedSpecialist}
               </h2>
 
+              {state.recommendedSpecialist === 'Emergency Services' && (
+                <div style={{
+                  background: 'rgba(239, 68, 68, 0.15)',
+                  border: '2px solid #ef4444',
+                  borderRadius: '12px',
+                  padding: '16px',
+                  marginBottom: '24px',
+                  textAlign: 'left',
+                  fontSize: '14.5px',
+                  lineHeight: '1.6',
+                  color: '#fca5a5',
+                  animation: 'fadeInSlideUp 0.3s ease'
+                }}>
+                  <AlertTriangle size={24} color="#f87171" style={{ float: 'left', marginRight: '12px', marginTop: '2px' }} />
+                  <strong>CRITICAL EMERGENCY:</strong> Your symptoms indicate a high-risk medical emergency. <strong>Please visit the nearest Emergency Room (ER) or call Emergency Services (911) immediately.</strong> Do not attempt to schedule a wellness appointment.
+                </div>
+              )}
+
               {state.recommendedSpecialist === 'General Practitioner' && (
                 <div style={{
                   background: 'rgba(239, 68, 68, 0.1)',
@@ -253,7 +297,7 @@ const Screen2Recommendation = () => {
                 </div>
               )}
 
-              {state.idealCategory && state.idealCategory.toLowerCase() !== state.recommendedSpecialist.toLowerCase() && state.recommendedSpecialist !== 'General Practitioner' && (
+              {state.idealCategory && state.idealCategory.toLowerCase() !== state.recommendedSpecialist.toLowerCase() && state.recommendedSpecialist !== 'General Practitioner' && state.recommendedSpecialist !== 'Emergency Services' && (
                 <div style={{
                   background: 'rgba(237, 184, 32, 0.1)',
                   border: '1.5px solid var(--color-orange)',
@@ -268,12 +312,28 @@ const Screen2Recommendation = () => {
                   We don't have a <strong>{state.idealCategory}</strong> right now, but we suggest you visit a <strong>{state.recommendedSpecialist}</strong> first.
                 </div>
               )}
+
+              {!hasSpecialists && state.recommendedSpecialist !== 'General Practitioner' && state.recommendedSpecialist !== 'Emergency Services' && (
+                <div style={{
+                  background: 'rgba(237, 184, 32, 0.1)',
+                  border: '1.5px solid var(--color-orange)',
+                  borderRadius: '12px',
+                  padding: '14px 16px',
+                  marginBottom: '24px',
+                  textAlign: 'left',
+                  fontSize: '13px',
+                  lineHeight: '1.5',
+                  color: 'rgba(255, 255, 255, 0.9)',
+                }}>
+                  ℹ️ <strong>Availability Note:</strong> We currently do not have any active <strong>{state.recommendedSpecialist}</strong> specialists registered in our network. You can browse other available specialists.
+                </div>
+              )}
               
               <p style={{ fontSize: '15px', color: 'var(--color-muted)', marginBottom: '40px', lineHeight: 1.6 }}>
                 {state.recommendationExplanation}
               </p>
 
-              {state.urgency === 'Urgent' && (
+              {state.urgency === 'Urgent' && state.recommendedSpecialist !== 'Emergency Services' && (
                 <div style={{
                   background: 'rgba(239, 68, 68, 0.1)',
                   border: '1.5px solid #ef4444',
@@ -296,7 +356,49 @@ const Screen2Recommendation = () => {
                 </div>
               )}
  
-              {state.recommendedSpecialist === 'General Practitioner' ? (
+              {state.recommendedSpecialist === 'Emergency Services' ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <a 
+                    href="tel:911" 
+                    className="btn-danger w-full text-center animate-pulse" 
+                    style={{ 
+                      padding: '16px', 
+                      display: 'block', 
+                      textDecoration: 'none', 
+                      fontWeight: '800', 
+                      fontSize: '16px',
+                      backgroundColor: '#ef4444',
+                      color: 'var(--color-white)',
+                      borderRadius: 'var(--r-md)',
+                      boxShadow: '0 0 0 0 rgba(239, 68, 68, 0.7)',
+                      animation: 'pulse 1.5s infinite'
+                    }}
+                  >
+                    🚨 Call Emergency Services (911)
+                  </a>
+                  <a 
+                    href="https://www.google.com/maps/search/?api=1&query=emergency+room+near+me" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="btn-primary w-full text-center" 
+                    style={{ 
+                      padding: '16px', 
+                      display: 'block', 
+                      textDecoration: 'none', 
+                      fontWeight: '700'
+                    }}
+                  >
+                    📍 Find Nearest Emergency Room (ER)
+                  </a>
+                  <button 
+                    className="btn-danger w-full" 
+                    onClick={() => navigate('/')} 
+                    style={{ background: 'transparent' }}
+                  >
+                    Go Back to Homepage
+                  </button>
+                </div>
+              ) : (state.recommendedSpecialist === 'General Practitioner' || !hasSpecialists) ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   <button 
                     className="btn-primary w-full" 
