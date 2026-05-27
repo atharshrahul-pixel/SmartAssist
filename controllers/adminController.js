@@ -40,7 +40,7 @@ const getPendingSpecialists = async (req, res) => {
   }
 
   const Specialist = require('../models/Specialist');
-  const pending = await Specialist.find({ status: 'pending' }).select('-profilePhoto');
+  const pending = await Specialist.find({ status: 'pending' });
   res.status(200).json({ success: true, specialists: pending });
 };
 
