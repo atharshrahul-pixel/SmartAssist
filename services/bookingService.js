@@ -9,7 +9,7 @@ const generateReceiptId = () => {
   return `SA-${timestamp}-${random}`.toUpperCase();
 };
 
-const createBooking = async ({ userName, userEmail, specialistId, bookingDate, bookingTime, rejectionReason, rejectionReasonOther, userId, bookedFor, appointmentMode, price, duration }) => {
+const createBooking = async ({ userName, userEmail, specialistId, bookingDate, bookingTime, rejectionReason, rejectionReasonOther, userId, bookedFor, appointmentMode, price, duration, triageUrgency, triageExplanation, triageHistory, triageKeywords, symptoms }) => {
   const specialist = await getSpecialistById(specialistId);
 
   if (!specialist) {
@@ -33,7 +33,12 @@ const createBooking = async ({ userName, userEmail, specialistId, bookingDate, b
     bookedFor: bookedFor ? bookedFor.trim() : userName.trim(),
     appointmentMode: appointmentMode || 'In-Person',
     price,
-    duration
+    duration,
+    triageUrgency,
+    triageExplanation,
+    triageHistory,
+    triageKeywords,
+    symptoms
   };
 
   const booking = await Booking.create(bookingData);

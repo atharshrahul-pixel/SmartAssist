@@ -244,7 +244,12 @@ const getPatientSummary = async (req, res) => {
       date: booking.bookingDate,
       time: booking.bookingTime,
       rejectionReason: booking.rejectionReason,
-      rejectionReasonOther: booking.rejectionReasonOther
+      rejectionReasonOther: booking.rejectionReasonOther,
+      symptoms: booking.symptoms,
+      triageUrgency: booking.triageUrgency,
+      triageExplanation: booking.triageExplanation,
+      triageHistory: booking.triageHistory,
+      triageKeywords: booking.triageKeywords
     }
   });
 };
