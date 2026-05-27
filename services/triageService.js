@@ -38,7 +38,7 @@ const parseJsonResponse = (text) => {
       throw new Error('Invalid question format');
     }
   } else if (parsed.type === 'recommendation') {
-    const validCategories = ['Dentist', 'Physiotherapist', 'Gym Trainer', 'Salon Specialist'];
+    const validCategories = ['Dentist', 'Physiotherapist', 'Gym Trainer', 'Salon Specialist', 'General Practitioner'];
     if (!validCategories.includes(parsed.specialistCategory)) {
       throw new Error('Invalid specialist category');
     }
@@ -266,14 +266,16 @@ Supported specialists on our platform:
 2. Physiotherapist: for joint pain, muscle pain, posture, physical injuries, back/knee/neck pain.
 3. Gym Trainer: for fitness, exercise, weight loss/gain, strength, and workout plans.
 4. Salon Specialist: for skin care, hair styling, nails, cosmetics, and general grooming/beauty.
+5. General Practitioner: for general medical concerns, fever, infections, cough, sore throat, headache, abdominal pain, or any condition requiring a primary care medical doctor.
 
 CRITICAL MAPPING RULE:
-If the patient needs a specialist that is NOT directly available on our platform (e.g., Orthopedist, Cardiologist, Dermatologist, Podiatrist, Neurologist, etc.), you MUST recommend the closest available alternative of the 4 supported categories above, and explain it gracefully in the text.
+If the patient needs a specialist that is NOT directly available on our platform (e.g., Orthopedist, Cardiologist, Dermatologist, Podiatrist, Neurologist, etc.), you MUST recommend the closest available alternative of the 5 supported categories above, and explain it gracefully in the text.
 Examples:
 - Orthopedist / Chiropractor -> recommend Physiotherapist (e.g. "We don't have an Orthopedist at the moment, but a Physiotherapist can assess your knee and guide you further.")
-- Cardiologist -> recommend Physiotherapist (and suggest seeing a physician).
-- Dermatologist -> recommend Salon Specialist (for minor skin/grooming issues) or Physiotherapist (if pain/joint-related), explaining the choice clearly.
+- Cardiologist -> recommend General Practitioner (and suggest seeing a physician).
+- Dermatologist -> recommend Salon Specialist (for minor skin/grooming issues) or General Practitioner (for medical skin issues like rash, infection, eczema).
 - Dietitian -> Gym Trainer.
+- General medical issues (fever, sore throat, cough, headache) -> recommend General Practitioner.
 
 URGENCY ASSESSMENT RULE:
 You MUST evaluate the urgency of the symptoms and assign exactly one value to the "urgency" field:
@@ -299,8 +301,8 @@ Choose one of the two formats:
 2. If making a recommendation:
 {
   "type": "recommendation",
-  "specialistCategory": "One of: Dentist, Physiotherapist, Gym Trainer, Salon Specialist",
-  "idealCategory": "The ideal specialist they need (e.g. Orthopedist, Cardiologist, Dentist, etc.)",
+  "specialistCategory": "One of: Dentist, Physiotherapist, Gym Trainer, Salon Specialist, General Practitioner",
+  "idealCategory": "The ideal specialist they need (e.g. Orthopedist, Cardiologist, Dentist, General Practitioner, etc.)",
   "confidence": 85, // integer percentage score representing match confidence from 50 to 99
   "urgency": "Routine", // exactly one of: Routine, Soon, Urgent
   "text": "Explanation of the recommendation, including the alternative specialist mapping disclaimer if applicable."
