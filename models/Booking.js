@@ -38,7 +38,8 @@ const bookingSchema = new mongoose.Schema({
     reminder15m: { type: Boolean, default: false },
     followUp1h: { type: Boolean, default: false },
     followUp24h: { type: Boolean, default: false },
-    followUp1w: { type: Boolean, default: false }
+    followUp1w: { type: Boolean, default: false },
+    summaryEmailedToSpecialist: { type: Boolean, default: false }
   }
 }, { timestamps: true });
 

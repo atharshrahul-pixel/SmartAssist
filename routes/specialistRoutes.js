@@ -14,6 +14,7 @@ const {
   updateMyModes,
   getMyAppointments,
   getPatientSummary,
+  getPatientSummaryPDF,
   getMyEarnings
 } = require("../controllers/specialistController");
 
@@ -34,6 +35,7 @@ router.put("/my/slots", authMiddleware, requireApprovedSpecialist, asyncHandler(
 router.put("/my/modes", authMiddleware, requireApprovedSpecialist, asyncHandler(updateMyModes));
 router.get("/my/appointments", authMiddleware, requireApprovedSpecialist, asyncHandler(getMyAppointments));
 router.get("/my/appointments/:bookingId/summary", authMiddleware, requireApprovedSpecialist, asyncHandler(getPatientSummary));
+router.get("/my/appointments/:bookingId/summary/pdf", authMiddleware, requireApprovedSpecialist, asyncHandler(getPatientSummaryPDF));
 router.get("/my/earnings", authMiddleware, requireApprovedSpecialist, asyncHandler(getMyEarnings));
 
 module.exports = router;

@@ -238,6 +238,8 @@ const getPatientSummary = async (req, res) => {
   res.status(200).json({
     success: true,
     summary: {
+      _id: booking._id,
+      receiptId: booking.receiptId,
       patientName: booking.bookedFor || booking.userName,
       patientEmail: booking.userEmail,
       appointmentMode: booking.appointmentMode,
@@ -282,6 +284,33 @@ const getMyEarnings = async (req, res) => {
   });
 };
 
+const getPatientSummaryPDF = async (req, res) => {
+  const Booking = require('../models/Booking');
+  const User = require('../models/User');
+  const { generatePreVisitSummaryPDF } = require('../services/pdfService');
+
+  const booking = await Booking.findOne({
+    _id: req.params.bookingId,
+    specialistId: req.specialist._id.toString()
+  });
+
+  if (!booking) {
+    const CustomError = require('../utils/customError');
+    throw new CustomError('Booking not found or unauthorized', 404);
+  }
+
+  let userProfile = null;
+  if (booking.userId) {
+    userProfile = await User.findById(booking.userId);
+  }
+
+  const pdfBuffer = await generatePreVisitSummaryPDF(booking, userProfile);
+
+  res.setHeader('Content-Type', 'application/pdf');
+  res.setHeader('Content-Disposition', `attachment; filename=summary-${booking.receiptId}.pdf`);
+  res.send(pdfBuffer);
+};
+
 module.exports = {
   listSpecialists,
   addSpecialist,
@@ -294,5 +323,6 @@ module.exports = {
   updateMyModes,
   getMyAppointments,
   getPatientSummary,
+  getPatientSummaryPDF,
   getMyEarnings
 };

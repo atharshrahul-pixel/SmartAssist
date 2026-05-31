@@ -54,6 +54,49 @@ const sendNotification = async ({ email, phone, subject, body, userId, channel }
   }
 };
 
+const sendSpecialistSummaryEmail = async (booking) => {
+  try {
+    const Specialist = require('../models/Specialist');
+    const specialist = await Specialist.findById(booking.specialistId).populate('userId');
+    const specialistEmail = specialist?.userId?.email;
+    
+    if (!specialistEmail) {
+      console.log(`[Notification Service] Specialist email not found for ID: ${booking.specialistId}`);
+      return;
+    }
+    
+    console.log(`[Notification Service] Generating and sending AI Pre-Visit summary email to specialist: ${specialistEmail}`);
+    
+    const { generatePreVisitSummaryPDF } = require('./pdfService');
+    let userProfile = null;
+    if (booking.userId) {
+      userProfile = await User.findById(booking.userId);
+    }
+    
+    const pdfBuffer = await generatePreVisitSummaryPDF(booking, userProfile);
+    
+    if (resend) {
+      await resend.emails.send({
+        from: 'SmartAssist <notifications@resend.dev>',
+        to: specialistEmail,
+        subject: `AI Pre-Visit Case Summary - ${booking.bookedFor || booking.userName}`,
+        text: `Hello ${booking.specialistName || 'Specialist'},\n\nAttached is the AI pre-visit case summary for your upcoming appointment with ${booking.bookedFor || booking.userName} at ${booking.bookingTime}.\n\nBest regards,\nSmartAssist Team`,
+        attachments: [
+          {
+            filename: `summary-${booking.receiptId}.pdf`,
+            content: pdfBuffer
+          }
+        ]
+      });
+      console.log(`[Notification Service] Successfully emailed summary to ${specialistEmail}`);
+    } else {
+      console.log(`[Notification Service] Mock Email attachment sent to ${specialistEmail} (Resend not configured)`);
+    }
+  } catch (err) {
+    console.error(`[Notification Service] Error emailing specialist summary:`, err);
+  }
+};
+
 const runNotificationCheck = async () => {
   try {
     const bookings = await Booking.find({ status: 'confirmed' });
@@ -73,7 +116,8 @@ const runNotificationCheck = async () => {
           reminder15m: false,
           followUp1h: false,
           followUp24h: false,
-          followUp1w: false
+          followUp1w: false,
+          summaryEmailedToSpecialist: false
         };
       }
       
@@ -105,6 +149,13 @@ const runNotificationCheck = async () => {
         await sendNotification({ email: booking.userEmail, subject: 'Appointment Starting Soon', body, userId: booking.userId, channel: 'email' });
         await sendNotification({ phone: '', body, userId: booking.userId, channel: 'sms' });
         booking.notificationsSent.reminder15m = true;
+        updated = true;
+      }
+      
+      // 7. 1h pre-visit Summary Email (between 0.8 and 1.2 hours before)
+      if (diffHrs > 0 && diffHrs <= 1.2 && diffHrs >= 0.8 && !booking.notificationsSent.summaryEmailedToSpecialist) {
+        await sendSpecialistSummaryEmail(booking);
+        booking.notificationsSent.summaryEmailedToSpecialist = true;
         updated = true;
       }
       
