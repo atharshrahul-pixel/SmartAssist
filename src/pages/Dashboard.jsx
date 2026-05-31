@@ -48,8 +48,167 @@ const WaitlistHoldTimer = ({ notifiedAt, onExpire }) => {
   );
 };
 
+const RecoveryTimeline = ({ feedbackBookings }) => {
+  const [hoveredPoint, setHoveredPoint] = useState(null);
+  
+  if (feedbackBookings.length === 0) {
+    return (
+      <div className="card-light" style={{ padding: '32px', textAlign: 'center', marginBottom: '24px', border: '1px dashed rgba(0,0,0,0.15)' }}>
+        <p style={{ opacity: 0.6, fontSize: '14px' }}>Your recovery timeline will appear here once you log post-visit feedback.</p>
+      </div>
+    );
+  }
+
+  const width = 600;
+  const height = 200;
+  const paddingX = 60;
+  const paddingY = 35;
+
+  const getSymptomLabel = (val) => {
+    const labels = {
+      1: 'Much Worse',
+      2: 'Worse',
+      3: 'Same',
+      4: 'Better',
+      5: 'Much Better'
+    };
+    return labels[val] || '';
+  };
+
+  const points = feedbackBookings.map((b, i) => {
+    const x = feedbackBookings.length === 1 
+      ? width / 2 
+      : paddingX + (i * (width - 2 * paddingX)) / (feedbackBookings.length - 1);
+    
+    const val = b.postVisitFeedback.symptomImprovement;
+    const y = height - paddingY - ((val - 1) * (height - 2 * paddingY)) / 4;
+    
+    return { x, y, booking: b };
+  });
+
+  const pathD = points.length > 0 
+    ? points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ')
+    : '';
+
+  const areaD = points.length > 0
+    ? `${pathD} L ${points[points.length - 1].x} ${height - paddingY} L ${points[0].x} ${height - paddingY} Z`
+    : '';
+
+  return (
+    <div className="card-light page-transition" style={{ padding: '24px', marginBottom: '24px', position: 'relative' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+        <h3 style={{ fontSize: '16px', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--color-orange)' }}></span>
+          Recovery Timeline
+        </h3>
+        <span style={{ fontSize: '11px', opacity: 0.6 }}>Hover dots to inspect consultation details</span>
+      </div>
+
+      <div style={{ overflowX: 'auto' }}>
+        <svg viewBox={`0 0 ${width} ${height}`} width="100%" height={height} style={{ overflow: 'visible' }}>
+          <defs>
+            <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="var(--color-orange)" stopOpacity="0.2" />
+              <stop offset="100%" stopColor="var(--color-orange)" stopOpacity="0.0" />
+            </linearGradient>
+          </defs>
+
+          {/* Grid lines */}
+          {[1, 2, 3, 4, 5].map(level => {
+            const y = height - paddingY - ((level - 1) * (height - 2 * paddingY)) / 4;
+            return (
+              <g key={level}>
+                <line 
+                  x1={paddingX} 
+                  y1={y} 
+                  x2={width - paddingX} 
+                  y2={y} 
+                  stroke="rgba(0,0,0,0.06)" 
+                  strokeDasharray="4,4" 
+                />
+                <text 
+                  x={paddingX - 8} 
+                  y={y + 3} 
+                  textAnchor="end" 
+                  style={{ fontSize: '9px', fill: 'var(--color-dark)', opacity: 0.6, fontWeight: '600' }}
+                >
+                  {getSymptomLabel(level)}
+                </text>
+              </g>
+            );
+          })}
+
+          {/* Connected path */}
+          {points.length > 1 && (
+            <>
+              <path d={areaD} fill="url(#chartGrad)" />
+              <path d={pathD} fill="none" stroke="var(--color-orange)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+            </>
+          )}
+
+          {/* Data Points */}
+          {points.map((p, i) => (
+            <g 
+              key={p.booking.receiptId} 
+              onMouseEnter={() => setHoveredPoint(p)}
+              onMouseLeave={() => setHoveredPoint(null)}
+              style={{ cursor: 'pointer' }}
+            >
+              <circle cx={p.x} cy={p.y} r="8" fill="var(--color-orange)" opacity="0.1" />
+              <circle cx={p.x} cy={p.y} r="4" fill="var(--color-orange)" stroke="#FFFFFF" strokeWidth="2" />
+              
+              {/* X Axis Label */}
+              <text 
+                x={p.x} 
+                y={height - 8} 
+                textAnchor="middle" 
+                style={{ fontSize: '8.5px', fill: 'var(--color-dark)', opacity: 0.7, fontWeight: '700' }}
+              >
+                {p.booking.bookingDate.split(',')[0]}
+              </text>
+            </g>
+          ))}
+        </svg>
+      </div>
+
+      {/* Interactive Tooltip Card */}
+      {hoveredPoint && (
+        <div style={{
+          position: 'absolute',
+          top: hoveredPoint.y - 85 > 0 ? hoveredPoint.y - 85 : 10,
+          left: hoveredPoint.x - 100 > 10 ? hoveredPoint.x - 100 : 10,
+          background: 'var(--color-dark)',
+          color: 'var(--color-white)',
+          padding: '12px 16px',
+          borderRadius: 'var(--r-md)',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+          zIndex: 10,
+          width: '200px',
+          pointerEvents: 'none',
+          animation: 'popIn 0.15s ease'
+        }}>
+          <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--color-accent)', marginBottom: '4px' }}>
+            {hoveredPoint.booking.specialistName}
+          </div>
+          <div style={{ fontSize: '9px', opacity: 0.6, marginBottom: '6px' }}>
+            {hoveredPoint.booking.bookingDate} @ {hoveredPoint.booking.bookingTime}
+          </div>
+          <div style={{ fontSize: '10px', fontWeight: '600' }}>
+            Improvement: <span style={{ color: 'var(--color-orange)' }}>{getSymptomLabel(hoveredPoint.booking.postVisitFeedback.symptomImprovement)}</span>
+          </div>
+          {hoveredPoint.booking.postVisitFeedback.newSymptomsOrConcerns && (
+            <div style={{ fontSize: '9px', opacity: 0.8, marginTop: '4px', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '4px', wordBreak: 'break-word' }}>
+              "{hoveredPoint.booking.postVisitFeedback.newSymptomsOrConcerns}"
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
 const Dashboard = () => {
-  const { user, token, logoutUser, refreshUser } = useContext(AppContext);
+  const { user, token, logoutUser, refreshUser, updateState } = useContext(AppContext);
   const navigate = useNavigate();
   
   const [activeTab, setActiveTab] = useState('appointments');
@@ -73,6 +232,17 @@ const Dashboard = () => {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedFamilyMember, setSelectedFamilyMember] = useState('');
   const [downloadingId, setDownloadingId] = useState(null);
+
+  // Post-appointment Feedback States
+  const [selectedSymptomImprovement, setSelectedSymptomImprovement] = useState(0);
+  const [feedbackFollowUp, setFeedbackFollowUp] = useState('');
+  const [feedbackSubmitLoading, setFeedbackSubmitLoading] = useState(false);
+  const [dismissedFeedbackId, setDismissedFeedbackId] = useState(null);
+  const [feedbackAlert, setFeedbackAlert] = useState(null);
+  
+  // Stored lists for timeline & pending
+  const [pendingFeedbackBooking, setPendingFeedbackBooking] = useState(null);
+  const [feedbackBookings, setFeedbackBookings] = useState([]);
 
   const isPastBooking = (booking) => {
     try {
@@ -110,6 +280,102 @@ const Dashboard = () => {
       alert('Failed to generate receipt PDF.');
     } finally {
       setDownloadingId(null);
+    }
+  };
+
+  const handleBookFollowUp = (specialist) => {
+    updateState({
+      finalSpecialist: {
+        id: specialist.id,
+        name: specialist.name,
+        category: specialist.category
+      }
+    });
+    setFeedbackAlert(null);
+    navigate('/book');
+  };
+
+  const handleSubmitFeedback = async () => {
+    if (selectedSymptomImprovement === 0 || !pendingFeedbackBooking) return;
+    setFeedbackSubmitLoading(true);
+    try {
+      const res = await fetch(`${BACKEND_URL}/bookings/${pendingFeedbackBooking.receiptId}/feedback`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          symptomImprovement: selectedSymptomImprovement,
+          newSymptomsOrConcerns: feedbackFollowUp
+        })
+      });
+      const json = await res.json();
+      if (json.success) {
+        const feedback = json.booking.postVisitFeedback;
+        
+        if (feedback.isFlagged) {
+          setFeedbackAlert({
+            type: 'warning',
+            specialistId: pendingFeedbackBooking.specialistId,
+            specialistName: pendingFeedbackBooking.specialistName,
+            category: pendingFeedbackBooking.specialistCategory,
+            message: feedback.symptomImprovement === 1 
+              ? 'You reported feeling much worse after your consultation.' 
+              : 'Your response contains symptoms that may require attention.'
+          });
+        } else {
+          setFeedbackAlert({
+            type: 'success',
+            message: 'Thank you for updating your recovery status. Keep track of your timeline below.'
+          });
+        }
+        setSelectedSymptomImprovement(0);
+        setFeedbackFollowUp('');
+        fetchPendingFeedback();
+        fetchRecoveryTimeline();
+        fetchBookings();
+      } else {
+        alert('Failed to submit feedback: ' + json.message);
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error submitting feedback.');
+    } finally {
+      setFeedbackSubmitLoading(false);
+    }
+  };
+
+  const fetchPendingFeedback = async () => {
+    if (!token) return;
+    try {
+      const res = await fetch(`${BACKEND_URL}/bookings/pending-feedback`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const json = await res.json();
+      if (json.success && json.pending && json.pending.length > 0) {
+        const activePending = json.pending.find(b => b.receiptId !== dismissedFeedbackId);
+        setPendingFeedbackBooking(activePending || null);
+      } else {
+        setPendingFeedbackBooking(null);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const fetchRecoveryTimeline = async () => {
+    if (!token) return;
+    try {
+      const res = await fetch(`${BACKEND_URL}/bookings/recovery-timeline`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const json = await res.json();
+      if (json.success) {
+        setFeedbackBookings(json.timeline);
+      }
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -179,8 +445,16 @@ const Dashboard = () => {
     } else {
       fetchBookings();
       fetchProfile();
+      fetchPendingFeedback();
+      fetchRecoveryTimeline();
     }
   }, [token, user, navigate]);
+
+  useEffect(() => {
+    if (token && user) {
+      fetchPendingFeedback();
+    }
+  }, [dismissedFeedbackId]);
 
   const fetchBookings = async () => {
     try {
@@ -400,6 +674,120 @@ const Dashboard = () => {
           {activeTab === 'appointments' && (
             <div>
               <h2 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '20px' }}>Your Appointments</h2>
+              
+              {/* Post-appointment Symptom Tracker Notification Banner */}
+              {pendingFeedbackBooking && (
+                <div className="card-light page-transition" style={{
+                  background: 'linear-gradient(135deg, var(--color-card-dark) 0%, #301b0a 100%)',
+                  color: 'var(--color-white)',
+                  padding: '24px',
+                  borderRadius: 'var(--r-lg)',
+                  marginBottom: '32px',
+                  boxShadow: '0 8px 30px rgba(0,0,0,0.15)',
+                  borderLeft: '5px solid var(--color-orange)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '16px'
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <div>
+                      <h3 style={{ fontSize: '18px', fontWeight: '700', color: 'var(--color-accent)' }}>Post-Visit Check-in</h3>
+                      <p style={{ fontSize: '14px', opacity: 0.9, marginTop: '4px' }}>
+                        How are you feeling after your visit with <strong>{pendingFeedbackBooking.specialistName}</strong> on {pendingFeedbackBooking.bookingDate}?
+                      </p>
+                    </div>
+                    <button 
+                      onClick={() => setDismissedFeedbackId(pendingFeedbackBooking.receiptId)} 
+                      style={{ color: 'var(--color-white)', opacity: 0.6, fontSize: '20px', border: 'none', background: 'none', cursor: 'pointer' }}
+                    >
+                      &times;
+                    </button>
+                  </div>
+                  
+                  {/* Feedback Form */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '8px' }}>
+                    <div>
+                      <label className="form-label" style={{ color: 'var(--color-white)', fontSize: '12px', marginBottom: '8px', display: 'block' }}>
+                        Symptom Improvement
+                      </label>
+                      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                        {[
+                          { value: 1, label: 'Much Worse', color: '#EF5350' },
+                          { value: 2, label: 'Worse', color: '#FF7043' },
+                          { value: 3, label: 'Same', color: '#FFCA28' },
+                          { value: 4, label: 'Better', color: '#9CCC65' },
+                          { value: 5, label: 'Much Better', color: '#66BB6A' }
+                        ].map(opt => {
+                          const isSel = selectedSymptomImprovement === opt.value;
+                          return (
+                            <button
+                              key={opt.value}
+                              onClick={() => setSelectedSymptomImprovement(opt.value)}
+                              style={{
+                                padding: '8px 12px',
+                                borderRadius: 'var(--r-md)',
+                                fontSize: '12px',
+                                fontWeight: '700',
+                                background: isSel ? opt.color : 'rgba(255,255,255,0.08)',
+                                color: isSel ? 'var(--color-dark)' : 'var(--color-white)',
+                                border: isSel ? `1px solid ${opt.color}` : '1px solid rgba(255,255,255,0.2)',
+                                transition: 'all 0.15s ease'
+                              }}
+                            >
+                              {opt.label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label className="form-label" style={{ color: 'var(--color-white)', fontSize: '12px', marginBottom: '6px', display: 'block' }}>
+                        Any new symptoms or concerns? (Optional)
+                      </label>
+                      <textarea
+                        className="input-field"
+                        value={feedbackFollowUp}
+                        onChange={e => setFeedbackFollowUp(e.target.value)}
+                        placeholder="Describe how you are feeling or any new symptoms..."
+                        rows={2}
+                        style={{
+                          background: 'rgba(255,255,255,0.05)',
+                          border: '1px solid rgba(255,255,255,0.2)',
+                          color: 'var(--color-white)',
+                          fontSize: '13px',
+                          padding: '10px 12px',
+                          borderRadius: 'var(--r-md)',
+                          resize: 'none',
+                          width: '100%',
+                          outline: 'none'
+                        }}
+                      />
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+                      <button 
+                        onClick={() => {
+                          setSelectedSymptomImprovement(0);
+                          setFeedbackFollowUp('');
+                        }}
+                        className="btn-secondary"
+                        style={{ border: '1px solid var(--color-white)', color: 'var(--color-white)', padding: '8px 16px', fontSize: '12px' }}
+                      >
+                        Reset
+                      </button>
+                      <button 
+                        onClick={handleSubmitFeedback}
+                        className="btn-primary"
+                        style={{ padding: '8px 24px', fontSize: '12px' }}
+                        disabled={selectedSymptomImprovement === 0 || feedbackSubmitLoading}
+                      >
+                        {feedbackSubmitLoading ? 'Submitting...' : 'Submit Feedback'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
               {!hasLoaded ? (
                 <p style={{ opacity: 0.6 }}>Loading appointments...</p>
               ) : bookings.length === 0 ? (
@@ -495,6 +883,9 @@ const Dashboard = () => {
                   {/* Past Sub-Tab */}
                   {appointmentSubTab === 'past' && (
                     <div>
+                      {/* Recovery Timeline Trend graph */}
+                      <RecoveryTimeline feedbackBookings={feedbackBookings} />
+
                       {/* Filter Bar */}
                       <div className="card-light page-transition" style={{ padding: '20px', marginBottom: '24px', border: '1px solid rgba(0,0,0,0.06)' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
@@ -817,6 +1208,70 @@ const Dashboard = () => {
                 <button type="submit" className="btn-primary w-full" disabled={ratingLoading}>Submit</button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Flagged Symptom Warning Modal */}
+      {feedbackAlert && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
+        }}>
+          <div className="card-light page-transition" style={{ maxWidth: '480px', width: '100%', padding: '32px', borderLeft: feedbackAlert.type === 'warning' ? '6px solid var(--color-orange)' : '6px solid green' }}>
+            <h3 style={{ 
+              fontSize: '22px', 
+              fontWeight: '800', 
+              marginBottom: '16px',
+              color: feedbackAlert.type === 'warning' ? 'var(--color-orange)' : 'var(--color-dark)'
+            }}>
+              {feedbackAlert.type === 'warning' ? '⚠️ Health Action Required' : '✓ Feedback Received'}
+            </h3>
+            
+            <p style={{ fontSize: '15px', lineHeight: '1.5', opacity: 0.9, marginBottom: '24px' }}>
+              {feedbackAlert.message}
+            </p>
+
+            {feedbackAlert.type === 'warning' ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div style={{ background: 'rgba(224, 88, 48, 0.08)', padding: '16px', borderRadius: 'var(--r-md)', border: '1px solid rgba(224, 88, 48, 0.2)' }}>
+                  <h4 style={{ fontSize: '14px', fontWeight: '700', color: 'var(--color-orange)', marginBottom: '6px' }}>Emergency Guidelines</h4>
+                  <p style={{ fontSize: '12px', opacity: 0.8, lineHeight: '1.4' }}>
+                    If you experience chest pain, difficulty breathing, severe bleeding, or extreme dizziness, please contact <strong>Emergency Services (911 / 112)</strong> or visit the nearest emergency room immediately.
+                  </p>
+                </div>
+                
+                <div style={{ display: 'flex', gap: '12px' }}>
+                  <button 
+                    type="button" 
+                    onClick={() => setFeedbackAlert(null)} 
+                    className="btn-secondary w-full"
+                  >
+                    Close
+                  </button>
+                  <button 
+                    type="button" 
+                    onClick={() => handleBookFollowUp({
+                      id: feedbackAlert.specialistId,
+                      name: feedbackAlert.specialistName,
+                      category: feedbackAlert.category
+                    })} 
+                    className="btn-primary w-full"
+                    style={{ background: 'var(--color-orange)', color: 'white' }}
+                  >
+                    Book Follow-up
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button 
+                type="button" 
+                onClick={() => setFeedbackAlert(null)} 
+                className="btn-primary w-full"
+              >
+                Got it
+              </button>
+            )}
           </div>
         </div>
       )}
