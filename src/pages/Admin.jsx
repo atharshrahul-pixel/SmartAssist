@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { ShieldCheck, Calendar, Mail, Clock, Trash2, Award, Shield, MapPin, X } from 'lucide-react';
 
 const BACKEND_URL = window.location.hostname === 'localhost'
@@ -7,6 +8,7 @@ const BACKEND_URL = window.location.hostname === 'localhost'
   : 'https://akeno7594-internship-project-backend.hf.space/api';
 
 const Admin = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const [secret, setSecret] = useState('');
@@ -21,12 +23,12 @@ const Admin = () => {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch(`${BACKEND_URL}/admin/dashboard`, {
+      const res = await fetch(`${BACKEND_URL}/admin/bookings`, {
         headers: { 'x-admin-secret': secret }
       });
       const json = await res.json();
       
-      const specRes = await fetch(`${BACKEND_URL}/admin/dashboard/specialists/pending`, {
+      const specRes = await fetch(`${BACKEND_URL}/admin/specialists/pending`, {
         headers: { 'x-admin-secret': secret }
       });
       const specJson = await specRes.json();
@@ -35,19 +37,19 @@ const Admin = () => {
         setData(json.bookings);
         setSpecialists(specJson.specialists);
       } else {
-        setError('Access denied: Invalid Secret Key.');
+        setError(t('error_connect_triage'));
       }
     } catch {
-      setError('Connection error. Please try again.');
+      setError(t('connection_error'));
     } finally {
       setLoading(false);
     }
   };
 
   const deleteBooking = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this appointment?')) return;
+    if (!window.confirm(t('confirm_delete_appointment'))) return;
     try {
-      const res = await fetch(`${BACKEND_URL}/admin/dashboard/${id}`, {
+      const res = await fetch(`${BACKEND_URL}/admin/bookings/${id}`, {
         method: 'DELETE',
         headers: { 'x-admin-secret': secret }
       });
@@ -62,15 +64,15 @@ const Admin = () => {
   };
 
   const handleApproveSpecialist = async (id) => {
-    if (!window.confirm('Approve this specialist to join the platform?')) return;
+    if (!window.confirm(t('confirm_approve_specialist'))) return;
     try {
-      const res = await fetch(`${BACKEND_URL}/admin/dashboard/specialists/${id}/approve`, {
+      const res = await fetch(`${BACKEND_URL}/admin/specialists/${id}/approve`, {
         method: 'POST',
         headers: { 'x-admin-secret': secret }
       });
       const json = await res.json();
       if (json.success) {
-        alert('Specialist approved successfully!');
+        alert(t('success_approved'));
         setSpecialists(prev => prev.filter(s => s._id !== id));
         setSelectedSpecialist(null);
       } else {
@@ -82,15 +84,15 @@ const Admin = () => {
   };
 
   const handleRejectSpecialist = async (id) => {
-    const reason = window.prompt('Enter reason for rejecting this specialist:');
+    const reason = window.prompt(t('reject_reason_prompt'));
     if (reason === null) return;
     if (!reason.trim()) {
-      alert('Rejection reason is required.');
+      alert(t('reject_reason_required'));
       return;
     }
 
     try {
-      const res = await fetch(`${BACKEND_URL}/admin/dashboard/specialists/${id}/reject`, {
+      const res = await fetch(`${BACKEND_URL}/admin/specialists/${id}/reject`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -100,7 +102,7 @@ const Admin = () => {
       });
       const json = await res.json();
       if (json.success) {
-        alert('Specialist application rejected.');
+        alert(t('success_rejected'));
         setSpecialists(prev => prev.filter(s => s._id !== id));
         setSelectedSpecialist(null);
       } else {
@@ -115,16 +117,16 @@ const Admin = () => {
     <div className="container" style={{ maxWidth: '400px', paddingTop: '100px' }}>
       <div className="card-light" style={{ padding: '40px', textAlign: 'center' }}>
         <ShieldCheck size={48} color="var(--color-orange)" style={{ marginBottom: '16px' }} />
-        <h2 style={{ marginBottom: '24px' }}>Admin Access</h2>
+        <h2 style={{ marginBottom: '24px' }}>{t('admin_access')}</h2>
         <input 
           type="password" 
           className="input-field" 
-          placeholder="Enter Secret Key" 
+          placeholder={t('enter_secret_key')} 
           onChange={e => setSecret(e.target.value)} 
           style={{ marginBottom: '16px' }}
         />
         <button className="btn-primary w-full" onClick={fetchDashboard} disabled={loading}>
-          {loading ? 'Verifying...' : 'Access Dashboard'}
+          {loading ? t('verifying') : t('access_dashboard')}
         </button>
         {error && <p style={{ color: 'var(--color-orange)', marginTop: '16px', fontSize: '14px' }}>{error}</p>}
       </div>
@@ -135,8 +137,8 @@ const Admin = () => {
     <div className="container" style={{ padding: '48px 16px' }}>
       <header style={{ marginBottom: '32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
         <div>
-          <h1 style={{ fontSize: '32px', marginBottom: '8px', fontFamily: 'Playfair Display' }}>Admin Dashboard</h1>
-          <p style={{ opacity: 0.7 }}>Manage appointments and verify incoming healthcare specialist registrations.</p>
+          <h1 style={{ fontSize: '32px', marginBottom: '8px', fontFamily: 'Playfair Display' }}>{t('admin_dashboard')}</h1>
+          <p style={{ opacity: 0.7 }}>{t('admin_desc')}</p>
         </div>
       </header>
 
@@ -151,7 +153,7 @@ const Admin = () => {
             outline: 'none'
           }}
         >
-          Appointments ({data ? data.length : 0})
+          {t('appointments')} ({data ? data.length : 0})
         </button>
         <button 
           onClick={() => setActiveTab('specialists')} 
@@ -162,7 +164,7 @@ const Admin = () => {
             outline: 'none'
           }}
         >
-          Specialist Approvals ({specialists ? specialists.length : 0})
+          {t('specialist_approvals')} ({specialists ? specialists.length : 0})
         </button>
       </div>
 
@@ -171,11 +173,11 @@ const Admin = () => {
           <table className="w-full" style={{ borderCollapse: 'collapse', textAlign: 'left', minWidth: '900px' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid var(--color-cream-dark)', backgroundColor: 'rgba(237, 184, 32, 0.05)' }}>
-                <th style={{ padding: '20px 24px', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-muted)' }}>Patient Details</th>
-                <th style={{ padding: '20px 24px', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-muted)' }}>Specialist</th>
-                <th style={{ padding: '20px 24px', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-muted)' }}>Appointment Time</th>
-                <th style={{ padding: '20px 24px', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-muted)' }}>Feedback</th>
-                <th style={{ padding: '20px 24px', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-muted)' }}>Actions</th>
+                <th style={{ padding: '20px 24px', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-muted)' }}>{t('patient_details_col')}</th>
+                <th style={{ padding: '20px 24px', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-muted)' }}>{t('specialist')}</th>
+                <th style={{ padding: '20px 24px', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-muted)' }}>{t('appointment_time_col')}</th>
+                <th style={{ padding: '20px 24px', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-muted)' }}>{t('feedback_col')}</th>
+                <th style={{ padding: '20px 24px', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-muted)' }}>{t('actions_col')}</th>
               </tr>
             </thead>
             <tbody>
@@ -215,7 +217,7 @@ const Admin = () => {
                         <p style={{ fontSize: '13px', opacity: 0.8, fontStyle: 'italic' }}>"{b.rejectionReasonOther}"</p>
                       </div>
                     ) : (
-                      <span style={{ fontSize: '13px', opacity: 0.4 }}>No feedback provided</span>
+                      <span style={{ fontSize: '13px', opacity: 0.4 }}>{t('no_feedback')}</span>
                     )}
                   </td>
                   <td style={{ padding: '24px' }}>
@@ -227,17 +229,17 @@ const Admin = () => {
               ))}
             </tbody>
           </table>
-          {data && data.length === 0 && <div style={{ padding: '64px', textAlign: 'center', opacity: 0.5 }}>No appointment records found in database.</div>}
+          {data && data.length === 0 && <div style={{ padding: '64px', textAlign: 'center', opacity: 0.5 }}>{t('no_appointment_records')}</div>}
         </div>
       ) : (
         <div className="card-light" style={{ padding: '0', overflowX: 'auto', borderRadius: 'var(--r-lg)' }}>
           <table className="w-full" style={{ borderCollapse: 'collapse', textAlign: 'left', minWidth: '900px' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid var(--color-cream-dark)', backgroundColor: 'rgba(237, 184, 32, 0.05)' }}>
-                <th style={{ padding: '20px 24px', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-muted)' }}>Specialist</th>
-                <th style={{ padding: '20px 24px', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-muted)' }}>Licensing & Institution</th>
-                <th style={{ padding: '20px 24px', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-muted)' }}>Bio Summary</th>
-                <th style={{ padding: '20px 24px', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-muted)' }}>Actions</th>
+                <th style={{ padding: '20px 24px', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-muted)' }}>{t('specialist')}</th>
+                <th style={{ padding: '20px 24px', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-muted)' }}>{t('licensing_institution_col')}</th>
+                <th style={{ padding: '20px 24px', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-muted)' }}>{t('bio_summary_col')}</th>
+                <th style={{ padding: '20px 24px', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-muted)' }}>{t('actions_col')}</th>
               </tr>
             </thead>
             <tbody>
@@ -288,14 +290,14 @@ const Admin = () => {
                         style={{ padding: '8px 16px', fontSize: '13px' }} 
                         onClick={() => handleApproveSpecialist(s._id)}
                       >
-                        Approve
+                        {t('approve')}
                       </button>
                       <button 
                         className="btn-danger" 
                         style={{ padding: '8px 16px', fontSize: '13px' }} 
                         onClick={() => handleRejectSpecialist(s._id)}
                       >
-                        Reject
+                        {t('reject')}
                       </button>
                     </div>
                   </td>
@@ -397,7 +399,7 @@ const Admin = () => {
               
               <div>
                 <span className="pill-tag" style={{ background: 'rgba(237, 184, 32, 0.1)', color: 'var(--color-orange)', marginBottom: '8px', display: 'inline-block' }}>
-                  Pending Verification
+                  {t('pending_verification')}
                 </span>
                 <h2 style={{ fontSize: '24px', fontWeight: '800', margin: '4px 0 8px 0', fontFamily: 'Playfair Display' }}>
                   {selectedSpecialist.name}
@@ -416,7 +418,7 @@ const Admin = () => {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                   <div>
                     <h4 style={{ fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-muted)', marginBottom: '8px', fontWeight: '800' }}>
-                      Biography & Summary
+                      {t('biography_summary')}
                     </h4>
                     <p style={{ 
                       fontSize: '14.5px', 
@@ -434,16 +436,16 @@ const Admin = () => {
 
                   <div>
                     <h4 style={{ fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-muted)', marginBottom: '12px', fontWeight: '800' }}>
-                      Clinic & Licensing
+                      {t('clinic_licensing')}
                     </h4>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '14px' }}>
                         <MapPin size={16} opacity={0.7} color="var(--color-orange)" /> 
-                        <span><strong>Clinic:</strong> {selectedSpecialist.clinicName || 'Not specified'}</span>
+                        <span><strong>{t('clinic')}:</strong> {selectedSpecialist.clinicName || 'Not specified'}</span>
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '14px' }}>
                         <Shield size={16} opacity={0.7} color="var(--color-orange)" /> 
-                        <span><strong>License Number:</strong> <code>{selectedSpecialist.licenseNumber}</code></span>
+                        <span><strong>{t('license_no')}:</strong> <code>{selectedSpecialist.licenseNumber}</code></span>
                       </div>
                     </div>
                   </div>
@@ -452,9 +454,9 @@ const Admin = () => {
                 {/* Right column: Appointment Modes */}
                 <div>
                   <h4 style={{ fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-muted)', marginBottom: '12px', fontWeight: '800' }}>
-                    Consultation Pricing
+                    {t('consultation_pricing')}
                   </h4>
-                  {renderAppointmentModes(selectedSpecialist.appointmentModes)}
+                  {renderAppointmentModes(selectedSpecialist.appointmentModes, t)}
                 </div>
 
               </div>
@@ -473,14 +475,14 @@ const Admin = () => {
                 style={{ padding: '12px 24px', fontSize: '14px', fontWeight: '700' }} 
                 onClick={() => handleRejectSpecialist(selectedSpecialist._id)}
               >
-                Reject Application
+                {t('reject_app')}
               </button>
               <button 
                 className="btn-primary" 
                 style={{ padding: '12px 24px', fontSize: '14px', fontWeight: '700' }} 
                 onClick={() => handleApproveSpecialist(selectedSpecialist._id)}
               >
-                Approve & Onboard
+                {t('approve_onboard')}
               </button>
             </div>
 
@@ -491,14 +493,14 @@ const Admin = () => {
   );
 };
 
-const renderAppointmentModes = (modes) => {
-  if (!modes) return <p style={{ opacity: 0.5, margin: 0, fontSize: '13.5px' }}>No modes configured</p>;
+const renderAppointmentModes = (modes, t) => {
+  if (!modes) return <p style={{ opacity: 0.5, margin: 0, fontSize: '13.5px' }}>{t('no_modes_configured')}</p>;
   
   const modeKeys = ['inPerson', 'video', 'chat'];
   const modeLabels = {
-    inPerson: 'In-Person Visit',
-    video: 'Video Consult',
-    chat: 'Chat Session'
+    inPerson: t('in_person_visit'),
+    video: t('video_consult'),
+    chat: t('chat_session')
   };
   
   return (

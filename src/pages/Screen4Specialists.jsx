@@ -1,5 +1,6 @@
 import { useState, useContext, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { AppContext } from '../App';
 import Stepper from '../components/Stepper';
 import HelpTooltip from '../components/HelpTooltip';
@@ -10,6 +11,7 @@ const BACKEND_URL = window.location.hostname === 'localhost'
   : 'https://akeno7594-internship-project-backend.hf.space/api';
 
 const Screen4Specialists = () => {
+  const { t } = useTranslation();
   const { state, updateState } = useContext(AppContext);
   const navigate = useNavigate();
   const [specialistsData, setSpecialistsData] = useState([]);
@@ -60,12 +62,13 @@ const Screen4Specialists = () => {
       
       <div className="container" style={{ paddingTop: '0' }}>
         <header className="sticky-header text-center" style={{ paddingTop: '48px' }}>
-          <span className="pill-tag mb-lg">CHOOSE YOUR PARTNER</span>
-          <h1 style={{ fontSize: '48px', lineHeight: '1.1', marginBottom: 'var(--sp-md)' }}>
-            The perfect <span className="accent-word" style={{ color: 'var(--color-orange)' }}>specialist</span> for you
-          </h1>
+          <span className="pill-tag mb-lg">{t('choose_partner')}</span>
+          <h1 
+            style={{ fontSize: '48px', lineHeight: '1.1', marginBottom: 'var(--sp-md)' }}
+            dangerouslySetInnerHTML={{ __html: t('perfect_specialist_title') }}
+          />
           <p style={{ color: 'var(--color-dark)', opacity: 0.6, fontSize: '16px', maxWidth: '600px', margin: '0 auto' }}>
-            Browse through our hand-picked experts. Each one is vetted for quality and professional excellence.
+            {t('perfect_specialist_desc')}
           </p>
         </header>
 
@@ -73,15 +76,15 @@ const Screen4Specialists = () => {
           <aside className="listing-sidebar">
             <div className="filter-group">
               <label className="filter-label" style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '8px' }}>
-                Search Specialist
-                <HelpTooltip text="Search by name or doctor bio to find a specific expert." />
+                {t('search_specialist')}
+                <HelpTooltip text={t('search_placeholder')} />
               </label>
               <div style={{ position: 'relative', marginBottom: '24px' }}>
                 <Search size={18} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-muted)' }} />
                 <input 
                   type="text" 
                   className="input-field" 
-                  placeholder="Search by name..." 
+                  placeholder={t('search_placeholder')} 
                   style={{ paddingLeft: '44px' }}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -89,8 +92,8 @@ const Screen4Specialists = () => {
               </div>
 
               <label className="filter-label" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                Categories
-                <HelpTooltip text="Filter specialists by their medical department or field of expertise." />
+                {t('categories')}
+                <HelpTooltip text={t('specialization_tooltip')} />
               </label>
               {categories.map(cat => (
                 <div 
@@ -98,7 +101,7 @@ const Screen4Specialists = () => {
                   className={`filter-option ${filter === cat ? 'active' : ''}`}
                   onClick={() => setFilter(cat)}
                 >
-                  {cat}
+                  {cat === 'All' ? t('all') : t(`category_${cat}`, { defaultValue: cat })}
                   <span style={{ fontSize: '12px', opacity: 0.5 }}>
                     {cat === 'All' ? specialistsData.length : specialistsData.filter(s => (s.category || s.specialization) === cat).length}
                   </span>
@@ -110,7 +113,7 @@ const Screen4Specialists = () => {
           <main className="listing-main">
             {isLoading ? (
               <div className="card-light text-center" style={{ padding: '64px' }}>
-                <h3>Loading specialists...</h3>
+                <h3>{t('loading_specialists')}</h3>
               </div>
             ) : filteredData.length > 0 ? filteredData.map((specialist, index) => (
               <div 
@@ -127,7 +130,7 @@ const Screen4Specialists = () => {
                     <div>
                       <h3 style={{ fontSize: '22px', fontWeight: '800', marginBottom: '4px' }}>{specialist.name}</h3>
                       <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                        <span className="pill-tag" style={{ fontSize: '10px' }}>{specialist.category || specialist.specialization}</span>
+                        <span className="pill-tag" style={{ fontSize: '10px' }}>{t(`category_${specialist.category || specialist.specialization}`, { defaultValue: specialist.category || specialist.specialization })}</span>
                         <span className="experience-tag">{specialist.experience}</span>
                       </div>
                     </div>
@@ -148,7 +151,7 @@ const Screen4Specialists = () => {
                       style={{ marginLeft: 'auto', padding: '12px 24px' }}
                       onClick={() => handleSelect(specialist)}
                     >
-                      Book Appointment
+                      {t('book_appointment')}
                       <ChevronRight size={16} style={{ marginLeft: '8px' }} />
                     </button>
                   </div>
@@ -157,10 +160,10 @@ const Screen4Specialists = () => {
             )) : (
               <div className="card-light text-center" style={{ padding: '64px' }}>
                 <Search size={48} color="var(--color-muted)" style={{ marginBottom: '16px' }} />
-                <h3>No specialists found</h3>
-                <p style={{ opacity: 0.6 }}>Try adjusting your search or category filters.</p>
+                <h3>{t('no_specialists_found')}</h3>
+                <p style={{ opacity: 0.6 }}>{t('adjust_filters')}</p>
                 <button className="btn-ghost mt-lg" onClick={() => {setFilter('All'); setSearchQuery('');}}>
-                  Clear all filters
+                  {t('clear_filters')}
                 </button>
               </div>
             )}

@@ -1,0 +1,14 @@
+{
+  "start_triage": "AI ട്രയാഷ് ചാറ്റ് ആരംഭിക്കുക",
+  "your_name": "നിങ്ങളുടെ പേര്",
+  "email_address": "ഇമെയിൽ വിലാസം",
+  "login": "ലോഗിൻ",
+  "register": "രജിസ്റ്റർ",
+  "dashboard": "ഡാഷ്‌ബോർഡ്",
+  "book_appointment": "അപ്പോയിന്റ്മെന്റ് ബുക്ക് ചെയ്യുക",
+  "recommended_specialist": "ശുപാർശ ചെയ്യുന്ന സ്പെഷ്യലിസ്റ്റ്",
+  "logout": "ലോഗ് ഔട്ട്",
+  "specialist": "സ്പെഷ്യലിസ്റ്റ്",
+  "appointments": "അപ്പോയിന്റ്മെന്റുകൾ",
+  "language": "ഭാഷ"
+}

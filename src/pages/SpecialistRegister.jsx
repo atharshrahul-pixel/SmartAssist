@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import HelpTooltip from '../components/HelpTooltip';
 import Stepper from '../components/Stepper';
 import { translateError } from '../utils/errorTranslator';
@@ -10,6 +11,7 @@ const BACKEND_URL = window.location.hostname === 'localhost'
   : 'https://akeno7594-internship-project-backend.hf.space/api';
 
 const SpecialistRegister = () => {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -39,7 +41,7 @@ const SpecialistRegister = () => {
     if (!file) return;
 
     if (file.size > 1.2 * 1024 * 1024) {
-      setErrorMsg('Image size must be less than 1MB.');
+      setErrorMsg(t('image_size_error'));
       return;
     }
 
@@ -55,20 +57,20 @@ const SpecialistRegister = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.name.trim()) return setErrorMsg('Please enter your full name.');
-    if (!formData.email.trim()) return setErrorMsg('Please enter your email.');
+    if (!formData.name.trim()) return setErrorMsg(t('error_name_required'));
+    if (!formData.email.trim()) return setErrorMsg(t('error_email_required'));
     
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email.trim())) {
-      return setErrorMsg('Please enter a valid email format.');
+      return setErrorMsg(t('error_valid_email'));
     }
 
     if (!formData.password.trim() || formData.password.length < 6) {
-      return setErrorMsg('Password must be at least 6 characters.');
+      return setErrorMsg(t('error_password_short'));
     }
 
     if (!formData.licenseNumber.trim()) {
-      return setErrorMsg('Please enter your medical license or registration number.');
+      return setErrorMsg(t('license_number_tooltip'));
     }
 
     if (!formData.experience || isNaN(formData.experience) || Number(formData.experience) <= 0) {
@@ -130,10 +132,11 @@ const SpecialistRegister = () => {
             }}>
               <UserPlus size={24} />
             </div>
-            <h2 style={{ fontSize: '28px', fontWeight: '700', marginBottom: '8px' }}>
-              Specialist <span className="accent-word">Onboarding</span>
-            </h2>
-            <p style={{ opacity: 0.6, fontSize: '14px' }}>Register to join our network of certified healthcare professionals.</p>
+            <h2 
+              style={{ fontSize: '28px', fontWeight: '700', marginBottom: '8px' }}
+              dangerouslySetInnerHTML={{ __html: t('specialist_onboarding_title') }}
+            />
+            <p style={{ opacity: 0.6, fontSize: '14px' }}>{t('specialist_onboarding_desc')}</p>
           </div>
 
           {successMsg ? (
@@ -145,17 +148,16 @@ const SpecialistRegister = () => {
               }}>
                 ✓
               </div>
-              <h3 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '12px' }}>Application Submitted!</h3>
+              <h3 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '12px' }}>{t('application_submitted')}</h3>
               <p style={{ opacity: 0.7, fontSize: '14px', lineHeight: '1.6', marginBottom: '24px' }}>
-                Your professional credentials are currently under review by our administration team. 
-                We will notify you via email once your account has been verified and approved.
+                {t('app_review_desc')}
               </p>
               <div style={{ display: 'flex', gap: '16px', justifyContent: 'center' }}>
                 <Link to="/login" className="btn-primary" style={{ textDecoration: 'none', padding: '12px 24px' }}>
-                  Log In to Check Status
+                  {t('login_check_status')}
                 </Link>
                 <Link to="/" className="btn-secondary" style={{ textDecoration: 'none', padding: '12px 24px' }}>
-                  Back to Homepage
+                  {t('back_to_homepage')}
                 </Link>
               </div>
             </div>
@@ -182,14 +184,14 @@ const SpecialistRegister = () => {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
                 <div className="mb-md" style={{ gridColumn: 'span 2' }}>
                   <label className="form-label">
-                    <User size={14} style={{ marginRight: '6px' }} /> Full Name
-                    <HelpTooltip text="Enter your full name including professional credentials if desired (e.g. Dr. Jane Smith)." />
+                    <User size={14} style={{ marginRight: '6px' }} /> {t('full_name_label')}
+                    <HelpTooltip text={t('full_name_register_tooltip')} />
                   </label>
                   <input
                     type="text"
                     name="name"
                     className="input-field"
-                    placeholder="Dr. Jane Smith"
+                    placeholder={t('full_name_placeholder')}
                     value={formData.name}
                     onChange={handleInputChange}
                     required
@@ -242,11 +244,17 @@ const SpecialistRegister = () => {
                     style={{ padding: '10px 12px' }}
                   >
                     <option value="Dentist">Dentist</option>
+                    <option value="Physiotherapist">Physiotherapist</option>
+                    <option value="Gym Trainer">Gym Trainer</option>
+                    <option value="Salon Specialist">Salon Specialist</option>
+                    <option value="General Practitioner">General Practitioner</option>
                     <option value="Cardiologist">Cardiologist</option>
                     <option value="Dermatologist">Dermatologist</option>
-                    <option value="General Physician">General Physician</option>
-                    <option value="Pediatrician">Pediatrician</option>
-                    <option value="Therapist">Therapist</option>
+                    <option value="Neurologist">Neurologist</option>
+                    <option value="Orthopedist">Orthopedist</option>
+                    <option value="Nutritionist">Nutritionist</option>
+                    <option value="ENT Specialist">ENT Specialist</option>
+                    <option value="Ophthalmologist">Ophthalmologist</option>
                   </select>
                 </div>
 
@@ -284,14 +292,14 @@ const SpecialistRegister = () => {
 
                 <div className="mb-md">
                   <label className="form-label">
-                    <Shield size={14} style={{ marginRight: '6px' }} /> License Number
-                    <HelpTooltip text="Your official medical license or registration number (must be unique)." />
+                    <Shield size={14} style={{ marginRight: '6px' }} /> {t('license_number_label')}
+                    <HelpTooltip text={t('license_number_tooltip')} />
                   </label>
                   <input
                     type="text"
                     name="licenseNumber"
                     className="input-field"
-                    placeholder="e.g. LIC-98342-MD"
+                    placeholder={t('license_number_placeholder')}
                     value={formData.licenseNumber}
                     onChange={handleInputChange}
                     required
@@ -354,7 +362,7 @@ const SpecialistRegister = () => {
                 disabled={loading}
                 style={{ padding: '14px 28px', marginTop: '12px' }}
               >
-                {loading ? 'Submitting Application...' : 'Submit Onboarding Application'}
+                {loading ? t('submitting_app') : t('submit_app_btn')}
               </button>
 
               <div style={{ textAlign: 'center', marginTop: '24px', fontSize: '14px', opacity: 0.8 }}>

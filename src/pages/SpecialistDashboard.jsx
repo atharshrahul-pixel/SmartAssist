@@ -1,11 +1,12 @@
 import { useState, useEffect, useContext } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { AppContext } from '../App';
 import HelpTooltip from '../components/HelpTooltip';
 import Stepper from '../components/Stepper';
 import { 
   Calendar, Clock, User, Award, Shield, FileText, Camera, 
-  AlertCircle, DollarSign, Settings, LogOut, CheckCircle, Eye, Plus, X, Download 
+  AlertCircle, DollarSign, Settings, LogOut, CheckCircle, Eye, Plus, X 
 } from 'lucide-react';
 
 const BACKEND_URL = window.location.hostname === 'localhost'
@@ -13,6 +14,7 @@ const BACKEND_URL = window.location.hostname === 'localhost'
   : 'https://akeno7594-internship-project-backend.hf.space/api';
 
 const SpecialistDashboard = () => {
+  const { t } = useTranslation();
   const { token, logoutUser } = useContext(AppContext);
   const navigate = useNavigate();
   const location = useLocation();
@@ -153,30 +155,6 @@ const SpecialistDashboard = () => {
     }
   };
 
-  const downloadPrevisitSummaryPDF = async (bookingId, receiptId) => {
-    try {
-      const res = await fetch(`${BACKEND_URL}/specialists/my/appointments/${bookingId}/summary/pdf`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (res.ok) {
-        const blob = await res.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `summary-${receiptId || bookingId}.pdf`;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        window.URL.revokeObjectURL(url);
-      } else {
-        alert('Failed to download summary PDF');
-      }
-    } catch (err) {
-      console.error(err);
-      alert('Error downloading PDF');
-    }
-  };
-
   const fetchPrevisitSummary = async (bookingId) => {
     setSummaryLoading(true);
     try {
@@ -306,7 +284,7 @@ const SpecialistDashboard = () => {
   if (loading) {
     return (
       <div className="container text-center" style={{ paddingTop: '100px' }}>
-        <h3>Loading portal details...</h3>
+        <h3>{t('loading_portal')}</h3>
       </div>
     );
   }
@@ -338,14 +316,13 @@ const SpecialistDashboard = () => {
           )}
           <div className="card-light text-center" style={{ padding: '40px' }}>
             <Clock size={56} color="var(--color-orange)" style={{ marginBottom: '24px' }} />
-            <h2 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '12px' }}>Application Under Review</h2>
+            <h2 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '12px' }}>{t('app_under_review')}</h2>
             <p style={{ opacity: 0.7, fontSize: '15px', lineHeight: '1.6', marginBottom: '32px' }}>
-              Hello, <strong>{specialist.name}</strong>. Your healthcare practitioner onboarding request is under review. 
-              Admin staff are verifying your license number (<strong>{specialist.licenseNumber}</strong>). 
-              Please check back soon.
+              {t('hello')}, <strong>{specialist.name}</strong>. {t('triage_description', { defaultValue: 'Your request is under review.' })}
+              (<strong>{specialist.licenseNumber}</strong>).
             </p>
             <button onClick={handleLogout} className="btn-secondary w-full" style={{ padding: '12px' }}>
-              <LogOut size={16} style={{ marginRight: '8px' }} /> Logout
+              <LogOut size={16} style={{ marginRight: '8px' }} /> {t('logout')}
             </button>
           </div>
         </div>
@@ -381,23 +358,23 @@ const SpecialistDashboard = () => {
           <div className="card-light" style={{ padding: '40px' }}>
             <div style={{ textAlign: 'center', marginBottom: '24px' }}>
               <AlertCircle size={48} color="#ef4444" style={{ marginBottom: '16px' }} />
-              <h2 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '8px' }}>Application Declined</h2>
-              <p style={{ opacity: 0.6, fontSize: '14px' }}>Your onboarding request requires modification.</p>
+              <h2 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '8px' }}>{t('app_declined')}</h2>
+              <p style={{ opacity: 0.6, fontSize: '14px' }}>{t('tooltip_rejection')}</p>
             </div>
 
             <div style={{
               background: '#fef2f2', border: '1px solid #fee2e2', borderRadius: '8px', 
               padding: '16px', color: '#991b1b', fontSize: '14px', marginBottom: '28px', lineHeight: '1.6'
             }}>
-              <strong>Reason for Rejection:</strong>
+              <strong>{t('reason_rejection')}</strong>
               <p style={{ margin: '6px 0 0 0', fontStyle: 'italic' }}>"{specialist.rejectionReason || 'No reasoning supplied.'}"</p>
             </div>
 
             <form onSubmit={handleReapply}>
-              <h3 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '16px', textTransform: 'uppercase' }}>Update and Reapply</h3>
+              <h3 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '16px', textTransform: 'uppercase' }}>{t('update_reapply')}</h3>
               
               <div className="mb-md">
-                <label className="form-label">Full Name</label>
+                <label className="form-label">{t('full_name_label')}</label>
                 <input
                   type="text"
                   className="input-field"
@@ -409,7 +386,7 @@ const SpecialistDashboard = () => {
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                 <div className="mb-md">
-                  <label className="form-label">Specialization</label>
+                  <label className="form-label">{t('specialization')}</label>
                   <select
                     className="input-field"
                     value={reapplyData.specialization}
@@ -417,16 +394,22 @@ const SpecialistDashboard = () => {
                     style={{ padding: '10px 12px' }}
                   >
                     <option value="Dentist">Dentist</option>
+                    <option value="Physiotherapist">Physiotherapist</option>
+                    <option value="Gym Trainer">Gym Trainer</option>
+                    <option value="Salon Specialist">Salon Specialist</option>
+                    <option value="General Practitioner">General Practitioner</option>
                     <option value="Cardiologist">Cardiologist</option>
                     <option value="Dermatologist">Dermatologist</option>
-                    <option value="General Physician">General Physician</option>
-                    <option value="Pediatrician">Pediatrician</option>
-                    <option value="Therapist">Therapist</option>
+                    <option value="Neurologist">Neurologist</option>
+                    <option value="Orthopedist">Orthopedist</option>
+                    <option value="Nutritionist">Nutritionist</option>
+                    <option value="ENT Specialist">ENT Specialist</option>
+                    <option value="Ophthalmologist">Ophthalmologist</option>
                   </select>
                 </div>
 
                 <div className="mb-md">
-                  <label className="form-label">Years of Experience</label>
+                  <label className="form-label">{t('years_experience')}</label>
                   <input
                     type="number"
                     className="input-field"
@@ -438,7 +421,7 @@ const SpecialistDashboard = () => {
               </div>
 
               <div className="mb-md">
-                <label className="form-label">Clinic Name</label>
+                <label className="form-label">{t('clinic_name_label')}</label>
                 <input
                   type="text"
                   className="input-field"
@@ -448,7 +431,7 @@ const SpecialistDashboard = () => {
               </div>
 
               <div className="mb-md">
-                <label className="form-label">Professional Bio</label>
+                <label className="form-label">{t('professional_bio_label')}</label>
                 <textarea
                   className="input-field"
                   value={reapplyData.bio}
@@ -459,7 +442,7 @@ const SpecialistDashboard = () => {
               </div>
 
               <div className="mb-lg">
-                <label className="form-label">Profile Image</label>
+                <label className="form-label">{t('profile_image_label')}</label>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginTop: '8px' }}>
                   <div style={{ width: '48px', height: '48px', borderRadius: '8px', overflow: 'hidden', border: '1px solid #ddd' }}>
                     {reapplyPreview ? <img src={reapplyPreview} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <Camera />}
@@ -484,10 +467,10 @@ const SpecialistDashboard = () => {
 
               <div style={{ display: 'flex', gap: '16px' }}>
                 <button type="submit" className="btn-primary w-full" disabled={reapplyLoading}>
-                  {reapplyLoading ? 'Reapplying...' : 'Resubmit Application'}
+                  {reapplyLoading ? t('reapplying') : t('resubmit_app')}
                 </button>
                 <button type="button" onClick={handleLogout} className="btn-secondary">
-                  Logout
+                  {t('logout')}
                 </button>
               </div>
             </form>
@@ -515,11 +498,11 @@ const SpecialistDashboard = () => {
             </div>
             <div>
               <h1 style={{ fontSize: '24px', fontWeight: '700' }}>{specialist.name}</h1>
-              <p style={{ opacity: 0.6, fontSize: '14px' }}>Specialist Practitioner Portal ({specialist.specialization})</p>
+              <p style={{ opacity: 0.6, fontSize: '14px' }}>{t('practitioner_portal')} ({t(`category_${specialist.specialization}`, { defaultValue: specialist.specialization })})</p>
             </div>
           </div>
           <button onClick={handleLogout} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px' }}>
-            <LogOut size={16} /> Logout
+            <LogOut size={16} /> {t('logout')}
           </button>
         </div>
 
@@ -538,7 +521,7 @@ const SpecialistDashboard = () => {
                   marginBottom: '4px', outline: 'none'
                 }}
               >
-                <Calendar size={18} /> Appointments
+                <Calendar size={18} /> {t('appointments')}
               </button>
               <button 
                 onClick={() => setActiveTab('availability')} 
@@ -550,7 +533,7 @@ const SpecialistDashboard = () => {
                   marginBottom: '4px', outline: 'none'
                 }}
               >
-                <Settings size={18} /> Slots & Pricing
+                <Settings size={18} /> {t('slots_pricing')}
               </button>
               <button 
                 onClick={() => setActiveTab('profile')} 
@@ -562,7 +545,7 @@ const SpecialistDashboard = () => {
                   marginBottom: '4px', outline: 'none'
                 }}
               >
-                <User size={18} /> Manage Profile
+                <User size={18} /> {t('manage_profile')}
               </button>
               <button 
                 onClick={() => setActiveTab('earnings')} 
@@ -574,7 +557,7 @@ const SpecialistDashboard = () => {
                   outline: 'none'
                 }}
               >
-                <DollarSign size={18} /> Earnings
+                <DollarSign size={18} /> {t('earnings_tab')}
               </button>
             </div>
           </div>
@@ -583,11 +566,11 @@ const SpecialistDashboard = () => {
           <div>
             {activeTab === 'appointments' && (
               <div>
-                <h2 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '20px' }}>Upcoming Appointments</h2>
+                <h2 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '20px' }}>{t('upcoming_appointments')}</h2>
                 <div style={{ display: 'grid', gap: '16px' }}>
                   {appointments.length === 0 ? (
                     <div className="card-light text-center" style={{ padding: '48px' }}>
-                      <p style={{ opacity: 0.5 }}>No appointments scheduled yet.</p>
+                      <p style={{ opacity: 0.5 }}>{t('no_appointments_scheduled')}</p>
                     </div>
                   ) : (
                     appointments.map(b => (
@@ -600,22 +583,13 @@ const SpecialistDashboard = () => {
                             <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><CheckCircle size={13} /> {b.appointmentMode}</span>
                           </div>
                         </div>
-                        <div style={{ display: 'flex', gap: '8px' }}>
-                          <button 
-                            onClick={() => fetchPrevisitSummary(b._id)} 
-                            className="btn-ghost"
-                            style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', padding: '8px 12px' }}
-                          >
-                            <Eye size={14} /> View Summary
-                          </button>
-                          <button 
-                            onClick={() => downloadPrevisitSummaryPDF(b._id, b.receiptId)} 
-                            className="btn-secondary"
-                            style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', padding: '8px 12px' }}
-                          >
-                            <Download size={14} /> Download Summary
-                          </button>
-                        </div>
+                        <button 
+                          onClick={() => fetchPrevisitSummary(b._id)} 
+                          className="btn-secondary"
+                          style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px' }}
+                        >
+                          <Eye size={14} /> {t('view_previsit_summary')}
+                        </button>
                       </div>
                     ))
                   )}
@@ -625,16 +599,16 @@ const SpecialistDashboard = () => {
 
             {activeTab === 'availability' && (
               <div className="card-light" style={{ padding: '32px' }}>
-                <h2 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '24px' }}>Availability & Consultation Modes</h2>
+                <h2 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '24px' }}>{t('slots_pricing')}</h2>
                 
                 {/* Mode Pricing Settings */}
                 <div style={{ marginBottom: '32px' }}>
-                  <h3 style={{ fontSize: '15px', fontWeight: '700', marginBottom: '16px', textTransform: 'uppercase' }}>Configure Consultation Modes</h3>
+                  <h3 style={{ fontSize: '15px', fontWeight: '700', marginBottom: '16px', textTransform: 'uppercase' }}>{t('configure_modes')}</h3>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
                     {[
-                      { key: 'inPerson', label: 'In-Person' },
-                      { key: 'video', label: 'Video Call' },
-                      { key: 'chat', label: 'Chat Consult' }
+                      { key: 'inPerson', label: t('in_person') },
+                      { key: 'video', label: t('video_call') },
+                      { key: 'chat', label: t('chat_consult') }
                     ].map(mode => (
                       <div key={mode.key} style={{ padding: '16px', border: '1px solid var(--color-cream-dark)', borderRadius: '8px' }}>
                         <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: '700', fontSize: '14px', marginBottom: '12px' }}>
@@ -650,7 +624,7 @@ const SpecialistDashboard = () => {
                         </label>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                           <div>
-                            <label style={{ fontSize: '11px', opacity: 0.6 }}>Price (₹)</label>
+                            <label style={{ fontSize: '11px', opacity: 0.6 }}>{t('earnings_col')} (₹)</label>
                             <input 
                               type="number" 
                               className="input-field" 
@@ -664,7 +638,7 @@ const SpecialistDashboard = () => {
                             />
                           </div>
                           <div>
-                            <label style={{ fontSize: '11px', opacity: 0.6 }}>Duration</label>
+                            <label style={{ fontSize: '11px', opacity: 0.6 }}>{t('duration', { defaultValue: 'Duration' })}</label>
                             <input 
                               type="text" 
                               className="input-field" 
@@ -685,7 +659,7 @@ const SpecialistDashboard = () => {
 
                 {/* Available Slots Config */}
                 <div style={{ marginBottom: '32px' }}>
-                  <h3 style={{ fontSize: '15px', fontWeight: '700', marginBottom: '16px', textTransform: 'uppercase' }}>Manage Availability Hours</h3>
+                  <h3 style={{ fontSize: '15px', fontWeight: '700', marginBottom: '16px', textTransform: 'uppercase' }}>{t('manage_availability')}</h3>
                   <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
                     <input 
                       type="text" 
@@ -696,7 +670,7 @@ const SpecialistDashboard = () => {
                       style={{ maxWidth: '200px' }}
                     />
                     <button onClick={handleAddSlot} className="btn-primary" style={{ padding: '0 20px', display: 'flex', alignItems: 'center' }}>
-                      <Plus size={16} /> Add Slot
+                      <Plus size={16} /> {t('add_slot_btn')}
                     </button>
                   </div>
 
@@ -724,17 +698,17 @@ const SpecialistDashboard = () => {
                 </div>
 
                 <button onClick={handleSaveAvailability} className="btn-primary" disabled={saveLoading} style={{ padding: '12px 24px' }}>
-                  {saveLoading ? 'Saving settings...' : 'Save Availability & Pricing'}
+                  {saveLoading ? t('saving_settings') : t('save_availability_pricing')}
                 </button>
               </div>
             )}
 
             {activeTab === 'profile' && (
               <form onSubmit={handleUpdateProfile} className="card-light" style={{ padding: '32px' }}>
-                <h2 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '24px' }}>Professional Profile Details</h2>
+                <h2 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '24px' }}>{t('professional_profile_details')}</h2>
 
                 <div className="mb-md">
-                  <label className="form-label">Clinic Name</label>
+                  <label className="form-label">{t('clinic_name_label')}</label>
                   <input
                     type="text"
                     className="input-field"
@@ -744,7 +718,7 @@ const SpecialistDashboard = () => {
                 </div>
 
                 <div className="mb-md">
-                  <label className="form-label">Years of Experience</label>
+                  <label className="form-label">{t('years_experience')}</label>
                   <input
                     type="number"
                     className="input-field"
@@ -755,7 +729,7 @@ const SpecialistDashboard = () => {
                 </div>
 
                 <div className="mb-md">
-                  <label className="form-label">Professional Bio</label>
+                  <label className="form-label">{t('professional_bio_label')}</label>
                   <textarea
                     className="input-field"
                     value={profileForm.bio}
@@ -766,7 +740,7 @@ const SpecialistDashboard = () => {
                 </div>
 
                 <div className="mb-lg">
-                  <label className="form-label">Profile Image</label>
+                  <label className="form-label">{t('profile_image_label')}</label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginTop: '8px' }}>
                     <div style={{ width: '64px', height: '64px', borderRadius: '12px', overflow: 'hidden', border: '1px solid #ddd' }}>
                       {photoPreview ? <img src={photoPreview} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <Camera />}
@@ -790,14 +764,14 @@ const SpecialistDashboard = () => {
                 </div>
 
                 <button type="submit" className="btn-primary" disabled={saveLoading} style={{ padding: '12px 24px' }}>
-                  {saveLoading ? 'Saving profile...' : 'Save Profile Changes'}
+                  {saveLoading ? t('saving_profile') : t('save_profile_changes')}
                 </button>
               </form>
             )}
 
             {activeTab === 'earnings' && (
               <div>
-                <h2 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '20px' }}>Earnings & Payout Overview</h2>
+                <h2 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '20px' }}>{t('earnings_tab')}</h2>
                 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '32px' }}>
                   <div className="card-light" style={{ padding: '24px', display: 'flex', alignItems: 'center', gap: '16px' }}>
@@ -805,7 +779,7 @@ const SpecialistDashboard = () => {
                       <DollarSign size={24} />
                     </div>
                     <div>
-                      <div style={{ fontSize: '13px', opacity: 0.6 }}>Total Accumulated Earnings</div>
+                      <div style={{ fontSize: '13px', opacity: 0.6 }}>{t('total_accumulated_earnings')}</div>
                       <div style={{ fontSize: '28px', fontWeight: '800', color: 'var(--color-dark)' }}>₹{earnings.totalEarnings}</div>
                     </div>
                   </div>
@@ -815,7 +789,7 @@ const SpecialistDashboard = () => {
                       <CheckCircle size={24} />
                     </div>
                     <div>
-                      <div style={{ fontSize: '13px', opacity: 0.6 }}>Settled Consultations</div>
+                      <div style={{ fontSize: '13px', opacity: 0.6 }}>{t('settled_consultations')}</div>
                       <div style={{ fontSize: '28px', fontWeight: '800', color: 'var(--color-dark)' }}>{earnings.earningsList?.length || 0}</div>
                     </div>
                   </div>
@@ -825,10 +799,10 @@ const SpecialistDashboard = () => {
                   <table className="w-full" style={{ borderCollapse: 'collapse', textAlign: 'left', minWidth: '600px' }}>
                     <thead>
                       <tr style={{ borderBottom: '1px solid var(--color-cream-dark)', backgroundColor: 'rgba(237, 184, 32, 0.05)' }}>
-                        <th style={{ padding: '16px 20px', fontSize: '12px', textTransform: 'uppercase', color: 'var(--color-muted)' }}>Date & Time</th>
-                        <th style={{ padding: '16px 20px', fontSize: '12px', textTransform: 'uppercase', color: 'var(--color-muted)' }}>Patient Name</th>
-                        <th style={{ padding: '16px 20px', fontSize: '12px', textTransform: 'uppercase', color: 'var(--color-muted)' }}>Mode</th>
-                        <th style={{ padding: '16px 20px', fontSize: '12px', textTransform: 'uppercase', color: 'var(--color-muted)' }}>Earnings</th>
+                        <th style={{ padding: '16px 20px', fontSize: '12px', textTransform: 'uppercase', color: 'var(--color-muted)' }}>{t('date_time_col')}</th>
+                        <th style={{ padding: '16px 20px', fontSize: '12px', textTransform: 'uppercase', color: 'var(--color-muted)' }}>{t('patient_name_col')}</th>
+                        <th style={{ padding: '16px 20px', fontSize: '12px', textTransform: 'uppercase', color: 'var(--color-muted)' }}>{t('mode_col')}</th>
+                        <th style={{ padding: '16px 20px', fontSize: '12px', textTransform: 'uppercase', color: 'var(--color-muted)' }}>{t('earnings_col')}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -850,7 +824,7 @@ const SpecialistDashboard = () => {
                       ))}
                       {(!earnings.earningsList || earnings.earningsList.length === 0) && (
                         <tr>
-                          <td colSpan="4" style={{ padding: '32px', textAlign: 'center', opacity: 0.5 }}>No payouts recorded.</td>
+                          <td colSpan="4" style={{ padding: '32px', textAlign: 'center', opacity: 0.5 }}>{t('no_payouts')}</td>
                         </tr>
                       )}
                     </tbody>
@@ -876,22 +850,22 @@ const SpecialistDashboard = () => {
             >
               <X size={20} />
             </button>
-            <h3 style={{ fontSize: '20px', fontWeight: '800', marginBottom: '16px', borderBottom: '1px solid var(--color-cream-dark)', paddingBottom: '12px' }}>Pre-Visit Case Summary</h3>
+            <h3 style={{ fontSize: '20px', fontWeight: '800', marginBottom: '16px', borderBottom: '1px solid var(--color-cream-dark)', paddingBottom: '12px' }}>{t('previsit_case_summary_title')}</h3>
             
             <div style={{ overflowY: 'auto', flex: 1, display: 'flex', flexDirection: 'column', gap: '16px', paddingRight: '4px' }}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                 <div>
-                  <label style={{ fontSize: '11px', opacity: 0.5, textTransform: 'uppercase' }}>Patient Name</label>
+                  <label style={{ fontSize: '11px', opacity: 0.5, textTransform: 'uppercase' }}>{t('patient_name_col')}</label>
                   <div style={{ fontWeight: '700', fontSize: '15px' }}>{activeSummary.patientName}</div>
                 </div>
 
                 <div>
-                  <label style={{ fontSize: '11px', opacity: 0.5, textTransform: 'uppercase' }}>Patient Contact</label>
+                  <label style={{ fontSize: '11px', opacity: 0.5, textTransform: 'uppercase' }}>{t('patient_contact_label')}</label>
                   <div style={{ fontSize: '14px' }}>{activeSummary.patientEmail}</div>
                 </div>
 
                 <div style={{ gridColumn: 'span 2' }}>
-                  <label style={{ fontSize: '11px', opacity: 0.5, textTransform: 'uppercase' }}>Appointment Details</label>
+                  <label style={{ fontSize: '11px', opacity: 0.5, textTransform: 'uppercase' }}>{t('appointment_details_label')}</label>
                   <div style={{ fontSize: '14px', fontWeight: '600' }}>
                     {activeSummary.date} at {activeSummary.time} ({activeSummary.appointmentMode})
                   </div>
@@ -908,7 +882,7 @@ const SpecialistDashboard = () => {
 
                 return (
                   <div>
-                    <label style={{ fontSize: '11px', opacity: 0.5, textTransform: 'uppercase', display: 'block', marginBottom: '4px' }}>Urgency Level</label>
+                    <label style={{ fontSize: '11px', opacity: 0.5, textTransform: 'uppercase', display: 'block', marginBottom: '4px' }}>{t('urgency_level_label')}</label>
                     <div style={{
                       backgroundColor: config.bgColor,
                       color: config.color,
@@ -928,7 +902,7 @@ const SpecialistDashboard = () => {
               })()}
 
               <div>
-                <label style={{ fontSize: '11px', opacity: 0.5, textTransform: 'uppercase' }}>Primary Symptoms & Concerns</label>
+                <label style={{ fontSize: '11px', opacity: 0.5, textTransform: 'uppercase' }}>{t('primary_symptoms_label')}</label>
                 <div style={{
                   padding: '12px', background: 'var(--color-cream)', borderRadius: '8px', 
                   fontSize: '14px', lineHeight: '1.5', fontStyle: 'italic', marginTop: '4px'
@@ -939,7 +913,7 @@ const SpecialistDashboard = () => {
 
               {activeSummary.triageExplanation && (
                 <div>
-                  <label style={{ fontSize: '11px', opacity: 0.5, textTransform: 'uppercase' }}>AI Triage Recommendation</label>
+                  <label style={{ fontSize: '11px', opacity: 0.5, textTransform: 'uppercase' }}>{t('ai_triage_rec_label')}</label>
                   <div style={{
                     padding: '12px', background: 'rgba(237, 184, 32, 0.05)', border: '1px solid rgba(237, 184, 32, 0.2)', borderRadius: '8px', 
                     fontSize: '14px', lineHeight: '1.5', marginTop: '4px'
@@ -951,7 +925,7 @@ const SpecialistDashboard = () => {
 
               {activeSummary.triageKeywords && activeSummary.triageKeywords.length > 0 && (
                 <div>
-                  <label style={{ fontSize: '11px', opacity: 0.5, textTransform: 'uppercase', display: 'block', marginBottom: '6px' }}>Detected Symptoms Markers</label>
+                  <label style={{ fontSize: '11px', opacity: 0.5, textTransform: 'uppercase', display: 'block', marginBottom: '6px' }}>{t('detected_symptoms_markers_label')}</label>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                     {activeSummary.triageKeywords.map(keyword => (
                       <span key={keyword} style={{
@@ -972,7 +946,7 @@ const SpecialistDashboard = () => {
 
               {activeSummary.triageHistory && activeSummary.triageHistory.length > 0 && (
                 <div>
-                  <label style={{ fontSize: '11px', opacity: 0.5, textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Triage Conversation History</label>
+                  <label style={{ fontSize: '11px', opacity: 0.5, textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>{t('triage_history_label')}</label>
                   <div style={{
                     background: 'var(--color-cream)',
                     border: '1px solid var(--color-cream-dark)',
@@ -1007,22 +981,9 @@ const SpecialistDashboard = () => {
               )}
             </div>
 
-            <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
-              <button 
-                onClick={() => downloadPrevisitSummaryPDF(activeSummary._id, activeSummary.receiptId)} 
-                className="btn-primary w-full" 
-                style={{ padding: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
-              >
-                <Download size={16} /> Download Summary PDF
-              </button>
-              <button 
-                onClick={() => setActiveSummary(null)} 
-                className="btn-secondary w-full" 
-                style={{ padding: '14px' }}
-              >
-                Close Summary
-              </button>
-            </div>
+            <button onClick={() => setActiveSummary(null)} className="btn-primary w-full" style={{ marginTop: '20px', padding: '14px' }}>
+              {t('close_summary_btn')}
+            </button>
           </div>
         </div>
       )}

@@ -1,5 +1,6 @@
 import { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { AppContext } from '../App';
 import Stepper from '../components/Stepper';
 import HelpTooltip from '../components/HelpTooltip';
@@ -11,6 +12,7 @@ const BACKEND_URL = window.location.hostname === 'localhost'
   : 'https://akeno7594-internship-project-backend.hf.space/api';
 
 const Screen5Booking = () => {
+  const { t } = useTranslation();
   const { state, updateState, user, token } = useContext(AppContext);
   const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState(null);
@@ -23,11 +25,11 @@ const Screen5Booking = () => {
   const [occupiedSlots, setOccupiedSlots] = useState([]);
   const [bookedFor, setBookedFor] = useState(() => {
     if (state.appointmentFor) {
-      if (state.appointmentFor === 'myself') return 'Myself';
-      if (state.appointmentFor === 'other') return state.otherName || 'Someone else';
+      if (state.appointmentFor === 'myself') return 'myself';
+      if (state.appointmentFor === 'other') return state.otherName || 'other';
       return state.appointmentFor;
     }
-    return 'Myself';
+    return 'myself';
   });
   const [otherName, setOtherName] = useState(state.otherName || '');
   const [selectedMode, setSelectedMode] = useState('inPerson');
@@ -43,20 +45,8 @@ const Screen5Booking = () => {
   useEffect(() => {
     if (!state.finalSpecialist) {
       navigate('/specialists');
-    } else if (!state.finalSpecialist.appointmentModes || !state.finalSpecialist.availableSlots) {
-      fetch(`${BACKEND_URL}/specialists`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.success && Array.isArray(data.specialists)) {
-            const fullSpec = data.specialists.find(s => s.id === state.finalSpecialist.id);
-            if (fullSpec) {
-              updateState({ finalSpecialist: fullSpec });
-            }
-          }
-        })
-        .catch(err => console.error("Error fetching full specialist details for rebook:", err));
     }
-  }, [state.finalSpecialist, navigate, updateState]);
+  }, [state.finalSpecialist, navigate]);
 
   useEffect(() => {
     if (selectedDate && state.finalSpecialist) {
@@ -80,12 +70,12 @@ const Screen5Booking = () => {
     setLoading(true);
     setErrorMsg('');
     
-    const finalBookedFor = bookedFor === 'Myself'
+    const finalBookedFor = bookedFor === 'myself'
       ? (user ? user.name : state.name)
-      : (bookedFor === 'Someone else' ? otherName : bookedFor);
+      : (bookedFor === 'other' ? otherName : bookedFor);
 
-    if (user && bookedFor === 'Someone else' && !otherName.trim()) {
-      setErrorMsg("Please enter patient name.");
+    if (user && bookedFor === 'other' && !otherName.trim()) {
+      setErrorMsg(t('error_patient_name_short'));
       setLoading(false);
       return;
     }
@@ -132,10 +122,10 @@ const Screen5Booking = () => {
         });
         navigate('/confirmation');
       } else {
-        setErrorMsg(translateError(data.message || "Booking failed."));
+        setErrorMsg(translateError(data.message || t('error_booking_failed')));
       }
     } catch (err) {
-      setErrorMsg(translateError("Could not connect to the booking service."));
+      setErrorMsg(translateError(t('error_connect_booking')));
     } finally {
       setLoading(false);
     }
@@ -143,7 +133,7 @@ const Screen5Booking = () => {
 
   const handleJoinWaitlist = async () => {
     if (!user) {
-      alert('Please log in to join the waitlist.');
+      alert(t('error_waitlist_login'));
       navigate('/login');
       return;
     }
@@ -166,13 +156,13 @@ const Screen5Booking = () => {
       });
       const data = await response.json();
       if (data.success) {
-        alert('Successfully joined the waitlist for this slot!');
+        alert(t('success_waitlist'));
         navigate('/dashboard');
       } else {
-        setErrorMsg(translateError(data.message || 'Failed to join waitlist.'));
+        setErrorMsg(translateError(data.message || t('error_waitlist_failed')));
       }
     } catch (err) {
-      setErrorMsg(translateError('Could not connect to the waitlist service.'));
+      setErrorMsg(translateError(t('error_connect_waitlist')));
     } finally {
       setLoading(false);
     }
@@ -182,9 +172,6 @@ const Screen5Booking = () => {
 
   const currentMonth = currentDate.getMonth();
   const currentYear = currentDate.getFullYear();
-  
-  const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-  const monthAbbrs = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   
   const getDaysInMonth = (year, month) => new Date(year, month + 1, 0).getDate();
   const getFirstDayOfMonth = (year, month) => new Date(year, month, 1).getDay();
@@ -207,7 +194,7 @@ const Screen5Booking = () => {
 
   const getFormattedDateString = (dObj) => {
     if (!dObj) return '';
-    return `${monthAbbrs[dObj.getMonth()]} ${dObj.getDate()}, ${dObj.getFullYear()}`;
+    return `${t(`abbr_month_${dObj.getMonth()}`)} ${dObj.getDate()}, ${dObj.getFullYear()}`;
   };
 
   const handlePrevMonth = () => {
@@ -234,9 +221,9 @@ const Screen5Booking = () => {
       
       <div className="container" style={{ flex: 1 }}>
         <div className="text-center mb-xl">
-          <span className="pill-tag mb-lg">SECURE YOUR SLOT</span>
+          <span className="pill-tag mb-lg">{t('secure_your_slot')}</span>
           <h1 style={{ fontSize: '48px', lineHeight: '1.1', marginBottom: 'var(--sp-md)' }}>
-            Book your <span className="accent-word" style={{ color: 'var(--color-orange)' }}>appointment</span>
+            {t('book_appointment_title')} <span className="accent-word" style={{ color: 'var(--color-orange)' }}>{t('appointment')}</span>
           </h1>
         </div>
 
@@ -245,7 +232,7 @@ const Screen5Booking = () => {
             <div className="cal-header">
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <CalIcon size={24} color="var(--color-orange)" />
-                <h3 style={{ fontSize: '20px', fontWeight: '800' }}>Select Date</h3>
+                <h3 style={{ fontSize: '20px', fontWeight: '800' }}>{t('select_date')}</h3>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                 <button 
@@ -257,7 +244,7 @@ const Screen5Booking = () => {
                   <ChevronLeft size={20} />
                 </button>
                 <div style={{ fontWeight: '700', fontSize: '16px', minWidth: '160px', textAlign: 'center' }}>
-                  {months[currentMonth]} {currentYear}
+                  {t(`month_${currentMonth}`)} {currentYear}
                 </div>
                 <button 
                   className="btn-ghost" 
@@ -270,8 +257,8 @@ const Screen5Booking = () => {
             </div>
 
             <div className="cal-grid">
-              {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
-                <div key={d} className="cal-day-label">{d}</div>
+              {['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'].map(d => (
+                <div key={d} className="cal-day-label">{t(`day_${d}`)}</div>
               ))}
               {calendarCells.map((dayDate, index) => {
                 if (dayDate === null) {
@@ -307,7 +294,7 @@ const Screen5Booking = () => {
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   fontSize: '16px', fontWeight: '800', color: 'var(--color-dark)'
                 }}>
-                  {state.finalSpecialist.initials || state.finalSpecialist.name?.substring(0, 2).toUpperCase() || 'SP'}
+                  {state.finalSpecialist.initials}
                 </div>
                 <div>
                   <div style={{ color: 'var(--color-white)', fontSize: '16px', fontWeight: '700' }}>{state.finalSpecialist.name}</div>
@@ -318,22 +305,22 @@ const Screen5Booking = () => {
                   style={{ marginLeft: 'auto', padding: '6px 12px', fontSize: '12px', border: 'none', background: 'rgba(255,255,255,0.1)', color: 'white' }}
                   onClick={() => navigate('/specialists')}
                 >
-                  Change
+                  {t('change_btn')}
                 </button>
               </div>
             </div>
 
             <div className="card-light" style={{ padding: '20px', marginBottom: '24px' }}>
               <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', marginBottom: '12px' }}>
-                <Clock size={14} /> Appointment Mode
-                <HelpTooltip text="In-Person: visit clinic. Video Call: home consultation. Chat Consult: text-based advice." />
+                <Clock size={14} /> {t('appointment_mode_label')}
+                <HelpTooltip text={t('tooltip_mode')} />
               </label>
               
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
                 {[
-                  { key: 'inPerson', label: 'In-Person', icon: <MapPin size={14} />, defaultPrice: 100, defaultDuration: '30 mins' },
-                  { key: 'video', label: 'Video Call', icon: <Video size={14} />, defaultPrice: 60, defaultDuration: '20 mins' },
-                  { key: 'chat', label: 'Chat Consult', icon: <MessageSquare size={14} />, defaultPrice: 30, defaultDuration: '15 mins' }
+                  { key: 'inPerson', label: t('in_person'), icon: <MapPin size={14} />, defaultPrice: 100, defaultDuration: '30 mins' },
+                  { key: 'video', label: t('video_call'), icon: <Video size={14} />, defaultPrice: 60, defaultDuration: '20 mins' },
+                  { key: 'chat', label: t('chat_consult'), icon: <MessageSquare size={14} />, defaultPrice: 30, defaultDuration: '15 mins' }
                 ].map(m => {
                   const modeConfig = state.finalSpecialist.appointmentModes?.[m.key] || {
                     enabled: true,
@@ -378,39 +365,39 @@ const Screen5Booking = () => {
             {user && (
               <div className="card-light" style={{ padding: '20px', marginBottom: '24px' }}>
                 <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px' }}>
-                  <User size={14} /> Who is this appointment for?
-                  <HelpTooltip text="Select yourself, a saved family profile member, or another person." />
+                  <User size={14} /> {t('appointment_for_label')}
+                  <HelpTooltip text={t('tooltip_appointment_for')} />
                 </label>
                 <select 
                   className="input-field" 
-                  value={(bookedFor === 'Myself' || (user.familyProfiles && user.familyProfiles.some(m => m.name === bookedFor))) ? bookedFor : 'Someone else'} 
+                  value={(bookedFor === 'myself' || (user.familyProfiles && user.familyProfiles.some(m => m.name === bookedFor))) ? bookedFor : 'other'} 
                   onChange={e => {
                     const val = e.target.value;
-                    if (val === 'Someone else') {
-                      setBookedFor(otherName || 'Someone else');
+                    if (val === 'other') {
+                      setBookedFor(otherName || 'other');
                     } else {
                       setBookedFor(val);
                     }
                   }}
                   style={{ marginTop: '8px', padding: '10px 12px' }}
                 >
-                  <option value="Myself">Myself ({user.name})</option>
+                  <option value="myself">{t('myself_label', { name: user.name })}</option>
                   {user.familyProfiles && user.familyProfiles.map(member => (
                     <option key={member._id} value={member.name}>{member.name} ({member.relationship})</option>
                   ))}
-                  <option value="Someone else">Someone else</option>
+                  <option value="other">{t('someone_else')}</option>
                 </select>
 
-                {bookedFor !== 'Myself' && (!user.familyProfiles || !user.familyProfiles.some(m => m.name === bookedFor)) && (
+                {bookedFor !== 'myself' && (!user.familyProfiles || !user.familyProfiles.some(m => m.name === bookedFor)) && (
                   <div style={{ marginTop: '12px' }}>
                     <label className="form-label" style={{ fontSize: '11px' }}>
-                      Patient Name
-                      <HelpTooltip text="Enter the full legal name of the person attending this appointment." />
+                      {t('patient_name')}
+                      <HelpTooltip text={t('tooltip_patient_name')} />
                     </label>
                     <input 
                       type="text" 
                       className="input-field" 
-                      placeholder="Enter patient's full name"
+                      placeholder={t('patient_name_placeholder')}
                       value={otherName}
                       onChange={e => {
                         const val = e.target.value;
@@ -427,7 +414,7 @@ const Screen5Booking = () => {
             <div className="card-light" style={{ padding: '20px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
                 <Clock size={18} color="var(--color-orange)" />
-                <h3 style={{ fontSize: '18px', fontWeight: '800' }}>Available Times</h3>
+                <h3 style={{ fontSize: '18px', fontWeight: '800' }}>{t('available_times')}</h3>
               </div>
               
               {selectedDate ? (
@@ -461,14 +448,14 @@ const Screen5Booking = () => {
               ) : (
                 <div style={{ textAlign: 'center', padding: '36px 12px', border: '1px dashed rgba(0,0,0,0.1)', borderRadius: '8px', marginBottom: '24px' }}>
                   <CalIcon size={24} color="var(--color-muted)" style={{ marginBottom: '8px' }} />
-                  <p style={{ fontSize: '13px', opacity: 0.6 }}>Please select a date from the calendar to view available time slots.</p>
+                  <p style={{ fontSize: '13px', opacity: 0.6 }}>{t('select_date_prompt')}</p>
                 </div>
               )}
 
               {selectedDate && selectedTime && isSelectedTimeOccupied && (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--color-orange)', fontSize: '13px', marginBottom: '16px', padding: '12px', background: 'rgba(224, 88, 48, 0.1)', borderRadius: '8px' }}>
                   <AlertCircle size={16} />
-                  This slot is currently full. You can join the waitlist.
+                  {t('waitlist_msg')}
                 </div>
               )}
 
@@ -485,11 +472,11 @@ const Screen5Booking = () => {
                   disabled={loading}
                   onClick={() => {
                     if (!selectedDate) {
-                      setErrorMsg("Please select a date by tapping a day on the calendar, then tap an available time slot.");
+                      setErrorMsg(t('error_select_date_time'));
                       return;
                     }
                     if (!selectedTime) {
-                      setErrorMsg("Please select a time slot by tapping one of the available times.");
+                      setErrorMsg(t('error_select_time'));
                       return;
                     }
                     handleJoinWaitlist();
@@ -497,7 +484,7 @@ const Screen5Booking = () => {
                   style={{ padding: '18px', background: 'var(--color-orange)', color: 'white' }}
                 >
                   <Bell size={16} style={{ marginRight: '8px' }} />
-                  {loading ? 'Joining...' : 'Join Waitlist'}
+                  {loading ? t('joining') : t('join_waitlist')}
                 </button>
               ) : (
                 <button 
@@ -505,18 +492,18 @@ const Screen5Booking = () => {
                   disabled={loading}
                   onClick={() => {
                     if (!selectedDate) {
-                      setErrorMsg("Please select a date by tapping a day on the calendar, then tap an available time slot.");
+                      setErrorMsg(t('error_select_date_time'));
                       return;
                     }
                     if (!selectedTime) {
-                      setErrorMsg("Please select a time slot by tapping one of the available times.");
+                      setErrorMsg(t('error_select_time'));
                       return;
                     }
                     handleConfirm();
                   }}
                   style={{ padding: '18px' }}
                 >
-                  {loading ? 'Confirming...' : 'Confirm Booking →'}
+                  {loading ? t('confirming') : t('confirm_booking_arrow')}
                 </button>
               )}
             </div>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import Stepper from '../components/Stepper';
 import HelpTooltip from '../components/HelpTooltip';
 import { Search, Calendar, Clock, User, Mail } from 'lucide-react';
@@ -9,6 +10,7 @@ const BACKEND_URL = window.location.hostname === 'localhost'
   : 'https://akeno7594-internship-project-backend.hf.space/api';
 
 const Screen7CheckAppointment = () => {
+  const { t } = useTranslation();
   const [query, setQuery] = useState('');
   const [bookings, setBookings] = useState(null);
   const [error, setError] = useState('');
@@ -22,15 +24,15 @@ const Screen7CheckAppointment = () => {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch(`${BACKEND_URL}/lookup/${q}`);
+      const res = await fetch(`${BACKEND_URL}/bookings/lookup/${q}`);
       const json = await res.json();
       if (json.success) {
         setBookings(json.bookings);
       } else {
-        setError('No appointments found.');
+        setError(t('no_appointments_found'));
       }
     } catch {
-      setError('Connection error.');
+      setError(t('connection_error'));
     } finally {
       setLoading(false);
     }
@@ -50,25 +52,25 @@ const Screen7CheckAppointment = () => {
       <Stepper currentStep={currentStep} flow="lookup" />
       <div className="container" style={{ paddingTop: '20px', maxWidth: '800px', flex: 1 }}>
         <header className="text-center" style={{ marginBottom: '40px' }}>
-        <h1 style={{ fontSize: '32px' }}>Check Your Appointment</h1>
-        <p style={{ opacity: 0.7 }}>Enter your Email or Receipt ID to lookup your booking details.</p>
+        <h1 style={{ fontSize: '32px' }}>{t('check_your_appointment')}</h1>
+        <p style={{ opacity: 0.7 }}>{t('lookup_desc')}</p>
       </header>
       
       <div className="card-light" style={{ padding: '24px', marginBottom: '32px' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
           <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '4px', margin: 0 }}>
-            Lookup Details
-            <HelpTooltip text="Enter the email address you booked with, or the receipt code (e.g. SA-...) you received." />
+            {t('lookup_details')}
+            <HelpTooltip text={t('lookup_tooltip')} />
           </label>
           <div style={{ display: 'flex', gap: '12px' }}>
               <input 
                 className="input-field" 
-                placeholder="Email or Receipt ID" 
+                placeholder={t('email_receipt_placeholder')} 
                 value={query}
                 onChange={e => setQuery(e.target.value)} 
                 onKeyDown={e => { if (e.key === 'Enter') handleSearch(); }}
               />
-              <button className="btn-primary" onClick={() => handleSearch()} disabled={loading}>{loading ? 'Searching...' : 'Lookup'}</button>
+              <button className="btn-primary" onClick={() => handleSearch()} disabled={loading}>{loading ? t('searching') : t('lookup_btn')}</button>
           </div>
         </div>
         {error && <p style={{ color: 'var(--color-orange)', marginTop: '16px' }}>{error}</p>}
@@ -79,7 +81,7 @@ const Screen7CheckAppointment = () => {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
                     <h3 style={{ fontSize: '18px' }}>{b.specialistName}</h3>
-                    <p style={{ opacity: 0.7 }}>{b.specialistCategory}</p>
+                    <p style={{ opacity: 0.7 }}>{t(`category_${b.specialistCategory}`, { defaultValue: b.specialistCategory })}</p>
                 </div>
                 <span className="pill-tag">{b.receiptId}</span>
             </div>

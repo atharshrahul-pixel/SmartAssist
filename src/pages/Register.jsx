@@ -1,5 +1,6 @@
 import { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { AppContext } from '../App';
 import { UserPlus, User, Key, Mail } from 'lucide-react';
 import HelpTooltip from '../components/HelpTooltip';
@@ -11,6 +12,7 @@ const BACKEND_URL = window.location.hostname === 'localhost'
   : 'https://akeno7594-internship-project-backend.hf.space/api';
 
 const Register = () => {
+  const { t } = useTranslation();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -25,24 +27,24 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!name.trim()) {
-      setError('Please enter your full name.');
+      setError(t('error_name_required'));
       return;
     }
     if (!email.trim()) {
-      setError('Please enter your email address.');
+      setError(t('error_your_email'));
       return;
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email.trim())) {
-      setError('Please enter a valid email format (like name@example.com) to receive waitlist notifications.');
+      setError(t('error_valid_email'));
       return;
     }
     if (!password.trim()) {
-      setError('Please enter a password.');
+      setError(t('error_password_required'));
       return;
     }
     if (password.length < 6) {
-      setError('Choose a longer password. It must contain at least 6 characters.');
+      setError(t('error_password_short'));
       return;
     }
 
@@ -89,17 +91,18 @@ const Register = () => {
           }}>
             <UserPlus size={24} />
           </div>
-          <h2 style={{ fontSize: '28px', fontWeight: '700', marginBottom: '8px' }}>
-            Create <span className="accent-word">Account</span>
-          </h2>
-          <p style={{ opacity: 0.6, fontSize: '14px' }}>Join us to easily book and manage appointments.</p>
+          <h2 
+            style={{ fontSize: '28px', fontWeight: '700', marginBottom: '8px' }}
+            dangerouslySetInnerHTML={{ __html: t('create_account') }}
+          />
+          <p style={{ opacity: 0.6, fontSize: '14px' }}>{t('join_us_desc')}</p>
         </div>
 
         <form onSubmit={handleSubmit}>
           <div className="mb-md">
             <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <User size={14} /> Full Name
-              <HelpTooltip text="Please enter your full name as you would want it to appear on tickets and appointments." />
+              <User size={14} /> {t('full_name_label')}
+              <HelpTooltip text={t('full_name_tooltip')} />
             </label>
             <input
               type="text"
@@ -113,8 +116,8 @@ const Register = () => {
 
           <div className="mb-md">
             <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <Mail size={14} /> Email Address
-              <HelpTooltip text="This email will be used to log in, recover password, and receive notifications." />
+              <Mail size={14} /> {t('email_label')}
+              <HelpTooltip text={t('email_tooltip_register')} />
             </label>
             <input
               type="email"
@@ -128,8 +131,8 @@ const Register = () => {
 
           <div className="mb-lg">
             <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <Key size={14} /> Password
-              <HelpTooltip text="Pick a strong password of at least 6 characters to secure your medical files." />
+              <Key size={14} /> {t('password_label')}
+              <HelpTooltip text={t('password_tooltip_register')} />
             </label>
             <input
               type="password"
@@ -157,21 +160,21 @@ const Register = () => {
           )}
 
           <button type="submit" className="btn-primary w-full" disabled={loading} style={{ padding: '14px 28px' }}>
-            {loading ? 'Creating Account...' : 'Sign Up'}
+            {loading ? t('creating_account') : t('register')}
           </button>
         </form>
 
         <div style={{ textAlign: 'center', marginTop: '24px', fontSize: '14px', opacity: 0.8, display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <div>
-            Already have an account?{' '}
+            {t('already_account')}{' '}
             <Link to="/login" style={{ color: 'var(--color-orange)', fontWeight: '600' }}>
-              Log In
+              {t('login')}
             </Link>
           </div>
           <div style={{ fontSize: '13px', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '12px', marginTop: '4px' }}>
-            Are you a specialist?{' '}
+            {t('specialist_register_link').split('?')[0]}?{' '}
             <Link to="/specialist/register" style={{ color: 'var(--color-accent)', fontWeight: '700' }}>
-              Register as a specialist
+              {t('specialist_register_link').split('?')[1]?.trim() || t('register')}
             </Link>
           </div>
         </div>

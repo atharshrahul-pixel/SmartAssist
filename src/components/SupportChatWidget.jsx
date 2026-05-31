@@ -1,12 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { HelpCircle, MessageSquare, Send, X, Phone, Mail } from 'lucide-react';
 
 const SupportChatWidget = () => {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      content: 'Hi there! 👋 I am your support helper. How can I assist you with your booking today?'
+      content: t('support_greeting')
     }
   ]);
   const [input, setInput] = useState('');
@@ -14,10 +16,10 @@ const SupportChatWidget = () => {
   const chatEndRef = useRef(null);
 
   const faqResponses = {
-    'how to book': 'To book an appointment:\n1. Describe symptoms in plain language on the main screen.\n2. View the AI specialist recommendation.\n3. Pick an expert doctor.\n4. Select a date, time, and consultation mode.\n5. Click Confirm!',
-    'about waitlists': 'When a time slot is fully booked, you can join the waitlist. If the slot becomes free, you will get a notification and a 10-minute hold to claim it in your Dashboard.',
-    'consultation modes': 'We offer three modes:\n1. In-Person: Visit the doctor at the clinic.\n2. Video Call: Speak via live video.\n3. Chat Consult: Send text messages for minor issues.',
-    'contact support': 'Need to talk to us?\n📞 Phone: +91 98765 43210\n✉️ Email: support@smartassist.ai'
+    'faq_how_to_book': t('support_how_to_book'),
+    'faq_about_waitlists': t('support_waitlists'),
+    'faq_consultation_modes': t('support_modes'),
+    'faq_contact_support': t('support_contact')
   };
 
   useEffect(() => {
@@ -34,21 +36,17 @@ const SupportChatWidget = () => {
     setInput('');
     setIsTyping(true);
 
-    // Simulate typing and response
     setTimeout(() => {
       setIsTyping(false);
-      const query = text.toLowerCase().trim();
-      let response = "I'm sorry, I didn't quite get that. Try clicking one of the quick options below or contact our team!";
+      const key = text.trim();
+      let response = t('support_misunderstand');
 
-      // Match queries
-      if (query.includes('book') || query.includes('how to')) {
-        response = faqResponses['how to book'];
-      } else if (query.includes('waitlist') || query.includes('hold') || query.includes('reallocate')) {
-        response = faqResponses['about waitlists'];
-      } else if (query.includes('mode') || query.includes('video') || query.includes('phone') || query.includes('chat')) {
-        response = faqResponses['consultation modes'];
-      } else if (query.includes('contact') || query.includes('support') || query.includes('phone') || query.includes('email')) {
-        response = faqResponses['contact support'];
+      if (faqResponses[key]) {
+        response = faqResponses[key];
+      } else {
+        const query = text.toLowerCase();
+        if (query.includes('book')) response = faqResponses['faq_how_to_book'];
+        else if (query.includes('wait')) response = faqResponses['faq_about_waitlists'];
       }
 
       setMessages(prev => [...prev, { role: 'assistant', content: response }]);
@@ -81,7 +79,7 @@ const SupportChatWidget = () => {
         onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
       >
         {isOpen ? <X size={20} /> : <MessageSquare size={20} />}
-        <span>Need Help?</span>
+        <span>{t('need_help')}</span>
       </button>
 
       {/* Chat Window */}
@@ -105,7 +103,7 @@ const SupportChatWidget = () => {
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#22c55e' }} />
-              <span style={{ fontWeight: 'bold', fontSize: '15px' }}>Support Assistant</span>
+              <span style={{ fontWeight: 'bold', fontSize: '15px' }}>{t('support_assistant')}</span>
             </div>
             <button onClick={() => setIsOpen(false)} style={{ color: '#FFFFFF', opacity: 0.8 }}><X size={18} /></button>
           </div>
@@ -140,7 +138,7 @@ const SupportChatWidget = () => {
                   background: '#FFFFFF', color: 'var(--color-muted)',
                   fontSize: '13px', border: '1px solid rgba(0,0,0,0.05)'
                 }}>
-                  Typing...
+                  {t('typing')}
                 </div>
               </div>
             )}
@@ -149,17 +147,17 @@ const SupportChatWidget = () => {
 
           {/* Quick FAQ Chips */}
           <div style={{ padding: '8px 12px', background: '#F5F5F4', display: 'flex', gap: '6px', overflowX: 'auto', borderTop: '1px solid rgba(0,0,0,0.05)' }}>
-            {['How to book', 'About waitlists', 'Consultation modes', 'Contact support'].map(faq => (
+            {['faq_how_to_book', 'faq_about_waitlists', 'faq_consultation_modes', 'faq_contact_support'].map(key => (
               <button
-                key={faq}
-                onClick={() => handleSend(faq)}
+                key={key}
+                onClick={() => handleSend(key)}
                 style={{
                   padding: '6px 12px', borderRadius: '14px', background: '#FFFFFF',
                   border: '1.5px solid var(--color-orange)', color: 'var(--color-orange)',
                   fontSize: '11px', fontWeight: 'bold', whiteSpace: 'nowrap', cursor: 'pointer'
                 }}
               >
-                {faq}
+                {t(key)}
               </button>
             ))}
           </div>
@@ -171,7 +169,7 @@ const SupportChatWidget = () => {
           >
             <input
               type="text"
-              placeholder="Ask a question..."
+              placeholder={t('ask_question')}
               value={input}
               onChange={e => setInput(e.target.value)}
               style={{

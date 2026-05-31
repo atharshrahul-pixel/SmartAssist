@@ -1,9 +1,12 @@
 import { Link } from 'react-router-dom';
 import { useContext, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { AppContext } from '../App';
 import { User, Menu, X } from 'lucide-react';
+import LanguageSelector from './LanguageSelector';
 
 const Navbar = () => {
+  const { t } = useTranslation();
   const { user } = useContext(AppContext);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -37,8 +40,9 @@ const Navbar = () => {
         
         {/* Desktop Navigation */}
         <div className="nav-desktop" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <LanguageSelector />
           <Link to="/lookup" style={{ color: 'var(--color-white)', fontSize: '14px', textDecoration: 'none', opacity: 0.8 }}>
-            Check Appointments
+            {t('check_appointments')}
           </Link>
           {user ? (
             <Link to={user.role === 'specialist' ? '/specialist/dashboard' : '/dashboard'} style={{
@@ -65,7 +69,7 @@ const Navbar = () => {
               fontSize: '13px',
               textDecoration: 'none'
             }}>
-              Login / Register
+              {t('login_register')}
             </Link>
           )}
         </div>
@@ -108,6 +112,7 @@ const Navbar = () => {
             animation: 'fadeInSlideDown 0.25s ease'
           }}
         >
+          <LanguageSelector />
           <Link 
             to="/lookup" 
             style={{ 
@@ -119,7 +124,7 @@ const Navbar = () => {
             }} 
             onClick={() => setIsOpen(false)}
           >
-            Check Appointments
+            {t('check_appointments')}
           </Link>
           {user ? (
             <Link 
@@ -138,7 +143,7 @@ const Navbar = () => {
               }}
               onClick={() => setIsOpen(false)}
             >
-              <User size={16} /> {user.name} (Dashboard)
+              <User size={16} /> {user.name} ({t('dashboard')})
             </Link>
           ) : (
             <Link 
@@ -155,7 +160,7 @@ const Navbar = () => {
               }}
               onClick={() => setIsOpen(false)}
             >
-              Login / Register
+              {t('login_register')}
             </Link>
           )}
         </div>

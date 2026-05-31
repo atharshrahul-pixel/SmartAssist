@@ -1,10 +1,12 @@
 import { useEffect, useContext, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { AppContext } from '../App';
 import Stepper from '../components/Stepper';
 import { Check, Download, RefreshCcw, Share2, Calendar, Clock, User, ShieldCheck } from 'lucide-react';
 
 const Screen6Confirmation = () => {
+  const { t } = useTranslation();
   const { state, updateState, addBooking } = useContext(AppContext);
   const navigate = useNavigate();
   const [showContent, setShowContent] = useState(false);
@@ -62,16 +64,17 @@ const Screen6Confirmation = () => {
               <Check size={32} color="#059669" strokeWidth={3} />
             </div>
 
-            <h1 style={{ fontSize: '64px', lineHeight: '1', marginBottom: '24px', maxWidth: '500px' }}>
-              You're all <span className="accent-word" style={{ color: 'var(--color-orange)' }}>set!</span>
-            </h1>
+            <h1 
+              style={{ fontSize: '64px', lineHeight: '1', marginBottom: '24px', maxWidth: '500px' }}
+              dangerouslySetInnerHTML={{ __html: t('all_set') }}
+            />
             <p style={{ fontSize: '20px', color: 'var(--color-dark)', opacity: 0.8, maxWidth: '480px', marginBottom: '48px', lineHeight: '1.5' }}>
-              Your appointment has been successfully scheduled. We've sent a confirmation to your registered email address.
+              {t('appointment_success_desc')}
             </p>
 
             <div style={{ marginBottom: '32px' }}>
               <h3 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '20px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                Next Steps
+                {t('next_steps')}
               </h3>
               
               <div className="next-step-card">
@@ -79,8 +82,8 @@ const Screen6Confirmation = () => {
                   <Calendar size={16} color="var(--color-orange)" />
                 </div>
                 <div>
-                  <div style={{ fontWeight: '700', fontSize: '15px', marginBottom: '4px' }}>Add to Calendar</div>
-                  <p style={{ fontSize: '13px', opacity: 0.6, margin: 0 }}>Sync this appointment with Google, Outlook, or Apple Calendar.</p>
+                  <div style={{ fontWeight: '700', fontSize: '15px', marginBottom: '4px' }}>{t('add_to_calendar')}</div>
+                  <p style={{ fontSize: '13px', opacity: 0.6, margin: 0 }}>{t('add_to_calendar_desc')}</p>
                 </div>
               </div>
 
@@ -89,15 +92,15 @@ const Screen6Confirmation = () => {
                   <ShieldCheck size={16} color="var(--color-orange)" />
                 </div>
                 <div>
-                  <div style={{ fontWeight: '700', fontSize: '15px', marginBottom: '4px' }}>Verify Details</div>
-                  <p style={{ fontSize: '13px', opacity: 0.6, margin: 0 }}>Check your email for the pre-visit preparation checklist.</p>
+                  <div style={{ fontWeight: '700', fontSize: '15px', marginBottom: '4px' }}>{t('verify_details')}</div>
+                  <p style={{ fontSize: '13px', opacity: 0.6, margin: 0 }}>{t('verify_details_desc')}</p>
                 </div>
               </div>
             </div>
 
             <button className="btn-primary" onClick={handleBookAnother} style={{ gap: '12px', padding: '16px 32px' }}>
               <RefreshCcw size={18} />
-              Book Another Appointment
+              {t('book_another')}
             </button>
           </div>
 
@@ -107,7 +110,7 @@ const Screen6Confirmation = () => {
               <header className="ticket-header">
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <ShieldCheck size={20} color="var(--color-accent)" />
-                  <span style={{ fontSize: '14px', fontWeight: '800', letterSpacing: '0.1em' }}>OFFICIAL RECEIPT</span>
+                  <span style={{ fontSize: '14px', fontWeight: '800', letterSpacing: '0.1em' }}>{t('official_receipt')}</span>
                 </div>
                 <div style={{ fontSize: '12px', fontWeight: '700', opacity: 0.8 }}>#{state.bookingId}</div>
               </header>
@@ -124,35 +127,35 @@ const Screen6Confirmation = () => {
                   </div>
                   <div>
                     <h3 style={{ fontSize: '20px', fontWeight: '800', marginBottom: '4px' }}>{state.finalSpecialist.name}</h3>
-                    <span className="pill-tag" style={{ fontSize: '10px' }}>{state.finalSpecialist.category}</span>
+                    <span className="pill-tag" style={{ fontSize: '10px' }}>{t(`category_${state.finalSpecialist.category}`, { defaultValue: state.finalSpecialist.category })}</span>
                   </div>
                 </div>
 
                 <div className="ticket-row">
-                  <div className="ticket-label"><User size={14} style={{ marginRight: '8px', verticalAlign: 'middle' }} />Patient</div>
+                  <div className="ticket-label"><User size={14} style={{ marginRight: '8px', verticalAlign: 'middle' }} />{t('patient_label')}</div>
                   <div className="ticket-value">{state.name}</div>
                 </div>
                 
                 <div className="ticket-row">
-                  <div className="ticket-label"><Calendar size={14} style={{ marginRight: '8px', verticalAlign: 'middle' }} />Date</div>
+                  <div className="ticket-label"><Calendar size={14} style={{ marginRight: '8px', verticalAlign: 'middle' }} />{t('date')}</div>
                   <div className="ticket-value">{state.bookedDate}</div>
                 </div>
 
                 <div className="ticket-row">
-                  <div className="ticket-label"><Clock size={14} style={{ marginRight: '8px', verticalAlign: 'middle' }} />Time</div>
+                  <div className="ticket-label"><Clock size={14} style={{ marginRight: '8px', verticalAlign: 'middle' }} />{t('time')}</div>
                   <div className="ticket-value">{state.bookedTime}</div>
                 </div>
 
                 {state.bookedMode && (
                   <div className="ticket-row">
-                    <div className="ticket-label"><ShieldCheck size={14} style={{ marginRight: '8px', verticalAlign: 'middle' }} />Mode</div>
+                    <div className="ticket-label"><ShieldCheck size={14} style={{ marginRight: '8px', verticalAlign: 'middle' }} />{t('mode')}</div>
                     <div className="ticket-value">{state.bookedMode} ({state.bookedDuration})</div>
                   </div>
                 )}
 
                 {state.bookedPrice !== undefined && (
                   <div className="ticket-row">
-                    <div className="ticket-label"><span style={{ fontWeight: '800', marginRight: '8px', verticalAlign: 'middle' }}>₹</span>Fee</div>
+                    <div className="ticket-label"><span style={{ fontWeight: '800', marginRight: '8px', verticalAlign: 'middle' }}>₹</span>{t('fee')}</div>
                     <div className="ticket-value" style={{ fontWeight: '700', color: 'var(--color-orange)' }}>₹{state.bookedPrice}</div>
                   </div>
                 )}
@@ -162,14 +165,14 @@ const Screen6Confirmation = () => {
 
               <div className="ticket-body" style={{ background: '#FAFAF9', textAlign: 'center' }}>
                 <p style={{ fontSize: '13px', color: 'var(--color-muted)', marginBottom: '16px' }}>
-                  Show this ticket at the reception upon arrival.
+                  {t('show_receipt_desc')}
                 </p>
                 <div style={{ display: 'flex', justifyContent: 'center', gap: '12px' }}>
                   <button className="btn-secondary" style={{ padding: '8px 16px', fontSize: '12px', gap: '8px' }}>
-                    <Share2 size={14} /> Share
+                    <Share2 size={14} /> {t('share')}
                   </button>
                   <button className="btn-secondary" style={{ padding: '8px 16px', fontSize: '12px', gap: '8px' }}>
-                    <Download size={14} /> Save PDF
+                    <Download size={14} /> {t('save_pdf')}
                   </button>
                 </div>
               </div>

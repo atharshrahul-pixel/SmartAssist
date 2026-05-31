@@ -1,12 +1,14 @@
 import { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const RecoveryTimeline = ({ feedbackBookings }) => {
+  const { t } = useTranslation();
   const [hoveredPoint, setHoveredPoint] = useState(null);
   
   if (feedbackBookings.length === 0) {
     return (
       <div className="card-light" style={{ padding: '32px', textAlign: 'center', marginBottom: '24px', border: '1px dashed rgba(0,0,0,0.15)' }}>
-        <p style={{ opacity: 0.6, fontSize: '14px' }}>Your recovery timeline will appear here once you log post-visit feedback.</p>
+        <p style={{ opacity: 0.6, fontSize: '14px' }}>{t('recovery_timeline_empty')}</p>
       </div>
     );
   }
@@ -17,14 +19,7 @@ const RecoveryTimeline = ({ feedbackBookings }) => {
   const paddingY = 35;
 
   const getSymptomLabel = (val) => {
-    const labels = {
-      1: 'Much Worse',
-      2: 'Worse',
-      3: 'Same',
-      4: 'Better',
-      5: 'Much Better'
-    };
-    return labels[val] || '';
+    return t(`symptom_level_${val}`);
   };
 
   // Memoize point coordinates calculation
@@ -54,9 +49,9 @@ const RecoveryTimeline = ({ feedbackBookings }) => {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
         <h3 style={{ fontSize: '16px', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--color-orange)' }}></span>
-          Recovery Timeline
+          {t('recovery_timeline_title')}
         </h3>
-        <span style={{ fontSize: '11px', opacity: 0.6 }}>Hover dots to inspect consultation details</span>
+        <span style={{ fontSize: '11px', opacity: 0.6 }}>{t('recovery_timeline_tooltip')}</span>
       </div>
 
       <div style={{ overflowX: 'auto' }}>

@@ -1,5 +1,6 @@
 import { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { AppContext } from '../App';
 import { LogIn, Key, Mail } from 'lucide-react';
 import HelpTooltip from '../components/HelpTooltip';
@@ -11,6 +12,7 @@ const BACKEND_URL = window.location.hostname === 'localhost'
   : 'https://akeno7594-internship-project-backend.hf.space/api';
 
 const Login = () => {
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -24,16 +26,16 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!email.trim()) {
-      setError('Please enter your email address.');
+      setError(t('error_email_required'));
       return;
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email.trim())) {
-      setError('Please enter a valid email format (like name@example.com).');
+      setError(t('error_valid_email'));
       return;
     }
     if (!password.trim()) {
-      setError('Please enter your password.');
+      setError(t('error_password_required'));
       return;
     }
 
@@ -87,22 +89,23 @@ const Login = () => {
           }}>
             <LogIn size={24} />
           </div>
-          <h2 style={{ fontSize: '28px', fontWeight: '700', marginBottom: '8px' }}>
-            Welcome <span className="accent-word">Back</span>
-          </h2>
-          <p style={{ opacity: 0.6, fontSize: '14px' }}>Log in to manage appointments, ratings, and family profiles.</p>
+          <h2 
+            style={{ fontSize: '28px', fontWeight: '700', marginBottom: '8px' }}
+            dangerouslySetInnerHTML={{ __html: t('welcome_back') }}
+          />
+          <p style={{ opacity: 0.6, fontSize: '14px' }}>{t('login_desc')}</p>
         </div>
 
         <form onSubmit={handleSubmit}>
           <div className="mb-md">
             <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <Mail size={14} /> Email Address
-              <HelpTooltip text="Enter the email address associated with your account." />
+              <Mail size={14} /> {t('email_label')}
+              <HelpTooltip text={t('email_tooltip_register')} />
             </label>
             <input
               type="email"
               className="input-field"
-              placeholder="you@example.com"
+              placeholder={t('email_placeholder')}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -111,13 +114,13 @@ const Login = () => {
 
           <div className="mb-lg">
             <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <Key size={14} /> Password
-              <HelpTooltip text="Enter the password you chose during registration." />
+              <Key size={14} /> {t('password_label')}
+              <HelpTooltip text={t('password_tooltip_register')} />
             </label>
             <input
               type="password"
               className="input-field"
-              placeholder="••••••••"
+              placeholder={t('password_placeholder')}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -140,21 +143,21 @@ const Login = () => {
           )}
 
           <button type="submit" className="btn-primary w-full" disabled={loading} style={{ padding: '14px 28px' }}>
-            {loading ? 'Logging in...' : 'Log In'}
+            {loading ? t('logging_in') : t('login')}
           </button>
         </form>
 
         <div style={{ textAlign: 'center', marginTop: '24px', fontSize: '14px', opacity: 0.8, display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <div>
-            Don't have an account?{' '}
+            {t('no_account')}{' '}
             <Link to="/register" style={{ color: 'var(--color-orange)', fontWeight: '600' }}>
-              Sign Up
+              {t('register')}
             </Link>
           </div>
           <div style={{ fontSize: '13px', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '12px', marginTop: '4px' }}>
-            Are you a healthcare professional?{' '}
+            {t('healthcare_pro_join').split('?')[0]}?{' '}
             <Link to="/specialist/register" style={{ color: 'var(--color-accent)', fontWeight: '700' }}>
-              Join our network
+              {t('healthcare_pro_join').split('?')[1]?.trim() || t('register')}
             </Link>
           </div>
         </div>

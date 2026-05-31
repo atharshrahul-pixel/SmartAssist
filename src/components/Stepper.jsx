@@ -1,37 +1,39 @@
 import { Check } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const Stepper = ({ currentStep, flow = 'booking' }) => {
+  const { t } = useTranslation();
   let steps = [1, 2, 3, 4, 5, 6];
   let stepNames = [
-    "Tell us what's wrong",
-    "View recommended doctor",
-    "Give your opinion",
-    "Pick a specialist",
-    "Choose date and time",
-    "Get your receipt"
+    t('step_1_name'),
+    t('step_2_name'),
+    t('step_3_name'),
+    t('step_4_name'),
+    t('step_5_name'),
+    t('step_6_name')
   ];
-  let title = `Step ${currentStep} of 6: ${stepNames[currentStep - 1]}`;
+  let title = t('step_title', { current: currentStep, total: 6, name: stepNames[currentStep - 1] });
 
   if (flow === 'account') {
     steps = [1, 2];
     stepNames = [
-      "Sign in or create account",
-      "View dashboard & appointments"
+      t('step_1_account'),
+      t('step_2_account')
     ];
     title = currentStep > 2 
-      ? "Account Access Complete" 
-      : `Step ${currentStep} of 2: ${stepNames[currentStep - 1]}`;
+      ? t('account_complete_title')
+      : t('step_title', { current: currentStep, total: 2, name: stepNames[currentStep - 1] });
   } else if (flow === 'lookup') {
     steps = [1, 2];
     stepNames = [
-      "Enter email or receipt code",
-      "View matching appointments"
+      t('step_1_lookup'),
+      t('step_2_lookup')
     ];
     title = currentStep > 2 
-      ? "Lookup Complete" 
-      : `Step ${currentStep} of 2: ${stepNames[currentStep - 1]}`;
+      ? t('lookup_complete_title')
+      : t('step_title', { current: currentStep, total: 2, name: stepNames[currentStep - 1] });
   } else if (flow === 'booking' && currentStep > 6) {
-    title = "Booking Completed Successfully!";
+    title = t('booking_complete_title');
   }
 
   return (

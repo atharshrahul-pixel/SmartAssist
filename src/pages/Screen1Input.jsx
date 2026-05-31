@@ -1,4 +1,5 @@
 import { useState, useContext, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, Link } from 'react-router-dom';
 import { AppContext } from '../App';
 import Stepper from '../components/Stepper';
@@ -13,6 +14,7 @@ const BACKEND_URL = window.location.hostname === 'localhost'
 const words = ['health', 'smile', 'fitness', 'muscles', 'wellness'];
 
 const Screen1Input = () => {
+  const { t } = useTranslation();
   const { state, updateState, user } = useContext(AppContext);
   const navigate = useNavigate();
   const [name, setName] = useState(state.name || '');
@@ -159,7 +161,7 @@ const Screen1Input = () => {
     formData.append('audio', audioBlob, 'recording.wav');
 
     try {
-      const response = await fetch(`${BACKEND_URL}/recommendations/transcribe`, {
+      const response = await fetch(`${BACKEND_URL}/recommendation/transcribe`, {
         method: 'POST',
         body: formData,
       });
@@ -201,21 +203,21 @@ const Screen1Input = () => {
     e.preventDefault();
     setTriageError('');
     if (appointmentFor === 'other' && !otherName.trim()) {
-      setErrorMsg("Please enter patient's full name to continue.");
+      setErrorMsg(t('error_patient_name'));
       return;
     }
     if (!user) {
       if (!name.trim()) {
-        setErrorMsg("Please enter your name so the clinic and doctors know who you are.");
+        setErrorMsg(t('error_your_name'));
         return;
       }
       if (!email.trim()) {
-        setErrorMsg("Please enter your email address so we can send you booking confirmations and waitlist notifications.");
+        setErrorMsg(t('error_your_email'));
         return;
       }
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email.trim())) {
-        setErrorMsg("Please enter a valid email format (like name@example.com). We need this to send booking confirmations.");
+        setErrorMsg(t('error_valid_email'));
         return;
       }
     }
@@ -230,7 +232,7 @@ const Screen1Input = () => {
     setChatHistory([
       {
         role: 'assistant',
-        content: `Hi ${name.trim()}, I'm your AI Triage Nurse. What health or wellness symptoms or concerns are you experiencing today?`
+        content: t('nurse_greeting', { name: name.trim() })
       }
     ]);
   };
@@ -240,7 +242,7 @@ const Screen1Input = () => {
     setChatHistory([
       {
         role: 'assistant',
-        content: `Hi ${name.trim()}, I'm your AI Triage Nurse. What health or wellness symptoms or concerns are you experiencing today?`
+        content: t('nurse_greeting', { name: name.trim() })
       }
     ]);
   };
@@ -258,7 +260,7 @@ const Screen1Input = () => {
     try {
       const urlParams = new URLSearchParams(window.location.search);
       const simulateFallback = urlParams.get('simulateFallback') === 'true';
-      const triageEndpoint = `${BACKEND_URL}/recommendations/triage${simulateFallback ? '?simulateFallback=true' : ''}`;
+      const triageEndpoint = `${BACKEND_URL}/recommendation/triage${simulateFallback ? '?simulateFallback=true' : ''}`;
 
       const response = await fetch(triageEndpoint, {
         method: 'POST',
@@ -370,9 +372,9 @@ const Screen1Input = () => {
       <div className="container" style={{ flex: 1 }}>
         <div className="split-layout">
           <div className="split-content">
-            <span className="pill-tag mb-lg">AI-POWERED TRIAGE</span>
+            <span className="pill-tag mb-lg">{t('ai_powered_triage')}</span>
             <h1 style={{ fontSize: '64px', lineHeight: '1', marginBottom: 'var(--sp-lg)', maxWidth: '600px' }}>
-              Tell us your{' '}
+              {t('tell_us_your')}{' '}
               <span className="text-rotator-container">
                 <span className="text-rotator-ghost" aria-hidden="true">wellness</span>
                 {words.map((word, idx) => {
@@ -391,24 +393,24 @@ const Screen1Input = () => {
                   );
                 })}
               </span>{' '}
-              concern
+              {t('concern')}
             </h1>
             <p style={{ color: 'var(--color-dark)', fontSize: '18px', lineHeight: '1.6', maxWidth: '520px', marginBottom: 'var(--sp-xl)', opacity: 0.8 }}>
-              Describe what you're experiencing and our system will recommend the right specialist for you — instantly.
+              {t('triage_description')}
             </p>
 
             <div className="benefits-list" style={{ marginTop: 'var(--sp-xl)' }}>
               <div className="benefit-item">
                 <div className="benefit-icon"><Zap size={14} /></div>
-                <span>Instant AI-powered specialist matching</span>
+                <span>{t('benefit_1')}</span>
               </div>
               <div className="benefit-item">
                 <div className="benefit-icon"><Shield size={14} /></div>
-                <span>100% secure and confidential triage</span>
+                <span>{t('benefit_2')}</span>
               </div>
               <div className="benefit-item">
                 <div className="benefit-icon"><Clock size={14} /></div>
-                <span>Skip the wait — get recommended in seconds</span>
+                <span>{t('benefit_3')}</span>
               </div>
             </div>
           </div>
@@ -439,8 +441,8 @@ const Screen1Input = () => {
                   <>
                     <div className="mb-lg">
                       <label className="form-label">
-                        Who is this appointment for?
-                        <HelpTooltip text="Tell us if this is for you or someone else so we put the correct name on the appointment ticket." />
+                        {t('appointment_for_label')}
+                        <HelpTooltip text={t('tooltip_appointment_for')} />
                       </label>
                       <select 
                         className="input-field" 
@@ -450,26 +452,26 @@ const Screen1Input = () => {
                           setErrorMsg('');
                         }}
                       >
-                        <option value="myself">Myself ({user.name})</option>
+                        <option value="myself">{t('myself')} ({user.name})</option>
                         {user.familyProfiles && user.familyProfiles.map((member) => (
                           <option key={member._id} value={member.name}>
                             {member.name} ({member.relationship})
                           </option>
                         ))}
-                        <option value="other">Someone else</option>
+                        <option value="other">{t('someone_else')}</option>
                       </select>
                     </div>
 
                     {appointmentFor === 'other' && (
                       <div className="mb-lg">
                         <label className="form-label">
-                          Patient Name
-                          <HelpTooltip text="Enter the full legal name of the person who will see the doctor." />
+                          {t('patient_name')}
+                          <HelpTooltip text={t('tooltip_patient_name')} />
                         </label>
                         <input 
                           type="text" 
                           className="input-field" 
-                          placeholder="Enter patient's full name"
+                          placeholder={t('patient_name_placeholder')}
                           value={otherName}
                           onChange={(e) => {
                             setOtherName(e.target.value);
@@ -484,13 +486,13 @@ const Screen1Input = () => {
                   <>
                     <div className="mb-lg">
                       <label className="form-label">
-                        Your name
-                        <HelpTooltip text="Please enter your full name so doctors and staff know who is attending." />
+                        {t('your_name')}
+                        <HelpTooltip text={t('tooltip_your_name')} />
                       </label>
                       <input 
                         type="text" 
                         className="input-field" 
-                        placeholder="Enter your full name"
+                        placeholder={t('enter_your_full_name')}
                         value={name}
                         onChange={(e) => {
                           setName(e.target.value);
@@ -502,13 +504,13 @@ const Screen1Input = () => {
 
                     <div className="mb-lg">
                       <label className="form-label">
-                        Email Address
-                        <HelpTooltip text="Your email is used to send booking confirmations, ticket receipts, and waitlist notifications." />
+                        {t('email_address')}
+                        <HelpTooltip text={t('tooltip_email')} />
                       </label>
                       <input 
                         type="email" 
                         className="input-field" 
-                        placeholder="Enter your email"
+                        placeholder={t('enter_your_email')}
                         value={email}
                         onChange={(e) => {
                           setEmail(e.target.value);
@@ -526,7 +528,7 @@ const Screen1Input = () => {
                   disabled={loading}
                   style={{ padding: '16px' }}
                 >
-                  Start AI Triage Chat →
+                  {t('start_triage')} →
                 </button>
               </form>
             ) : (
@@ -557,7 +559,7 @@ const Screen1Input = () => {
                       backgroundColor: '#22c55e',
                       boxShadow: '0 0 8px #22c55e'
                     }} />
-                    <span style={{ fontWeight: '700', fontSize: '15px' }}>AI Triage Nurse</span>
+                    <span style={{ fontWeight: '700', fontSize: '15px' }}>{t('ai_triage_nurse')}</span>
                   </div>
                   <button 
                     type="button" 
@@ -571,7 +573,7 @@ const Screen1Input = () => {
                       textDecoration: 'underline'
                     }}
                   >
-                    Reset Chat
+                    {t('reset_chat')}
                   </button>
                 </div>
 
@@ -625,7 +627,7 @@ const Screen1Input = () => {
                         gap: '4px'
                       }}>
                         <span style={{ fontSize: '13px', fontWeight: '500' }}>
-                          {userTurnCount >= 3 ? 'Finalizing recommendation...' : 'Triage Nurse is typing...'}
+                          {userTurnCount >= 3 ? t('finalizing') : t('nurse_typing')}
                         </span>
                         <span className="dot-flashing" />
                       </div>
@@ -734,12 +736,12 @@ const Screen1Input = () => {
                       className="input-field"
                       placeholder={
                         recording 
-                          ? `Recording... ${recordingSeconds}s` 
+                          ? t('recording_status', { seconds: recordingSeconds })
                           : transcribing 
-                            ? "Transcribing..." 
+                            ? t('transcribing')
                             : userTurnCount >= 3 
-                              ? "Triage completed." 
-                              : "Type or record your response..."
+                              ? t('triage_completed')
+                              : t('chat_placeholder')
                       }
                       value={chatInput}
                       onChange={(e) => setChatInput(e.target.value)}
@@ -752,7 +754,7 @@ const Screen1Input = () => {
                       disabled={loading || !chatInput.trim() || chatInput.length > 500 || userTurnCount >= 3 || recording || transcribing}
                       style={{ padding: '0 20px', minWidth: '80px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                     >
-                      Send
+                      {t('send')}
                     </button>
                   </div>
                   <div style={{
@@ -764,8 +766,8 @@ const Screen1Input = () => {
                   }}>
                     <span>
                       {userTurnCount >= 3 
-                        ? 'Triage complete. Generating recommendation...' 
-                        : `Turn ${userTurnCount}/3`}
+                        ? t('finalizing')
+                        : `${t('turn')} ${userTurnCount}/3`}
                     </span>
                     <span style={{ color: chatInput.length > 500 ? 'red' : 'inherit' }}>
                       {chatInput.length} / 500
@@ -782,14 +784,14 @@ const Screen1Input = () => {
         <div className="footer-content">
           <div className="footer-brand">SmartAssist</div>
           <div className="footer-links">
-            <Link to="/privacy" className="footer-link">Privacy Policy</Link>
-            <Link to="/terms" className="footer-link">Terms of Service</Link>
-            <Link to="/support" className="footer-link">Support</Link>
-            <Link to="/specialist/register" className="footer-link" style={{ color: 'var(--color-accent)', fontWeight: '700' }}>Specialist Onboarding</Link>
+            <Link to="/privacy" className="footer-link">{t('privacy_policy')}</Link>
+            <Link to="/terms" className="footer-link">{t('terms_of_service')}</Link>
+            <Link to="/support" className="footer-link">{t('support')}</Link>
+            <Link to="/specialist/register" className="footer-link" style={{ color: 'var(--color-accent)', fontWeight: '700' }}>{t('specialist_onboarding')}</Link>
           </div>
         </div>
         <div className="footer-content footer-copy">
-          <p>&copy; 2026 SmartAssist Health AI. All rights reserved.</p>
+          <p>{t('copyright')}</p>
         </div>
       </footer>
     </div>

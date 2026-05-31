@@ -1,22 +1,24 @@
 import { useState, useContext } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, Link } from 'react-router-dom';
 import { AppContext } from '../App';
 import Stepper from '../components/Stepper';
 import HelpTooltip from '../components/HelpTooltip';
 import { ArrowLeft, ChevronRight, MessageSquare } from 'lucide-react';
 
-const reasons = [
-  "Wrong recommendation",
-  "Different issue",
-  "Prefer another specialist",
-  "Other"
-];
-
 const Screen3Rejection = () => {
+  const { t } = useTranslation();
   const { state, updateState } = useContext(AppContext);
   const navigate = useNavigate();
   const [reason, setReason] = useState(state.rejectionReason || '');
   const [other, setOther] = useState(state.rejectionReasonOther || '');
+
+  const reasons = [
+    t('reason_wrong_rec'),
+    t('reason_diff_issue'),
+    t('reason_prefer_another'),
+    t('reason_other')
+  ];
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -34,18 +36,18 @@ const Screen3Rejection = () => {
         <div style={{ maxWidth: '640px', margin: '0 auto' }}>
           <Link to="/recommendation" className="back-link">
             <ArrowLeft size={16} />
-            Back to recommendation
+            {t('back_to_recommendation')}
           </Link>
           
           <div className="text-center mb-xl">
             <span className="pill-tag mb-lg" style={{ background: 'var(--color-orange)', color: 'var(--color-white)' }}>
-              HELP US IMPROVE
+              {t('help_us_improve')}
             </span>
             <h2 style={{ fontSize: '40px', lineHeight: '1.2', marginBottom: '16px' }}>
-              Why wasn't this the right <span className="accent-word" style={{ color: 'var(--color-orange)' }}>match?</span>
+              {t('why_not_right_match')} <span className="accent-word" style={{ color: 'var(--color-orange)' }}>{t('match')}</span>
             </h2>
             <p style={{ color: 'var(--color-dark)', opacity: 0.6, fontSize: '16px' }}>
-              Your feedback helps our AI learn and provide better recommendations for everyone.
+              {t('feedback_desc')}
             </p>
           </div>
 
@@ -64,16 +66,16 @@ const Screen3Rejection = () => {
               ))}
             </div>
 
-            {reason === 'Other' && (
+            {reason === t('reason_other') && (
               <div className="mb-lg" style={{ animation: 'fadeInSlideUp 0.3s ease' }}>
                 <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <MessageSquare size={14} />
-                  Tell us more
-                  <HelpTooltip text="Enter details about why the recommended specialist was not appropriate for your condition." />
+                  {t('tell_us_more')}
+                  <HelpTooltip text={t('tooltip_rejection')} />
                 </label>
                 <textarea 
                   className="input-field placeholder-dark"
-                  placeholder="Please describe why the recommendation didn't fit..."
+                  placeholder={t('rejection_placeholder')}
                   style={{ minHeight: '120px', resize: 'vertical' }}
                   value={other}
                   onChange={(e) => setOther(e.target.value)}
@@ -85,10 +87,10 @@ const Screen3Rejection = () => {
             <button 
               type="submit" 
               className="btn-primary w-full"
-              disabled={!reason || (reason === 'Other' && !other.trim())}
+              disabled={!reason || (reason === t('reason_other') && !other.trim())}
               style={{ padding: '16px', marginTop: 'var(--sp-md)' }}
             >
-              Continue to Specialists →
+              {t('continue_to_specialists')}
             </button>
           </form>
         </div>
