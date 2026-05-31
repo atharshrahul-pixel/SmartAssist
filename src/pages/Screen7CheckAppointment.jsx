@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import Stepper from '../components/Stepper';
 import HelpTooltip from '../components/HelpTooltip';
 import { Search, Calendar, Clock, User, Mail } from 'lucide-react';
 
-const BACKEND_URL = 'https://akeno7594-internship-project-backend.hf.space/api';
+const BACKEND_URL = window.location.hostname === 'localhost'
+  ? 'http://localhost:5000/api'
+  : 'https://akeno7594-internship-project-backend.hf.space/api';
 
 const Screen7CheckAppointment = () => {
   const [query, setQuery] = useState('');
@@ -14,12 +16,13 @@ const Screen7CheckAppointment = () => {
   
   const currentStep = bookings === null ? 1 : 2;
 
-  const handleSearch = async () => {
-    if (!query.trim()) return;
+  const handleSearch = async (searchQuery) => {
+    const q = searchQuery !== undefined ? searchQuery : query;
+    if (!q.trim()) return;
     setLoading(true);
     setError('');
     try {
-      const res = await fetch(`${BACKEND_URL}/lookup/${query}`);
+      const res = await fetch(`${BACKEND_URL}/lookup/${q}`);
       const json = await res.json();
       if (json.success) {
         setBookings(json.bookings);
@@ -32,6 +35,15 @@ const Screen7CheckAppointment = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const receiptId = params.get('receiptId');
+    if (receiptId) {
+      setQuery(receiptId);
+      handleSearch(receiptId);
+    }
+  }, []);
 
   return (
     <div className="page-transition" style={{ display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
@@ -49,8 +61,14 @@ const Screen7CheckAppointment = () => {
             <HelpTooltip text="Enter the email address you booked with, or the receipt code (e.g. SA-...) you received." />
           </label>
           <div style={{ display: 'flex', gap: '12px' }}>
-              <input className="input-field" placeholder="Email or Receipt ID" onChange={e => setQuery(e.target.value)} />
-              <button className="btn-primary" onClick={handleSearch} disabled={loading}>{loading ? 'Searching...' : 'Lookup'}</button>
+              <input 
+                className="input-field" 
+                placeholder="Email or Receipt ID" 
+                value={query}
+                onChange={e => setQuery(e.target.value)} 
+                onKeyDown={e => { if (e.key === 'Enter') handleSearch(); }}
+              />
+              <button className="btn-primary" onClick={() => handleSearch()} disabled={loading}>{loading ? 'Searching...' : 'Lookup'}</button>
           </div>
         </div>
         {error && <p style={{ color: 'var(--color-orange)', marginTop: '16px' }}>{error}</p>}
