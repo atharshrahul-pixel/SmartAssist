@@ -9,203 +9,15 @@ import {
   Download, Filter, FileText
 } from 'lucide-react';
 import { generateReceiptPDF } from '../utils/receiptGenerator';
+import WaitlistHoldTimer from '../components/WaitlistHoldTimer';
+import RecoveryTimeline from '../components/RecoveryTimeline';
+import RatingModal from '../components/RatingModal';
+import { calculateRebookStatus } from '../utils/dateHelpers';
+import { useAppointmentFilters } from '../hooks/useAppointmentFilters';
 
 const BACKEND_URL = window.location.hostname === 'localhost'
   ? 'http://localhost:5000/api'
   : 'https://akeno7594-internship-project-backend.hf.space/api';
-
-const WaitlistHoldTimer = ({ notifiedAt, onExpire }) => {
-  const [timeLeft, setTimeLeft] = useState('');
-
-  useEffect(() => {
-    const calculateTimeLeft = () => {
-      const notifiedTime = new Date(notifiedAt).getTime();
-      const diffSinceNotification = Date.now() - notifiedTime;
-      const isDevHold = diffSinceNotification < 60 * 1000 && (notifiedTime + 60 * 1000 - Date.now() > 0);
-      const holdDuration = isDevHold ? 60 * 1000 : 10 * 60 * 1000;
-      const difference = notifiedTime + holdDuration - Date.now();
-
-      if (difference <= 0) {
-        setTimeLeft('Expired');
-        if (onExpire) onExpire();
-        return;
-      }
-
-      const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((difference % (1000 * 60)) / 1000);
-      setTimeLeft(`${minutes}m ${seconds}s left`);
-    };
-
-    calculateTimeLeft();
-    const interval = setInterval(calculateTimeLeft, 1000);
-    return () => clearInterval(interval);
-  }, [notifiedAt, onExpire]);
-
-  return (
-    <span style={{ fontSize: '12px', color: 'var(--color-orange)', fontWeight: 'bold' }}>
-      ({timeLeft})
-    </span>
-  );
-};
-
-const RecoveryTimeline = ({ feedbackBookings }) => {
-  const [hoveredPoint, setHoveredPoint] = useState(null);
-  
-  if (feedbackBookings.length === 0) {
-    return (
-      <div className="card-light" style={{ padding: '32px', textAlign: 'center', marginBottom: '24px', border: '1px dashed rgba(0,0,0,0.15)' }}>
-        <p style={{ opacity: 0.6, fontSize: '14px' }}>Your recovery timeline will appear here once you log post-visit feedback.</p>
-      </div>
-    );
-  }
-
-  const width = 600;
-  const height = 200;
-  const paddingX = 60;
-  const paddingY = 35;
-
-  const getSymptomLabel = (val) => {
-    const labels = {
-      1: 'Much Worse',
-      2: 'Worse',
-      3: 'Same',
-      4: 'Better',
-      5: 'Much Better'
-    };
-    return labels[val] || '';
-  };
-
-  const points = feedbackBookings.map((b, i) => {
-    const x = feedbackBookings.length === 1 
-      ? width / 2 
-      : paddingX + (i * (width - 2 * paddingX)) / (feedbackBookings.length - 1);
-    
-    const val = b.postVisitFeedback.symptomImprovement;
-    const y = height - paddingY - ((val - 1) * (height - 2 * paddingY)) / 4;
-    
-    return { x, y, booking: b };
-  });
-
-  const pathD = points.length > 0 
-    ? points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ')
-    : '';
-
-  const areaD = points.length > 0
-    ? `${pathD} L ${points[points.length - 1].x} ${height - paddingY} L ${points[0].x} ${height - paddingY} Z`
-    : '';
-
-  return (
-    <div className="card-light page-transition" style={{ padding: '24px', marginBottom: '24px', position: 'relative' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-        <h3 style={{ fontSize: '16px', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--color-orange)' }}></span>
-          Recovery Timeline
-        </h3>
-        <span style={{ fontSize: '11px', opacity: 0.6 }}>Hover dots to inspect consultation details</span>
-      </div>
-
-      <div style={{ overflowX: 'auto' }}>
-        <svg viewBox={`0 0 ${width} ${height}`} width="100%" height={height} style={{ overflow: 'visible' }}>
-          <defs>
-            <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="var(--color-orange)" stopOpacity="0.2" />
-              <stop offset="100%" stopColor="var(--color-orange)" stopOpacity="0.0" />
-            </linearGradient>
-          </defs>
-
-          {/* Grid lines */}
-          {[1, 2, 3, 4, 5].map(level => {
-            const y = height - paddingY - ((level - 1) * (height - 2 * paddingY)) / 4;
-            return (
-              <g key={level}>
-                <line 
-                  x1={paddingX} 
-                  y1={y} 
-                  x2={width - paddingX} 
-                  y2={y} 
-                  stroke="rgba(0,0,0,0.06)" 
-                  strokeDasharray="4,4" 
-                />
-                <text 
-                  x={paddingX - 8} 
-                  y={y + 3} 
-                  textAnchor="end" 
-                  style={{ fontSize: '9px', fill: 'var(--color-dark)', opacity: 0.6, fontWeight: '600' }}
-                >
-                  {getSymptomLabel(level)}
-                </text>
-              </g>
-            );
-          })}
-
-          {/* Connected path */}
-          {points.length > 1 && (
-            <>
-              <path d={areaD} fill="url(#chartGrad)" />
-              <path d={pathD} fill="none" stroke="var(--color-orange)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-            </>
-          )}
-
-          {/* Data Points */}
-          {points.map((p, i) => (
-            <g 
-              key={p.booking.receiptId} 
-              onMouseEnter={() => setHoveredPoint(p)}
-              onMouseLeave={() => setHoveredPoint(null)}
-              style={{ cursor: 'pointer' }}
-            >
-              <circle cx={p.x} cy={p.y} r="8" fill="var(--color-orange)" opacity="0.1" />
-              <circle cx={p.x} cy={p.y} r="4" fill="var(--color-orange)" stroke="#FFFFFF" strokeWidth="2" />
-              
-              {/* X Axis Label */}
-              <text 
-                x={p.x} 
-                y={height - 8} 
-                textAnchor="middle" 
-                style={{ fontSize: '8.5px', fill: 'var(--color-dark)', opacity: 0.7, fontWeight: '700' }}
-              >
-                {p.booking.bookingDate.split(',')[0]}
-              </text>
-            </g>
-          ))}
-        </svg>
-      </div>
-
-      {/* Interactive Tooltip Card */}
-      {hoveredPoint && (
-        <div style={{
-          position: 'absolute',
-          top: hoveredPoint.y - 85 > 0 ? hoveredPoint.y - 85 : 10,
-          left: hoveredPoint.x - 100 > 10 ? hoveredPoint.x - 100 : 10,
-          background: 'var(--color-dark)',
-          color: 'var(--color-white)',
-          padding: '12px 16px',
-          borderRadius: 'var(--r-md)',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
-          zIndex: 10,
-          width: '200px',
-          pointerEvents: 'none',
-          animation: 'popIn 0.15s ease'
-        }}>
-          <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--color-accent)', marginBottom: '4px' }}>
-            {hoveredPoint.booking.specialistName}
-          </div>
-          <div style={{ fontSize: '9px', opacity: 0.6, marginBottom: '6px' }}>
-            {hoveredPoint.booking.bookingDate} @ {hoveredPoint.booking.bookingTime}
-          </div>
-          <div style={{ fontSize: '10px', fontWeight: '600' }}>
-            Improvement: <span style={{ color: 'var(--color-orange)' }}>{getSymptomLabel(hoveredPoint.booking.postVisitFeedback.symptomImprovement)}</span>
-          </div>
-          {hoveredPoint.booking.postVisitFeedback.newSymptomsOrConcerns && (
-            <div style={{ fontSize: '9px', opacity: 0.8, marginTop: '4px', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '4px', wordBreak: 'break-word' }}>
-              "{hoveredPoint.booking.postVisitFeedback.newSymptomsOrConcerns}"
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  );
-};
 
 const Dashboard = () => {
   const { user, token, logoutUser, refreshUser, updateState } = useContext(AppContext);
@@ -215,10 +27,8 @@ const Dashboard = () => {
   const [bookings, setBookings] = useState([]);
   const [hasLoaded, setHasLoaded] = useState(false);
 
-  // Rating Modal/Form State
+  // Rating Modal State
   const [ratingSpecialist, setRatingSpecialist] = useState(null);
-  const [ratingValue, setRatingValue] = useState(5);
-  const [ratingLoading, setRatingLoading] = useState(false);
 
   // Family Form State
   const [familyFields, setFamilyFields] = useState({ name: '', relationship: 'Child' });
@@ -244,32 +54,6 @@ const Dashboard = () => {
   const [pendingFeedbackBooking, setPendingFeedbackBooking] = useState(null);
   const [feedbackBookings, setFeedbackBookings] = useState([]);
 
-  const isPastBooking = (booking) => {
-    try {
-      const bDate = new Date(`${booking.bookingDate} ${booking.bookingTime}`);
-      if (!isNaN(bDate.getTime())) {
-        return bDate < new Date();
-      }
-      const justDate = new Date(booking.bookingDate);
-      if (!isNaN(justDate.getTime())) {
-        const today = new Date();
-        today.setHours(0,0,0,0);
-        return justDate < today;
-      }
-      return false;
-    } catch (e) {
-      return false;
-    }
-  };
-
-  const parseLocalDate = (dateStr) => {
-    if (!dateStr) return new Date();
-    if (dateStr.includes('-')) {
-      const [year, month, day] = dateStr.split('-').map(Number);
-      return new Date(year, month - 1, day);
-    }
-    return new Date(dateStr);
-  };
 
   const handleDownloadReceipt = async (booking) => {
     setDownloadingId(booking.receiptId);
@@ -379,65 +163,46 @@ const Dashboard = () => {
     }
   };
 
-  const upcomingAppointments = bookings
-    .filter(b => !isPastBooking(b))
-    .sort((a, b) => {
-      const dateA = new Date(`${a.bookingDate} ${a.bookingTime}`);
-      const dateB = new Date(`${b.bookingDate} ${b.bookingTime}`);
-      return dateA - dateB;
+  const {
+    upcomingAppointments,
+    sortedPastAppointments,
+    categories,
+    familyOptions,
+    filteredPastAppointments
+  } = useAppointmentFilters(bookings, user, startDate, endDate, selectedCategory, selectedFamilyMember);
+
+  const getRebookingSuggestion = () => {
+    if (sortedPastAppointments.length === 0) return null;
+    
+    // Find the most recent past booking that doesn't have an upcoming appointment of the same category
+    const suggestion = sortedPastAppointments.find(past => {
+      const alreadyHasUpcoming = upcomingAppointments.some(up => 
+        up.specialistId === past.specialistId || up.specialistCategory === past.specialistCategory
+      );
+      return !alreadyHasUpcoming;
     });
+    
+    return suggestion || null;
+  };
 
-  const sortedPastAppointments = bookings
-    .filter(b => isPastBooking(b))
-    .sort((a, b) => {
-      const dateA = new Date(`${a.bookingDate} ${a.bookingTime}`);
-      const dateB = new Date(`${b.bookingDate} ${b.bookingTime}`);
-      return dateB - dateA;
+  const handleOneClickRebook = (booking) => {
+    updateState({
+      finalSpecialist: {
+        id: booking.specialistId,
+        name: booking.specialistName,
+        category: booking.specialistCategory
+      },
+      problem: `Follow-up session for past visit on ${booking.bookingDate}`,
+      urgency: 'Routine',
+      recommendationExplanation: `Direct follow-up booking for ${booking.specialistName}`,
+      chatHistory: [],
+      detectedKeywords: []
     });
+    navigate('/book');
+  };
 
-  const categories = Array.from(new Set([
-    'Dentist', 'Physiotherapist', 'Gym Trainer', 'Salon Specialist',
-    ...bookings.map(b => b.specialistCategory).filter(Boolean)
-  ]));
-
-  const familyOptions = Array.from(new Set([
-    'Myself',
-    ...(user.familyProfiles ? user.familyProfiles.map(m => m.name) : []),
-    ...bookings.map(b => b.bookedFor).filter(Boolean)
-  ]));
-
-  const filteredPastAppointments = sortedPastAppointments.filter(b => {
-    const bookingDateObj = parseLocalDate(b.bookingDate);
-    
-    if (startDate) {
-      const startObj = parseLocalDate(startDate);
-      startObj.setHours(0,0,0,0);
-      bookingDateObj.setHours(0,0,0,0);
-      if (bookingDateObj < startObj) return false;
-    }
-    
-    if (endDate) {
-      const endObj = parseLocalDate(endDate);
-      endObj.setHours(23,59,59,999);
-      bookingDateObj.setHours(0,0,0,0);
-      if (bookingDateObj > endObj) return false;
-    }
-    
-    if (selectedCategory && b.specialistCategory !== selectedCategory) {
-      return false;
-    }
-    
-    if (selectedFamilyMember) {
-      const patientName = b.bookedFor || b.userName;
-      if (selectedFamilyMember === 'Myself') {
-        if (patientName !== user.name) return false;
-      } else {
-        if (patientName !== selectedFamilyMember) return false;
-      }
-    }
-    
-    return true;
-  });
+  const suggestionBooking = getRebookingSuggestion();
+  const rebookStatus = calculateRebookStatus(suggestionBooking);
 
   useEffect(() => {
     if (!token || !user) {
@@ -572,32 +337,7 @@ const Dashboard = () => {
     }
   };
 
-  const handleSubmitRating = async (e) => {
-    e.preventDefault();
-    if (!ratingSpecialist) return;
 
-    setRatingLoading(true);
-    try {
-      const res = await fetch(`${BACKEND_URL}/specialists/${ratingSpecialist.id}/rate`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ rating: ratingValue })
-      });
-      const json = await res.json();
-      if (json.success) {
-        alert('Thank you for rating!');
-        setRatingSpecialist(null);
-        fetchBookings();
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setRatingLoading(false);
-    }
-  };
 
   const handleLogout = () => {
     logoutUser();
@@ -797,6 +537,61 @@ const Dashboard = () => {
                 </div>
               ) : (
                 <div>
+                  {/* Rebooking Suggestion Card */}
+                  {rebookStatus && (
+                    <div className="card-light page-transition" style={{
+                      background: 'linear-gradient(135deg, rgba(237, 184, 32, 0.08) 0%, rgba(224, 88, 48, 0.08) 100%)',
+                      border: '1.5px solid var(--color-accent)',
+                      padding: '24px',
+                      borderRadius: 'var(--r-lg)',
+                      marginBottom: '24px',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      flexWrap: 'wrap',
+                      gap: '16px',
+                      boxShadow: '0 4px 15px rgba(237, 184, 32, 0.05)'
+                    }}>
+                      <div style={{ flex: 1, minWidth: '280px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                          <span style={{ fontSize: '18px' }}>⏱</span>
+                          <h4 style={{ fontSize: '14px', fontWeight: '800', margin: 0, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                            {rebookStatus.isOverdue ? 'Time to Rebook' : 'Next Session Countdown'}
+                          </h4>
+                          <span className="pill-tag" style={{ background: rebookStatus.isOverdue ? 'var(--color-orange)' : 'var(--color-accent)', color: 'white', fontSize: '9px', padding: '2px 8px' }}>
+                            {rebookStatus.isOverdue ? 'Recommended' : `${rebookStatus.remainingDays} days left`}
+                          </span>
+                        </div>
+                        <p style={{ fontSize: '13px', lineHeight: '1.5', opacity: 0.9 }}>
+                          {rebookStatus.isOverdue ? (
+                            <>
+                              It's been <strong>{rebookStatus.timeElapsedString}</strong> since your {rebookStatus.booking.specialistCategory.toLowerCase()} session with <strong>{rebookStatus.booking.specialistName}</strong>. Book a follow-up?
+                            </>
+                          ) : (
+                            <>
+                              Your next {rebookStatus.booking.specialistCategory.toLowerCase()} visit is recommended in <strong>{rebookStatus.remainingDays} days</strong> (every {rebookStatus.recommendedLabel}). Last visit was {rebookStatus.timeElapsedString}.
+                            </>
+                          )}
+                        </p>
+                      </div>
+                      <div>
+                        <button 
+                          onClick={() => handleOneClickRebook(rebookStatus.booking)}
+                          className="btn-primary"
+                          style={{ 
+                            padding: '10px 20px', 
+                            fontSize: '12px', 
+                            background: 'var(--color-dark)', 
+                            color: 'white',
+                            boxShadow: '0 4px 12px rgba(28, 16, 8, 0.2)'
+                          }}
+                        >
+                          One-Click Rebook
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Sub Tabs */}
                   <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', borderBottom: '2px solid rgba(0,0,0,0.05)', paddingBottom: '12px', flexWrap: 'wrap' }}>
                     <button
@@ -1175,42 +970,14 @@ const Dashboard = () => {
       </div>
 
       {/* Rating Modal */}
-      {ratingSpecialist && (
-        <div style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
-        }}>
-          <div className="card-light page-transition" style={{ maxWidth: '400px', width: '100%', padding: '32px' }}>
-            <h3 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '16px' }}>Rate {ratingSpecialist.name}</h3>
-            
-            <form onSubmit={handleSubmitRating}>
-              <div className="mb-lg" style={{ textAlign: 'center' }}>
-                <label className="form-label" style={{ marginBottom: '12px' }}>Rating (1 - 5 Stars)</label>
-                <div style={{ display: 'flex', justifyContent: 'center', gap: '12px' }}>
-                  {[1, 2, 3, 4, 5].map(val => (
-                    <button 
-                      key={val} 
-                      type="button"
-                      onClick={() => setRatingValue(val)}
-                      style={{ 
-                        color: val <= ratingValue ? 'var(--color-accent)' : 'var(--color-muted)',
-                        transform: val <= ratingValue ? 'scale(1.2)' : 'none'
-                      }}
-                    >
-                      <Star size={36} fill={val <= ratingValue ? 'var(--color-accent)' : 'none'} />
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div style={{ display: 'flex', gap: '12px' }}>
-                <button type="button" onClick={() => setRatingSpecialist(null)} className="btn-secondary w-full">Cancel</button>
-                <button type="submit" className="btn-primary w-full" disabled={ratingLoading}>Submit</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <RatingModal
+        isOpen={!!ratingSpecialist}
+        specialist={ratingSpecialist}
+        onClose={() => setRatingSpecialist(null)}
+        onSubmitSuccess={fetchBookings}
+        token={token}
+        backendUrl={BACKEND_URL}
+      />
 
       {/* Flagged Symptom Warning Modal */}
       {feedbackAlert && (
