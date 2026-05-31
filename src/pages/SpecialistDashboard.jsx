@@ -5,7 +5,7 @@ import HelpTooltip from '../components/HelpTooltip';
 import Stepper from '../components/Stepper';
 import { 
   Calendar, Clock, User, Award, Shield, FileText, Camera, 
-  AlertCircle, DollarSign, Settings, LogOut, CheckCircle, Eye, Plus, X 
+  AlertCircle, DollarSign, Settings, LogOut, CheckCircle, Eye, Plus, X, Download 
 } from 'lucide-react';
 
 const BACKEND_URL = window.location.hostname === 'localhost'
@@ -150,6 +150,30 @@ const SpecialistDashboard = () => {
       }
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const downloadPrevisitSummaryPDF = async (bookingId, receiptId) => {
+    try {
+      const res = await fetch(`${BACKEND_URL}/specialists/my/appointments/${bookingId}/summary/pdf`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const blob = await res.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `summary-${receiptId || bookingId}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+      } else {
+        alert('Failed to download summary PDF');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error downloading PDF');
     }
   };
 
@@ -576,13 +600,22 @@ const SpecialistDashboard = () => {
                             <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><CheckCircle size={13} /> {b.appointmentMode}</span>
                           </div>
                         </div>
-                        <button 
-                          onClick={() => fetchPrevisitSummary(b._id)} 
-                          className="btn-secondary"
-                          style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px' }}
-                        >
-                          <Eye size={14} /> View Pre-Visit Summary
-                        </button>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <button 
+                            onClick={() => fetchPrevisitSummary(b._id)} 
+                            className="btn-ghost"
+                            style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', padding: '8px 12px' }}
+                          >
+                            <Eye size={14} /> View Summary
+                          </button>
+                          <button 
+                            onClick={() => downloadPrevisitSummaryPDF(b._id, b.receiptId)} 
+                            className="btn-secondary"
+                            style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', padding: '8px 12px' }}
+                          >
+                            <Download size={14} /> Download Summary
+                          </button>
+                        </div>
                       </div>
                     ))
                   )}
@@ -974,9 +1007,22 @@ const SpecialistDashboard = () => {
               )}
             </div>
 
-            <button onClick={() => setActiveSummary(null)} className="btn-primary w-full" style={{ marginTop: '20px', padding: '14px' }}>
-              Close Summary
-            </button>
+            <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+              <button 
+                onClick={() => downloadPrevisitSummaryPDF(activeSummary._id, activeSummary.receiptId)} 
+                className="btn-primary w-full" 
+                style={{ padding: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+              >
+                <Download size={16} /> Download Summary PDF
+              </button>
+              <button 
+                onClick={() => setActiveSummary(null)} 
+                className="btn-secondary w-full" 
+                style={{ padding: '14px' }}
+              >
+                Close Summary
+              </button>
+            </div>
           </div>
         </div>
       )}
