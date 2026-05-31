@@ -8,7 +8,8 @@ const {
   joinWaitlist,
   claimWaitlistSlot,
   registerSpecialist,
-  reapplySpecialist
+  reapplySpecialist,
+  updatePreferences
 } = require('../controllers/authController');
 const authMiddleware = require('../middleware/authMiddleware');
 const asyncHandler = require('../utils/asyncHandler');
@@ -24,5 +25,6 @@ router.delete('/family/:memberId', authMiddleware, asyncHandler(deleteFamilyMemb
 router.post('/waitlist', authMiddleware, asyncHandler(joinWaitlist));
 router.post('/waitlist/claim', authMiddleware, asyncHandler(claimWaitlistSlot));
 router.post('/reapply/specialist', authMiddleware, asyncHandler(reapplySpecialist));
+router.put('/preferences', authMiddleware, asyncHandler(updatePreferences));
 
 module.exports = router;

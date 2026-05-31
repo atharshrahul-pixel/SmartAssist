@@ -44,7 +44,8 @@ const register = async (req, res) => {
       email: user.email,
       role: user.role,
       familyProfiles: user.familyProfiles,
-      waitlistAppointments: user.waitlistAppointments
+      waitlistAppointments: user.waitlistAppointments,
+      notificationPreferences: user.notificationPreferences
     }
   });
 };
@@ -93,7 +94,8 @@ const login = async (req, res) => {
             email: user.email,
             role: user.role,
             familyProfiles: user.familyProfiles,
-            waitlistAppointments: user.waitlistAppointments
+            waitlistAppointments: user.waitlistAppointments,
+            notificationPreferences: user.notificationPreferences
           }
         });
       }
@@ -111,7 +113,8 @@ const login = async (req, res) => {
       email: user.email,
       role: user.role,
       familyProfiles: user.familyProfiles,
-      waitlistAppointments: user.waitlistAppointments
+      waitlistAppointments: user.waitlistAppointments,
+      notificationPreferences: user.notificationPreferences
     }
   });
 };
@@ -125,7 +128,8 @@ const getProfile = async (req, res) => {
       email: req.user.email,
       role: req.user.role,
       familyProfiles: req.user.familyProfiles,
-      waitlistAppointments: req.user.waitlistAppointments
+      waitlistAppointments: req.user.waitlistAppointments,
+      notificationPreferences: req.user.notificationPreferences
     }
   });
 };
@@ -324,6 +328,28 @@ const reapplySpecialist = async (req, res) => {
   });
 };
 
+const updatePreferences = async (req, res) => {
+  const { email, sms } = req.body;
+  if (!req.user.notificationPreferences) {
+    req.user.notificationPreferences = { email: true, sms: true };
+  }
+  if (email !== undefined) req.user.notificationPreferences.email = !!email;
+  if (sms !== undefined) req.user.notificationPreferences.sms = !!sms;
+  await req.user.save();
+  res.status(200).json({
+    success: true,
+    user: {
+      id: req.user._id,
+      name: req.user.name,
+      email: req.user.email,
+      role: req.user.role,
+      familyProfiles: req.user.familyProfiles,
+      waitlistAppointments: req.user.waitlistAppointments,
+      notificationPreferences: req.user.notificationPreferences
+    }
+  });
+};
+
 module.exports = {
   register,
   login,
@@ -333,5 +359,6 @@ module.exports = {
   joinWaitlist,
   claimWaitlistSlot,
   registerSpecialist,
-  reapplySpecialist
+  reapplySpecialist,
+  updatePreferences
 };

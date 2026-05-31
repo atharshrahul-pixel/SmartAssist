@@ -82,6 +82,13 @@ app.listen(env.port, () => {
   const { checkExpiredWaitlistHolds } = require('./services/waitlistService');
   // Check every 30 seconds
   setInterval(checkExpiredWaitlistHolds, 30000);
+
+  // Smart Reminders Background Worker using node-cron (runs every minute)
+  const cron = require('node-cron');
+  const { runNotificationCheck } = require('./services/notificationService');
+  cron.schedule('* * * * *', () => {
+    runNotificationCheck();
+  });
 });
 
 module.exports = app;

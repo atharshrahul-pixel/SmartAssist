@@ -152,11 +152,140 @@ const getRecoveryTimeline = async (req, res) => {
   }
 };
 
+const getRebookSuggestion = async (req, res) => {
+  try {
+    const Booking = require('../models/Booking');
+    const bookings = await Booking.find({ userId: req.user._id.toString(), status: 'confirmed' });
+    
+    const isPastBooking = (booking) => {
+      try {
+        const bDate = new Date(`${booking.bookingDate} ${booking.bookingTime}`);
+        if (!isNaN(bDate.getTime())) {
+          return bDate < new Date();
+        }
+        return false;
+      } catch (e) {
+        return false;
+      }
+    };
+    
+    const getBookingDateTime = (booking) => {
+      try {
+        return new Date(`${booking.bookingDate} ${booking.bookingTime}`);
+      } catch {
+        return new Date(0);
+      }
+    };
+
+    const upcoming = bookings.filter(b => !isPastBooking(b));
+    const sortedPast = bookings
+      .filter(b => isPastBooking(b))
+      .sort((a, b) => getBookingDateTime(b) - getBookingDateTime(a));
+      
+    if (sortedPast.length === 0) {
+      return res.status(200).json({ success: true, rebookStatus: null });
+    }
+    
+    const suggestionBooking = sortedPast.find(past => {
+      const alreadyHasUpcoming = upcoming.some(up => 
+        up.specialistId === past.specialistId || up.specialistCategory === past.specialistCategory
+      );
+      return !alreadyHasUpcoming;
+    });
+    
+    if (!suggestionBooking) {
+      return res.status(200).json({ success: true, rebookStatus: null });
+    }
+    
+    const REBOOK_INTERVALS = {
+      'Dentist': { days: 180, label: '6 months' },
+      'Physiotherapist': { days: 14, label: '2 weeks' },
+      'Gym Trainer': { days: 3, label: '3 days' },
+      'Salon Specialist': { days: 30, label: '4 weeks' },
+      'default': { days: 30, label: '1 month' }
+    };
+    
+    const intervalConfig = REBOOK_INTERVALS[suggestionBooking.specialistCategory] || REBOOK_INTERVALS['default'];
+    const bookingDate = getBookingDateTime(suggestionBooking);
+    
+    const now = new Date();
+    const diffMs = now - bookingDate;
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    
+    const recommendedDays = intervalConfig.days;
+    const remainingDays = recommendedDays - diffDays;
+    const isOverdue = remainingDays <= 0;
+    
+    let timeElapsedString = '';
+    if (diffDays === 0) {
+      timeElapsedString = 'today';
+    } else if (diffDays === 1) {
+      timeElapsedString = '1 day ago';
+    } else if (diffDays < 7) {
+      timeElapsedString = `${diffDays} days ago`;
+    } else {
+      const weeks = Math.floor(diffDays / 7);
+      timeElapsedString = weeks === 1 ? '1 week ago' : `${weeks} weeks ago`;
+    }
+    
+    res.status(200).json({
+      success: true,
+      rebookStatus: {
+        booking: suggestionBooking,
+        diffDays,
+        remainingDays,
+        timeElapsedString,
+        isOverdue,
+        recommendedLabel: intervalConfig.label
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+const rebookAppointmentDirect = async (req, res) => {
+  try {
+    const { specialistId, bookingDate, bookingTime, appointmentMode, price, duration, bookedFor } = req.body;
+    
+    if (!specialistId || !bookingDate || !bookingTime) {
+      return res.status(400).json({ success: false, message: 'Please provide specialistId, bookingDate, and bookingTime' });
+    }
+    
+    const booking = await createBooking({
+      userName: req.user.name,
+      userEmail: req.user.email,
+      specialistId,
+      bookingDate,
+      bookingTime,
+      userId: req.user._id.toString(),
+      bookedFor: bookedFor || req.user.name,
+      appointmentMode: appointmentMode || 'In-Person',
+      price: price || 100,
+      duration: duration || '30 mins',
+      triageUrgency: 'Routine',
+      triageExplanation: 'Direct follow-up booking skipping triage flow.',
+      triageHistory: [],
+      triageKeywords: [],
+      symptoms: 'Follow-up session for past visit'
+    });
+    
+    res.status(201).json({
+      success: true,
+      booking
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 module.exports = {
   bookAppointment,
   getUserBookings,
   getOccupiedSlots,
   submitFeedback,
   getPendingFeedback,
-  getRecoveryTimeline
+  getRecoveryTimeline,
+  getRebookSuggestion,
+  rebookAppointmentDirect
 };

@@ -6,7 +6,9 @@ const {
   getOccupiedSlots,
   submitFeedback,
   getPendingFeedback,
-  getRecoveryTimeline
+  getRecoveryTimeline,
+  getRebookSuggestion,
+  rebookAppointmentDirect
 } = require('../controllers/bookingController');
 
 const authMiddleware = require('../middleware/authMiddleware');
@@ -40,6 +42,18 @@ router.get(
   '/recovery-timeline',
   authMiddleware,
   asyncHandler(getRecoveryTimeline)
+);
+
+router.get(
+  '/rebook-suggestion',
+  authMiddleware,
+  asyncHandler(getRebookSuggestion)
+);
+
+router.post(
+  '/rebook',
+  authMiddleware,
+  asyncHandler(rebookAppointmentDirect)
 );
 
 router.post(

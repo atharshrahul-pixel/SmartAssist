@@ -20,7 +20,11 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true },
   role: { type: String, enum: ['user', 'specialist', 'admin'], default: 'user' },
   familyProfiles: [familyProfileSchema],
-  waitlistAppointments: [waitlistAppointmentSchema]
+  waitlistAppointments: [waitlistAppointmentSchema],
+  notificationPreferences: {
+    email: { type: Boolean, default: true },
+    sms: { type: Boolean, default: true }
+  }
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);

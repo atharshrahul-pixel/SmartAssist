@@ -31,6 +31,14 @@ const bookingSchema = new mongoose.Schema({
     submittedAt: { type: Date },
     isFlagged: { type: Boolean, default: false },
     flagReason: { type: String }
+  },
+  notificationsSent: {
+    reminder24h: { type: Boolean, default: false },
+    reminder2h: { type: Boolean, default: false },
+    reminder15m: { type: Boolean, default: false },
+    followUp1h: { type: Boolean, default: false },
+    followUp24h: { type: Boolean, default: false },
+    followUp1w: { type: Boolean, default: false }
   }
 }, { timestamps: true });
 
