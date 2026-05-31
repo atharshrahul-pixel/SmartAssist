@@ -43,8 +43,20 @@ const Screen5Booking = () => {
   useEffect(() => {
     if (!state.finalSpecialist) {
       navigate('/specialists');
+    } else if (!state.finalSpecialist.appointmentModes || !state.finalSpecialist.availableSlots) {
+      fetch(`${BACKEND_URL}/specialists`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.success && Array.isArray(data.specialists)) {
+            const fullSpec = data.specialists.find(s => s.id === state.finalSpecialist.id);
+            if (fullSpec) {
+              updateState({ finalSpecialist: fullSpec });
+            }
+          }
+        })
+        .catch(err => console.error("Error fetching full specialist details for rebook:", err));
     }
-  }, [state.finalSpecialist, navigate]);
+  }, [state.finalSpecialist, navigate, updateState]);
 
   useEffect(() => {
     if (selectedDate && state.finalSpecialist) {
@@ -295,7 +307,7 @@ const Screen5Booking = () => {
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   fontSize: '16px', fontWeight: '800', color: 'var(--color-dark)'
                 }}>
-                  {state.finalSpecialist.initials}
+                  {state.finalSpecialist.initials || state.finalSpecialist.name?.substring(0, 2).toUpperCase() || 'SP'}
                 </div>
                 <div>
                   <div style={{ color: 'var(--color-white)', fontSize: '16px', fontWeight: '700' }}>{state.finalSpecialist.name}</div>

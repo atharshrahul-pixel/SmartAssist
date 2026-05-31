@@ -6,7 +6,7 @@ import Stepper from '../components/Stepper';
 import { 
   Calendar, Clock, User, Heart, Star, Users, List, 
   Trash2, Plus, Bell, LogOut, CheckCircle, Award,
-  Download, Filter, FileText
+  Download, Filter, FileText, Settings
 } from 'lucide-react';
 import { generateReceiptPDF } from '../utils/receiptGenerator';
 import WaitlistHoldTimer from '../components/WaitlistHoldTimer';
@@ -53,7 +53,45 @@ const Dashboard = () => {
   // Stored lists for timeline & pending
   const [pendingFeedbackBooking, setPendingFeedbackBooking] = useState(null);
   const [feedbackBookings, setFeedbackBookings] = useState([]);
+  const [rebookStatus, setRebookStatus] = useState(null);
 
+  // Notification Preferences States
+  const [emailNotif, setEmailNotif] = useState(true);
+  const [smsNotif, setSmsNotif] = useState(true);
+  const [preferencesSaving, setPreferencesSaving] = useState(false);
+
+  useEffect(() => {
+    if (user && user.notificationPreferences) {
+      setEmailNotif(user.notificationPreferences.email !== false);
+      setSmsNotif(user.notificationPreferences.sms !== false);
+    }
+  }, [user]);
+
+  const handleSavePreferences = async () => {
+    setPreferencesSaving(true);
+    try {
+      const res = await fetch(`${BACKEND_URL}/auth/preferences`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ email: emailNotif, sms: smsNotif })
+      });
+      const json = await res.json();
+      if (json.success) {
+        refreshUser(json.user);
+        alert('Notification preferences updated successfully!');
+      } else {
+        alert('Failed to update preferences: ' + json.message);
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error updating preferences.');
+    } finally {
+      setPreferencesSaving(false);
+    }
+  };
 
   const handleDownloadReceipt = async (booking) => {
     setDownloadingId(booking.receiptId);
@@ -201,8 +239,20 @@ const Dashboard = () => {
     navigate('/book');
   };
 
-  const suggestionBooking = getRebookingSuggestion();
-  const rebookStatus = calculateRebookStatus(suggestionBooking);
+  const fetchRebookSuggestion = async () => {
+    if (!token) return;
+    try {
+      const res = await fetch(`${BACKEND_URL}/bookings/rebook-suggestion`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const json = await res.json();
+      if (json.success) {
+        setRebookStatus(json.rebookStatus);
+      }
+    } catch (err) {
+      console.error("Error fetching rebooking suggestion:", err);
+    }
+  };
 
   useEffect(() => {
     if (!token || !user) {
@@ -212,6 +262,7 @@ const Dashboard = () => {
       fetchProfile();
       fetchPendingFeedback();
       fetchRecoveryTimeline();
+      fetchRebookSuggestion();
     }
   }, [token, user, navigate]);
 
@@ -229,6 +280,7 @@ const Dashboard = () => {
       const json = await res.json();
       if (json.success) {
         setBookings(json.bookings);
+        fetchRebookSuggestion();
       }
     } catch (err) {
       console.error(err);
@@ -401,10 +453,22 @@ const Dashboard = () => {
                 width: '100%', padding: '14px 16px', display: 'flex', alignItems: 'center', gap: '12px',
                 borderRadius: 'var(--r-md)', textAlign: 'left', fontWeight: '600',
                 background: activeTab === 'waitlists' ? 'var(--color-accent)' : 'transparent',
-                color: activeTab === 'waitlists' ? 'var(--color-dark)' : 'inherit'
+                color: activeTab === 'waitlists' ? 'var(--color-dark)' : 'inherit',
+                marginBottom: '4px'
               }}
             >
               <Bell size={18} /> Waitlist ({user.waitlistAppointments ? user.waitlistAppointments.length : 0})
+            </button>
+            <button 
+              onClick={() => setActiveTab('settings')} 
+              style={{
+                width: '100%', padding: '14px 16px', display: 'flex', alignItems: 'center', gap: '12px',
+                borderRadius: 'var(--r-md)', textAlign: 'left', fontWeight: '600',
+                background: activeTab === 'settings' ? 'var(--color-accent)' : 'transparent',
+                color: activeTab === 'settings' ? 'var(--color-dark)' : 'inherit'
+              }}
+            >
+              <Settings size={18} /> Notification Settings
             </button>
           </div>
         </div>
@@ -964,6 +1028,59 @@ const Dashboard = () => {
                   ))
                 )}
               </div>
+            </div>
+          )}
+
+          {activeTab === 'settings' && (
+            <div className="card-light page-transition" style={{ padding: '32px', border: '1px solid rgba(0,0,0,0.06)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px' }}>
+                <Settings size={22} color="var(--color-orange)" />
+                <h2 style={{ fontSize: '20px', fontWeight: '700', margin: 0 }}>Notification Preferences</h2>
+              </div>
+              <p style={{ fontSize: '14px', opacity: 0.8, marginBottom: '24px' }}>
+                Control how you receive smart reminders, preparation instructions, and follow-up notices.
+              </p>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginBottom: '32px' }}>
+                <label style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', cursor: 'pointer' }}>
+                  <input 
+                    type="checkbox" 
+                    checked={emailNotif} 
+                    onChange={e => setEmailNotif(e.target.checked)} 
+                    style={{ width: '18px', height: '18px', marginTop: '3px', accentColor: 'var(--color-orange)' }}
+                  />
+                  <div>
+                    <span style={{ fontSize: '15px', fontWeight: '700' }}>Email Notifications</span>
+                    <p style={{ fontSize: '12px', opacity: 0.6, margin: '2px 0 0 0' }}>
+                      Receive 24h, 2h, and 15m pre-appointment alerts, prep guides, and post-visit reports via email.
+                    </p>
+                  </div>
+                </label>
+                
+                <label style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', cursor: 'pointer' }}>
+                  <input 
+                    type="checkbox" 
+                    checked={smsNotif} 
+                    onChange={e => setSmsNotif(e.target.checked)} 
+                    style={{ width: '18px', height: '18px', marginTop: '3px', accentColor: 'var(--color-orange)' }}
+                  />
+                  <div>
+                    <span style={{ fontSize: '15px', fontWeight: '700' }}>SMS Alerts</span>
+                    <p style={{ fontSize: '12px', opacity: 0.6, margin: '2px 0 0 0' }}>
+                      Get urgent countdown reminders, checklist alerts, and follow-up links text-messaged directly.
+                    </p>
+                  </div>
+                </label>
+              </div>
+              
+              <button 
+                onClick={handleSavePreferences} 
+                className="btn-primary" 
+                disabled={preferencesSaving}
+                style={{ padding: '12px 28px' }}
+              >
+                {preferencesSaving ? 'Saving Changes...' : 'Save Settings'}
+              </button>
             </div>
           )}
         </div>
