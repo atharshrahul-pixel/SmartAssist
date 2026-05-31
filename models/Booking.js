@@ -24,7 +24,14 @@ const bookingSchema = new mongoose.Schema({
     content: { type: String }
   }],
   triageKeywords: [{ type: String }],
-  symptoms: { type: String }
+  symptoms: { type: String },
+  postVisitFeedback: {
+    symptomImprovement: { type: Number }, // 1: Much worse, 2: Worse, 3: Same, 4: Better, 5: Much better
+    newSymptomsOrConcerns: { type: String },
+    submittedAt: { type: Date },
+    isFlagged: { type: Boolean, default: false },
+    flagReason: { type: String }
+  }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Booking', bookingSchema);

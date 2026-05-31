@@ -3,7 +3,10 @@ const express = require('express');
 const {
   bookAppointment,
   getUserBookings,
-  getOccupiedSlots
+  getOccupiedSlots,
+  submitFeedback,
+  getPendingFeedback,
+  getRecoveryTimeline
 } = require('../controllers/bookingController');
 
 const authMiddleware = require('../middleware/authMiddleware');
@@ -25,6 +28,24 @@ router.get(
 router.get(
   '/occupied',
   asyncHandler(getOccupiedSlots)
+);
+
+router.get(
+  '/pending-feedback',
+  authMiddleware,
+  asyncHandler(getPendingFeedback)
+);
+
+router.get(
+  '/recovery-timeline',
+  authMiddleware,
+  asyncHandler(getRecoveryTimeline)
+);
+
+router.post(
+  '/:receiptId/feedback',
+  authMiddleware,
+  asyncHandler(submitFeedback)
 );
 
 module.exports = router;
