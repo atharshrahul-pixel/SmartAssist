@@ -161,7 +161,7 @@ const Screen1Input = () => {
     formData.append('audio', audioBlob, 'recording.wav');
 
     try {
-      const response = await fetch(`${BACKEND_URL}/recommendation/transcribe`, {
+      const response = await fetch(`${BACKEND_URL}/recommendations/transcribe`, {
         method: 'POST',
         body: formData,
       });
@@ -260,7 +260,7 @@ const Screen1Input = () => {
     try {
       const urlParams = new URLSearchParams(window.location.search);
       const simulateFallback = urlParams.get('simulateFallback') === 'true';
-      const triageEndpoint = `${BACKEND_URL}/recommendation/triage${simulateFallback ? '?simulateFallback=true' : ''}`;
+      const triageEndpoint = `${BACKEND_URL}/recommendations/triage${simulateFallback ? '?simulateFallback=true' : ''}`;
 
       const response = await fetch(triageEndpoint, {
         method: 'POST',
