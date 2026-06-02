@@ -48,6 +48,7 @@ app.use('/api', restrictOrigin);
 app.use('/api/auth', authRoutes);
 
 app.use('/api/recommendations', recommendationRoutes);
+app.use('/api/recommendation', recommendationRoutes);
 
 app.use('/api/specialists', specialistRoutes);
 
