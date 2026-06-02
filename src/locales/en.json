@@ -257,5 +257,7 @@
   "error_select_time": "Please select a time slot.",
   "joining": "Joining...",
   "join_waitlist": "Join Waitlist",
-  "confirming": "Confirming..."
+  "confirming": "Confirming...",
+  "family_profiles": "Family Profiles",
+  "add_family_member": "Add Family Member"
 }
