@@ -1,6 +1,5 @@
 import { useEffect, useState, useContext, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import { AppContext } from '../App';
 import Stepper from '../components/Stepper';
 import { Activity, Scissors, Dumbbell, Stethoscope, Search, BarChart3, Info, AlertTriangle, Clock, CheckCircle } from 'lucide-react';
@@ -24,12 +23,10 @@ const specialistKeywords = {
   'Physiotherapist': ['muscle','back','knee','joint','sprain','physio','posture','shoulder','hip','neck','pain'],
   'Gym Trainer': ['weight','fitness','gym','exercise','cardio','strength','workout','fat','bulk','slim','tone'],
   'Salon Specialist': ['hair','skin','facial','salon','grooming','nails','beard','eyebrow','wax','cut','color'],
-  'General Practitioner': ['headache','fever','sore throat','cough','throat','stomach','cold','flu','chest pain','breathing','vomiting','nausea','doctor','physician','gp'],
   'Emergency Services': ['chest pain','shortness of breath','breathing difficulty','heavy bleeding','severe head injury','unconscious','sudden weakness','stroke','heart attack']
 };
 
 const Screen2Recommendation = () => {
-  const { t } = useTranslation();
   const { state, updateState } = useContext(AppContext);
   const navigate = useNavigate();
   const [barWidth, setBarWidth] = useState(0);
@@ -115,12 +112,12 @@ const Screen2Recommendation = () => {
           }}>
             <Info size={32} color="var(--color-orange)" />
           </div>
-          <h2 style={{ fontSize: '24px', fontWeight: '800', marginBottom: '12px' }}>{t('session_expired_title')}</h2>
+          <h2 style={{ fontSize: '24px', fontWeight: '800', marginBottom: '12px' }}>Triage Session Expired</h2>
           <p style={{ color: 'var(--color-dark)', opacity: 0.7, marginBottom: '32px', lineHeight: '1.6' }}>
-            {t('session_expired_desc')}
+            To protect your privacy and ensure clinical accuracy, inactive triage sessions are automatically cleared. Please restart the assessment.
           </p>
           <button className="btn-primary w-full" onClick={() => navigate('/')}>
-            {t('restart_assessment')}
+            Restart Assessment
           </button>
         </div>
       </div>
@@ -133,12 +130,12 @@ const Screen2Recommendation = () => {
       
       <div className="container" style={{ flex: 1 }}>
         <div className="text-center mb-xl">
-          <span className="pill-tag mb-lg">{t('analysis_complete')}</span>
+          <span className="pill-tag mb-lg">ANALYSIS COMPLETE</span>
           <h1 style={{ fontSize: '48px', lineHeight: '1.1', marginBottom: 'var(--sp-md)' }}>
-            {t('found_specialist_title')} <span className="accent-word" style={{ color: 'var(--color-orange)' }}>{t('specialist_accent')}</span>
+            We found your <span className="accent-word" style={{ color: 'var(--color-orange)' }}>specialist</span>
           </h1>
           <p style={{ fontSize: '14px', opacity: 0.7, marginTop: '16px' }}>
-            {t('powered_by')} <strong>{state.source === 'AI' ? t('ai') : t('keyword_analysis')}</strong>
+            Powered by: <strong>{state.source === 'AI' ? 'Artificial Intelligence' : 'Keyword Analysis'}</strong>
           </p>
         </div>
  
@@ -151,7 +148,7 @@ const Screen2Recommendation = () => {
               </div>
               
               <p style={{ fontSize: '15px', lineHeight: '1.6', color: 'var(--color-dark)', opacity: 0.8, marginBottom: '24px' }}>
-                {t('match_report_desc', { specialist: t(`category_${state.recommendedSpecialist}`, { defaultValue: state.recommendedSpecialist }) })}
+                Our triage engine analyzed your description and detected key medical markers that strongly correlate with <strong>{state.recommendedSpecialist}</strong> expertise.
               </p>
  
               <div style={{ marginBottom: '24px' }}>
@@ -168,16 +165,16 @@ const Screen2Recommendation = () => {
                   }} />
                 </div>
                 <div style={{ textAlign: 'right', fontSize: '13px', fontWeight: '700', marginTop: '6px', color: 'var(--color-orange)' }}>
-                  {t('match_percentage', { percent: barWidth })}
+                  {barWidth}% Match
                 </div>
               </div>
  
               <div>
-                <div style={{ fontSize: '14px', fontWeight: '600', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t('detected_keywords_label')}</div>
+                <div style={{ fontSize: '14px', fontWeight: '600', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Detected Keywords</div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
                   {detectedKeywords.length > 0 ? detectedKeywords.map(word => (
                     <span key={word} className="tag-highlight">{word}</span>
-                  )) : <span style={{ fontSize: '14px', color: 'var(--color-dark)', opacity: 0.5 }}>{t('contextual_markers')}</span>}
+                  )) : <span style={{ fontSize: '14px', color: 'var(--color-dark)', opacity: 0.5 }}>Contextual markers detected</span>}
                 </div>
               </div>
             </div>
@@ -185,7 +182,7 @@ const Screen2Recommendation = () => {
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', padding: '0 16px' }}>
               <Info size={18} style={{ marginTop: '2px', flexShrink: 0, color: 'var(--color-orange)' }} />
               <p className="footer-text">
-                {t('change_specialist_note')}
+                You can always choose a different specialist on the next screen if this recommendation doesn't feel right.
               </p>
             </div>
           </div>
@@ -214,28 +211,28 @@ const Screen2Recommendation = () => {
                   const u = state.urgency;
                   const config = {
                     Urgent: {
-                      text: t('urgency_urgent'),
+                      text: 'Urgent — consider ER',
                       bgColor: 'rgba(239, 68, 68, 0.15)',
                       borderColor: '#ef4444',
                       textColor: '#f87171',
                       icon: <AlertTriangle size={12} color="#f87171" style={{ marginRight: '4px' }} />
                     },
                     Soon: {
-                      text: t('urgency_soon'),
+                      text: 'Soon — within days',
                       bgColor: 'rgba(245, 158, 11, 0.15)',
                       borderColor: '#f59e0b',
                       textColor: '#fbbf24',
                       icon: <Clock size={12} color="#fbbf24" style={{ marginRight: '4px' }} />
                     },
                     Routine: {
-                      text: t('urgency_routine'),
+                      text: 'Routine — book anytime',
                       bgColor: 'rgba(16, 185, 129, 0.15)',
                       borderColor: '#10b981',
                       textColor: '#34d399',
                       icon: <CheckCircle size={12} color="#34d399" style={{ marginRight: '4px' }} />
                     }
                   }[u] || {
-                    text: t('urgency_routine'),
+                    text: 'Routine — book anytime',
                     bgColor: 'rgba(16, 185, 129, 0.15)',
                     borderColor: '#10b981',
                     textColor: '#34d399',
@@ -255,14 +252,14 @@ const Screen2Recommendation = () => {
                       }}
                     >
                       {config.icon}
-                      {config.text}
+                      {config.text.toUpperCase()}
                     </span>
                   );
                 })()}
               </div>
               
               <h2 style={{ fontSize: '32px', fontWeight: '800', color: 'var(--color-white)', marginBottom: '12px' }}>
-                {t(`category_${state.recommendedSpecialist}`, { defaultValue: state.recommendedSpecialist })}
+                {state.recommendedSpecialist}
               </h2>
 
               {state.recommendedSpecialist === 'Emergency Services' && (
@@ -279,27 +276,11 @@ const Screen2Recommendation = () => {
                   animation: 'fadeInSlideUp 0.3s ease'
                 }}>
                   <AlertTriangle size={24} color="#f87171" style={{ float: 'left', marginRight: '12px', marginTop: '2px' }} />
-                  <strong>{t('critical_emergency_title')}</strong> {t('critical_emergency_desc')}
+                  <strong>CRITICAL EMERGENCY:</strong> Your symptoms indicate a high-risk medical emergency. <strong>Please visit the nearest Emergency Room (ER) or call Emergency Services (911) immediately.</strong> Do not attempt to schedule a wellness appointment.
                 </div>
               )}
 
-              {state.recommendedSpecialist === 'General Practitioner' && (
-                <div style={{
-                  background: 'rgba(239, 68, 68, 0.1)',
-                  border: '1.5px solid #ef4444',
-                  borderRadius: '12px',
-                  padding: '14px 16px',
-                  marginBottom: '24px',
-                  textAlign: 'left',
-                  fontSize: '13px',
-                  lineHeight: '1.5',
-                  color: 'rgba(255, 255, 255, 0.9)',
-                }}>
-                  ⚠️ <strong>{t('gp_notice_title')}</strong> {t('gp_notice_desc')}
-                </div>
-              )}
-
-              {state.idealCategory && state.idealCategory.toLowerCase() !== state.recommendedSpecialist.toLowerCase() && state.recommendedSpecialist !== 'General Practitioner' && state.recommendedSpecialist !== 'Emergency Services' && (
+              {state.idealCategory && state.idealCategory.toLowerCase() !== state.recommendedSpecialist.toLowerCase() && state.recommendedSpecialist !== 'Emergency Services' && (
                 <div style={{
                   background: 'rgba(237, 184, 32, 0.1)',
                   border: '1.5px solid var(--color-orange)',
@@ -311,11 +292,11 @@ const Screen2Recommendation = () => {
                   lineHeight: '1.5',
                   color: 'rgba(255, 255, 255, 0.9)',
                 }}>
-                  {t('ideal_specialist_suggest', { ideal: state.idealCategory, recommended: state.recommendedSpecialist })}
+                  We don't have a <strong>{state.idealCategory}</strong> right now, but we suggest you visit a <strong>{state.recommendedSpecialist}</strong> first.
                 </div>
               )}
 
-              {!hasSpecialists && state.recommendedSpecialist !== 'General Practitioner' && state.recommendedSpecialist !== 'Emergency Services' && (
+              {!hasSpecialists && state.recommendedSpecialist !== 'Emergency Services' && (
                 <div style={{
                   background: 'rgba(237, 184, 32, 0.1)',
                   border: '1.5px solid var(--color-orange)',
@@ -327,7 +308,7 @@ const Screen2Recommendation = () => {
                   lineHeight: '1.5',
                   color: 'rgba(255, 255, 255, 0.9)',
                 }}>
-                  ℹ️ <strong>{t('availability_note_title')}</strong> {t('availability_note_desc', { specialist: state.recommendedSpecialist })}
+                  ℹ️ <strong>Availability Note:</strong> We currently do not have any active <strong>{state.recommendedSpecialist}</strong> specialists registered in our network. You can browse other available specialists.
                 </div>
               )}
               
@@ -350,9 +331,9 @@ const Screen2Recommendation = () => {
                 }}>
                   <AlertTriangle size={20} color="#f87171" style={{ marginTop: '2px', flexShrink: 0 }} />
                   <div>
-                    <h4 style={{ margin: '0 0 4px 0', fontSize: '14px', fontWeight: '700', color: '#f87171' }}>{t('emergency_warning_title')}</h4>
+                    <h4 style={{ margin: '0 0 4px 0', fontSize: '14px', fontWeight: '700', color: '#f87171' }}>Emergency Warning</h4>
                     <p style={{ margin: 0, fontSize: '13px', lineHeight: '1.5', color: '#fca5a5' }}>
-                      {t('emergency_warning_desc')}
+                      Potential emergency detected. If you are experiencing chest pain, breathing difficulty, or severe symptoms, please visit the nearest Emergency Room (ER) immediately.
                     </p>
                   </div>
                 </div>
@@ -376,7 +357,7 @@ const Screen2Recommendation = () => {
                       animation: 'pulse 1.5s infinite'
                     }}
                   >
-                    {t('call_emergency')}
+                    🚨 Call Emergency Services (911)
                   </a>
                   <a 
                     href="https://www.google.com/maps/search/?api=1&query=emergency+room+near+me" 
@@ -390,17 +371,17 @@ const Screen2Recommendation = () => {
                       fontWeight: '700'
                     }}
                   >
-                    {t('find_er')}
+                    📍 Find Nearest Emergency Room (ER)
                   </a>
                   <button 
                     className="btn-danger w-full" 
                     onClick={() => navigate('/')} 
                     style={{ background: 'transparent' }}
                   >
-                    {t('go_home')}
+                    Go Back to Homepage
                   </button>
                 </div>
-              ) : (state.recommendedSpecialist === 'General Practitioner' || !hasSpecialists) ? (
+              ) : (!hasSpecialists) ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   <button 
                     className="btn-primary w-full" 
@@ -410,23 +391,23 @@ const Screen2Recommendation = () => {
                     }} 
                     style={{ padding: '16px' }}
                   >
-                    {t('browse_available')}
+                    Browse Available Specialists
                   </button>
                   <button 
                     className="btn-danger w-full" 
                     onClick={() => navigate('/')} 
                     style={{ background: 'transparent' }}
                   >
-                    {t('go_home')}
+                    Go Back to Homepage
                   </button>
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   <button className="btn-primary w-full" onClick={handleAccept} style={{ padding: '16px' }}>
-                    {t('accept_book')}
+                    Accept & Book Appointment
                   </button>
                   <button className="btn-danger w-full" onClick={handleReject} style={{ background: 'transparent' }}>
-                    {t('not_right_for_me')}
+                    Not right for me
                   </button>
                 </div>
               )}
