@@ -148,7 +148,7 @@ const Screen2Recommendation = () => {
               </div>
               
               <p style={{ fontSize: '15px', lineHeight: '1.6', color: 'var(--color-dark)', opacity: 0.8, marginBottom: '24px' }}>
-                Our triage engine analyzed your description and detected key medical markers that strongly correlate with <strong>{state.recommendedSpecialist}</strong> expertise.
+                Our triage engine analyzed your description and detected key medical markers that strongly correlate with <strong>{state.idealCategory || state.recommendedSpecialist}</strong> expertise.
               </p>
  
               <div style={{ marginBottom: '24px' }}>
@@ -200,7 +200,7 @@ const Screen2Recommendation = () => {
                 margin: '0 auto 24px',
                 border: '1px solid rgba(237,184,32,0.2)'
               }}>
-                {getSpecialistIcon(state.recommendedSpecialist)}
+                {getSpecialistIcon(state.idealCategory || state.recommendedSpecialist)}
               </div>
               
               <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '16px' }}>
@@ -259,7 +259,7 @@ const Screen2Recommendation = () => {
               </div>
               
               <h2 style={{ fontSize: '32px', fontWeight: '800', color: 'var(--color-white)', marginBottom: '12px' }}>
-                {state.recommendedSpecialist}
+                {state.idealCategory || state.recommendedSpecialist}
               </h2>
 
               {state.recommendedSpecialist === 'Emergency Services' && (
