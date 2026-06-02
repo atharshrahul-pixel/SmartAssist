@@ -11,13 +11,18 @@ const restrictOrigin = (req, res, next) => {
 
   const allowedOrigins = [
     env.frontendUrl,
+    'https://smart-assist-frontend-one.vercel.app',
     'http://localhost:5173',
     'http://localhost:3000',
     'http://localhost:5000',
-  ].filter(Boolean);
+  ]
+    .filter(Boolean)
+    .map((o) => o.replace(/\/+$/, ''));
+
+  const normalizedOrigin = origin.replace(/\/+$/, '');
 
   // Allow requests from our frontend or local development hosts
-  if (allowedOrigins.includes(origin)) {
+  if (allowedOrigins.includes(normalizedOrigin)) {
     return next();
   }
 

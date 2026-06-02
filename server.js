@@ -23,16 +23,18 @@ connectDb();
 
 const allowedOrigins = [
   env.frontendUrl,
+  'https://smart-assist-frontend-one.vercel.app',
   'http://localhost:5173',
   'http://localhost:3000',
   'http://localhost:5000',
-].filter(Boolean);
+].filter(Boolean).map(o => o.replace(/\/+$/, ''));
 
 app.use(
   cors({
     origin: (origin, callback) => {
       if (!origin) return callback(null, true);
-      if (allowedOrigins.includes(origin)) {
+      const normalizedOrigin = origin.replace(/\/+$/, '');
+      if (allowedOrigins.includes(normalizedOrigin)) {
         return callback(null, true);
       }
       return callback(new Error('Not allowed by CORS'));
