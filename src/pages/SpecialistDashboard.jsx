@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { AppContext } from '../App';
@@ -70,15 +70,35 @@ const SpecialistDashboard = () => {
   const [reapplyPreview, setReapplyPreview] = useState(null);
   const [reapplyLoading, setReapplyLoading] = useState(false);
 
-  useEffect(() => {
-    if (!token) {
-      navigate('/login');
-    } else {
-      fetchProfile();
+  const fetchAppointments = useCallback(async () => {
+    try {
+      const res = await fetch(`${BACKEND_URL}/specialists/my/appointments`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const json = await res.json();
+      if (json.success) {
+        setAppointments(json.appointments);
+      }
+    } catch (err) {
+      console.error(err);
     }
   }, [token]);
 
-  const fetchProfile = async () => {
+  const fetchEarnings = useCallback(async () => {
+    try {
+      const res = await fetch(`${BACKEND_URL}/specialists/my/earnings`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const json = await res.json();
+      if (json.success) {
+        setEarnings(json);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }, [token]);
+
+  const fetchProfile = useCallback(async () => {
     setLoading(true);
     setErrorMsg('');
     try {
@@ -125,35 +145,15 @@ const SpecialistDashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token, fetchAppointments, fetchEarnings]);
 
-  const fetchAppointments = async () => {
-    try {
-      const res = await fetch(`${BACKEND_URL}/specialists/my/appointments`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const json = await res.json();
-      if (json.success) {
-        setAppointments(json.appointments);
-      }
-    } catch (err) {
-      console.error(err);
+  useEffect(() => {
+    if (!token) {
+      navigate('/login');
+    } else {
+      fetchProfile();
     }
-  };
-
-  const fetchEarnings = async () => {
-    try {
-      const res = await fetch(`${BACKEND_URL}/specialists/my/earnings`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const json = await res.json();
-      if (json.success) {
-        setEarnings(json);
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  }, [token, navigate, fetchProfile]);
 
   const fetchPrevisitSummary = async (bookingId) => {
     setSummaryLoading(true);
