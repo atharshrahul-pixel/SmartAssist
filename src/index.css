@@ -1312,5 +1312,28 @@ a {
   border: none;
 }
 
+/* Marquee Styles */
+.marquee-container {
+  background-color: var(--color-dark);
+  color: var(--color-accent);
+  height: 44px;
+  line-height: 44px;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  overflow: hidden;
+  white-space: nowrap;
+  width: 100%;
+  position: relative;
+}
+
+.marquee-content {
+  display: inline-block;
+  animation: marquee 20s linear infinite;
+  padding-left: 100%;
+}
+
+
 
 
