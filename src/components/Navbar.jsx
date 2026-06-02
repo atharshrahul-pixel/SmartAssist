@@ -1,13 +1,13 @@
 import { Link } from 'react-router-dom';
-import { useContext, useState } from 'react';
+import { use, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AppContext } from '../App';
+import { AppContext } from '../context/AppContext';
 import { User, Menu, X } from 'lucide-react';
 import LanguageSelector from './LanguageSelector';
 
 const Navbar = () => {
   const { t } = useTranslation();
-  const { user } = useContext(AppContext);
+  const { user } = use(AppContext);
   const [isOpen, setIsOpen] = useState(false);
 
   return (
