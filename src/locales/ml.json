@@ -96,5 +96,6 @@
   "faq_how_to_book": "എങ്ങനെ ബുക്ക് ചെയ്യാം?",
   "faq_about_waitlists": "വെയിറ്റ്‌ലിസ്റ്റുകളെക്കുറിച്ച്",
   "faq_consultation_modes": "കൺസൾട്ടേഷൻ രീതികൾ",
-  "faq_contact_support": "പിന്തുണയ്ക്കായി ബന്ധപ്പെടുക"
+  "faq_contact_support": "പിന്തുണയ്ക്കായി ബന്ധപ്പെടുക",
+  "error_invalid_secret": "അസാധുവായ രഹസ്യ കീ. പ്രവേശനം നിഷേധിച്ചു."
 }

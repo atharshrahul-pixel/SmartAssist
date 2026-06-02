@@ -148,5 +148,6 @@
   "faq_how_to_book": "బుక్ చేయడం ఎలా?",
   "faq_about_waitlists": "వెయిట్‌లిస్ట్‌ల గురించి",
   "faq_consultation_modes": "సంప్రదింపు విధానాలు",
-  "faq_contact_support": "సహాయాన్ని సంప్రదించండి"
+  "faq_contact_support": "సహాయాన్ని సంప్రదించండి",
+  "error_invalid_secret": "చెల్లని రహస్య కీ. ప్రవేశం నిరాకరించబడింది."
 }

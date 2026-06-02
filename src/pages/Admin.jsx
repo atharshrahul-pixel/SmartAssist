@@ -33,11 +33,13 @@ const Admin = () => {
       });
       const specJson = await specRes.json();
 
-      if (json.success && specJson.success) {
+      if (res.status === 403 || specRes.status === 403 || json.message === 'Unauthorized' || specJson.message === 'Unauthorized') {
+        setError(t('error_invalid_secret', { defaultValue: 'Invalid secret key. Access denied.' }));
+      } else if (json.success && specJson.success) {
         setData(json.bookings);
         setSpecialists(specJson.specialists);
       } else {
-        setError(t('error_connect_triage'));
+        setError(json.message || specJson.message || t('error_connect_triage'));
       }
     } catch {
       setError(t('connection_error'));

@@ -138,5 +138,6 @@
   "faq_how_to_book": "முன்பதிவு செய்வது எப்படி?",
   "faq_about_waitlists": "காத்திருப்புப் பட்டியல் பற்றி",
   "faq_consultation_modes": "ஆலோசனை முறைகள்",
-  "faq_contact_support": "ஆதரவைத் தொடர்பு கொள்ள"
+  "faq_contact_support": "ஆதரவைத் தொடர்பு கொள்ள",
+  "error_invalid_secret": "தவறான ரகசிய விசை. அணுகல் மறுக்கப்பட்டது."
 }

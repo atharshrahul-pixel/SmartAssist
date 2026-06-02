@@ -96,5 +96,6 @@
   "faq_how_to_book": "ಬುಕ್ ಮಾಡುವುದು ಹೇಗೆ?",
   "faq_about_waitlists": "ಕಾಯುವ ಪಟ್ಟಿಗಳ ಬಗ್ಗೆ",
   "faq_consultation_modes": "ಸಮಾಲೋಚನೆ ವಿಧಾನಗಳು",
-  "faq_contact_support": "ಬೆಂಬಲವನ್ನು ಸಂಪರ್ಕಿಸಿ"
+  "faq_contact_support": "ಬೆಂಬಲವನ್ನು ಸಂಪರ್ಕಿಸಿ",
+  "error_invalid_secret": "ಅಮಾನ್ಯ ರಹಸ್ಯ ಕೀಲಿ. ಪ್ರವೇಶ ನಿರಾಕರಿಸಲಾಗಿದೆ."
 }

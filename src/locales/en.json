@@ -264,5 +264,6 @@
   "faq_how_to_book": "How to book?",
   "faq_about_waitlists": "About Waitlists",
   "faq_consultation_modes": "Consultation Modes",
-  "faq_contact_support": "Contact Support"
+  "faq_contact_support": "Contact Support",
+  "error_invalid_secret": "Invalid secret key. Access denied."
 }

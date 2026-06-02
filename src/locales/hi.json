@@ -138,5 +138,6 @@
   "faq_how_to_book": "बुक कैसे करें?",
   "faq_about_waitlists": "प्रतीक्षा सूची के बारे में",
   "faq_consultation_modes": "परामर्श के प्रकार",
-  "faq_contact_support": "सहायता से संपर्क करें"
+  "faq_contact_support": "सहायता से संपर्क करें",
+  "error_invalid_secret": "अवैध गुप्त कुंजी। पहुंच अस्वीकृत।"
 }
