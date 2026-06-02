@@ -218,5 +218,20 @@
   "error_email_required": "Please enter your email address.",
   "error_password_required": "Please enter your password.",
   "error_name_required": "Please enter your full name.",
-  "error_password_short": "Password must be at least 6 characters."
+  "error_password_short": "Password must be at least 6 characters.",
+  "hello": "Hello",
+  "health_portal_welcome": "Welcome to your personal health portal.",
+  "confirm_remove_family": "Are you sure you want to remove this family member?",
+  "confirm_claim_slot": "Do you want to claim this slot for {{specialist}} on {{date}} at {{time}}?",
+  "success_claim_book": "Successfully claimed waitlist slot and booked appointment!",
+  "waitlist": "Waitlist",
+  "your_appointments": "Your Appointments",
+  "loading": "Loading",
+  "no_appointments": "You have no scheduled appointments.",
+  "book_now": "Book Now",
+  "rate_specialist": "Rate Specialist",
+  "no_family": "No family members added yet.",
+  "specify_relationship": "Specify Relationship",
+  "add_member_btn": "Add Family Member",
+  "no_waitlist": "No waitlist notifications."
 }
