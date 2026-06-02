@@ -298,6 +298,7 @@ const Screen1Input = () => {
             problem: problemText,
             recommendedSpecialist: data.specialistCategory,
             idealCategory: data.idealCategory || data.specialistCategory,
+            suspectedCondition: data.suspectedCondition || '',
             confidence: data.confidence || 85,
             urgency: data.urgency || 'Soon',
             source: data.source,

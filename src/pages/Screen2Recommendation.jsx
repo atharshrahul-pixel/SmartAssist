@@ -150,6 +150,33 @@ const Screen2Recommendation = () => {
               <p style={{ fontSize: '15px', lineHeight: '1.6', color: 'var(--color-dark)', opacity: 0.8, marginBottom: '24px' }}>
                 Our triage engine analyzed your description and detected key medical markers that strongly correlate with <strong>{state.idealCategory || state.recommendedSpecialist}</strong> expertise.
               </p>
+
+              {state.suspectedCondition && (
+                <div style={{
+                  marginBottom: '24px',
+                  padding: '14px 16px',
+                  background: 'var(--color-cream)',
+                  borderRadius: '12px',
+                  borderLeft: '4px solid var(--color-orange)',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.02)'
+                }}>
+                  <span style={{
+                    fontSize: '11px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                    opacity: 0.6,
+                    fontWeight: '700',
+                    display: 'block',
+                    marginBottom: '4px',
+                    color: 'var(--color-dark)'
+                  }}>Suspected Condition</span>
+                  <strong style={{
+                    fontSize: '16px',
+                    color: 'var(--color-dark)',
+                    display: 'block'
+                  }}>{state.suspectedCondition}</strong>
+                </div>
+              )}
  
               <div style={{ marginBottom: '24px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', fontSize: '14px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
