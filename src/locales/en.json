@@ -260,5 +260,9 @@
   "confirming": "Confirming...",
   "family_profiles": "Family Profiles",
   "add_family_member": "Add Family Member",
-  "waitlist_notifications": "Waitlist Notifications"
+  "waitlist_notifications": "Waitlist Notifications",
+  "faq_how_to_book": "How to book?",
+  "faq_about_waitlists": "About Waitlists",
+  "faq_consultation_modes": "Consultation Modes",
+  "faq_contact_support": "Contact Support"
 }

@@ -144,5 +144,9 @@
   "error_select_time": "దయచేసి సమయం ఎంచుకోండి.",
   "joining": "చేరుతోంది...",
   "join_waitlist": "వెయిట్‌లిస్ట్‌లో చేరండి",
-  "confirming": "ధృవీకరిస్తోంది..."
+  "confirming": "ధృవీకరిస్తోంది...",
+  "faq_how_to_book": "బుక్ చేయడం ఎలా?",
+  "faq_about_waitlists": "వెయిట్‌లిస్ట్‌ల గురించి",
+  "faq_consultation_modes": "సంప్రదింపు విధానాలు",
+  "faq_contact_support": "సహాయాన్ని సంప్రదించండి"
 }

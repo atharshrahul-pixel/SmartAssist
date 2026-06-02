@@ -134,5 +134,9 @@
   "confirming": "உறுதிப்படுத்துகிறது...",
   "family_profiles": "குடும்ப சுயവിவரங்கள்",
   "add_family_member": "குடும்ப உறுப்பினரைச் சேர்க்கவும்",
-  "waitlist_notifications": "காத்திருப்புப் பட்டியல் அறிவிப்புகள்"
+  "waitlist_notifications": "காத்திருப்புப் பட்டியல் அறிவிப்புகள்",
+  "faq_how_to_book": "முன்பதிவு செய்வது எப்படி?",
+  "faq_about_waitlists": "காத்திருப்புப் பட்டியல் பற்றி",
+  "faq_consultation_modes": "ஆலோசனை முறைகள்",
+  "faq_contact_support": "ஆதரவைத் தொடர்பு கொள்ள"
 }
