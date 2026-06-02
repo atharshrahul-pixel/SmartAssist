@@ -1,15 +1,14 @@
-import { useEffect, useContext, useState, useRef } from 'react';
+import { useEffect, use, useState, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { AppContext } from '../App';
+import { AppContext } from '../context/AppContext';
 import Stepper from '../components/Stepper';
 import { Check, Download, RefreshCcw, Share2, Calendar, Clock, User, ShieldCheck } from 'lucide-react';
 
 const Screen6Confirmation = () => {
   const { t } = useTranslation();
-  const { state, updateState, addBooking } = useContext(AppContext);
+  const { state, updateState, addBooking } = use(AppContext);
   const navigate = useNavigate();
-  const [showContent, setShowContent] = useState(false);
   const bookingAddedRef = useRef(false);
 
   useEffect(() => {
@@ -27,8 +26,6 @@ const Screen6Confirmation = () => {
       bookingAddedRef.current = true;
     }
 
-    const timer = setTimeout(() => setShowContent(true), 100);
-    return () => clearTimeout(timer);
   }, [state.bookingId, state.bookedDate, state.bookedTime, state.finalSpecialist, navigate, addBooking]);
 
   const handleBookAnother = () => {

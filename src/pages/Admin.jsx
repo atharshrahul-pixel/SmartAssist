@@ -122,6 +122,8 @@ const Admin = () => {
           type="password" 
           className="input-field" 
           placeholder={t('enter_secret_key')} 
+          aria-label={t('enter_secret_key')}
+          value={secret}
           onChange={e => setSecret(e.target.value)} 
           style={{ marginBottom: '16px' }}
         />

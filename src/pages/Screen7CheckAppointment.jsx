@@ -90,6 +90,7 @@ const Screen7CheckAppointment = () => {
               <input 
                 className="input-field" 
                 placeholder={t('email_receipt_placeholder')} 
+                aria-label={t('email_receipt_placeholder')}
                 value={query}
                 onChange={e => setQuery(e.target.value)} 
                 onKeyDown={e => { if (e.key === 'Enter') handleSearch(); }}

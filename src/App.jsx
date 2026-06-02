@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Screen1Input from './pages/Screen1Input';
@@ -38,13 +38,13 @@ function App() {
   const [bookings, setBookings] = useState([]);
   const [user, setUser] = useState(() => {
     try {
-      const savedUser = localStorage.getItem('user');
+      const savedUser = localStorage.getItem('user:v1');
       return savedUser ? JSON.parse(savedUser) : null;
     } catch {
       return null;
     }
   });
-  const [token, setToken] = useState(() => localStorage.getItem('token') || '');
+  const [token, setToken] = useState(() => localStorage.getItem('token:v1') || '');
 
   const updateState = (updates) => {
     setState(prev => ({ ...prev, ...updates }));
@@ -57,8 +57,8 @@ function App() {
   const loginUser = (userData, userToken) => {
     setUser(userData);
     setToken(userToken);
-    localStorage.setItem('user', JSON.stringify(userData));
-    localStorage.setItem('token', userToken);
+    localStorage.setItem('user:v1', JSON.stringify(userData));
+    localStorage.setItem('token:v1', userToken);
     // sync simple name/email fields
     updateState({ name: userData.name, email: userData.email });
   };
@@ -66,17 +66,29 @@ function App() {
   const logoutUser = () => {
     setUser(null);
     setToken('');
-    localStorage.removeItem('user');
-    localStorage.removeItem('token');
+    localStorage.removeItem('user:v1');
+    localStorage.removeItem('token:v1');
   };
 
   const refreshUser = (updatedUser) => {
     setUser(updatedUser);
-    localStorage.setItem('user', JSON.stringify(updatedUser));
+    localStorage.setItem('user:v1', JSON.stringify(updatedUser));
   };
 
+  const contextValue = useMemo(() => ({
+    state,
+    updateState,
+    bookings,
+    addBooking,
+    user,
+    token,
+    loginUser,
+    logoutUser,
+    refreshUser
+  }), [state, bookings, user, token]);
+
   return (
-    <AppContext.Provider value={{ state, updateState, bookings, addBooking, user, token, loginUser, logoutUser, refreshUser }}>
+    <AppContext.Provider value={contextValue}>
       <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', position: 'relative' }}>
         <Navbar />
         <div style={{ flex: 1 }}>

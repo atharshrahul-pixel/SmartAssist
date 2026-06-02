@@ -1,7 +1,7 @@
-import { useState, useContext, useEffect, useRef } from 'react';
+import { useState, use, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, Link } from 'react-router-dom';
-import { AppContext } from '../App';
+import { AppContext } from '../context/AppContext';
 import Stepper from '../components/Stepper';
 import HelpTooltip from '../components/HelpTooltip';
 import { translateError } from '../utils/errorTranslator';
@@ -15,7 +15,7 @@ const words = ['health', 'smile', 'fitness', 'muscles', 'wellness'];
 
 const Screen1Input = () => {
   const { t } = useTranslation();
-  const { state, updateState, user } = useContext(AppContext);
+  const { state, updateState, user } = use(AppContext);
   const navigate = useNavigate();
   const [name, setName] = useState(state.name || '');
   const [email, setEmail] = useState(state.email || '');
@@ -460,11 +460,12 @@ const Screen1Input = () => {
 
                     {appointmentFor === 'other' && (
                       <div className="mb-lg">
-                        <label className="form-label">
+                        <label htmlFor="patient-name-reg" className="form-label">
                           {t('patient_name')}
                           <HelpTooltip text={t('tooltip_patient_name')} />
                         </label>
                         <input 
+                          id="patient-name-reg"
                           type="text" 
                           className="input-field" 
                           placeholder={t('patient_name_placeholder')}
@@ -481,11 +482,12 @@ const Screen1Input = () => {
                 ) : (
                   <>
                     <div className="mb-lg">
-                      <label className="form-label">
+                      <label htmlFor="your-name-input" className="form-label">
                         {t('your_name')}
                         <HelpTooltip text={t('tooltip_your_name')} />
                       </label>
                       <input 
+                        id="your-name-input"
                         type="text" 
                         className="input-field" 
                         placeholder={t('enter_your_full_name')}
@@ -499,11 +501,12 @@ const Screen1Input = () => {
                     </div>
 
                     <div className="mb-lg">
-                      <label className="form-label">
+                      <label htmlFor="your-email-input" className="form-label">
                         {t('email_address')}
                         <HelpTooltip text={t('tooltip_email')} />
                       </label>
                       <input 
+                        id="your-email-input"
                         type="email" 
                         className="input-field" 
                         placeholder={t('enter_your_email')}
@@ -723,13 +726,24 @@ const Screen1Input = () => {
                         transition: 'background 0.3s'
                       }}
                       title={recording ? "Stop recording" : "Record voice input"}
+                      aria-label={recording ? "Stop recording" : "Record voice input"}
                     >
                       {recording ? <Square size={18} /> : <Mic size={18} />}
                     </button>
 
                     <input
                       type="text"
+                      id="chat-input"
                       className="input-field"
+                      aria-label={
+                        recording 
+                          ? t('recording_status', { seconds: recordingSeconds })
+                          : transcribing 
+                            ? t('transcribing')
+                            : userTurnCount >= 3 
+                              ? t('triage_completed')
+                              : t('chat_placeholder')
+                      }
                       placeholder={
                         recording 
                           ? t('recording_status', { seconds: recordingSeconds })

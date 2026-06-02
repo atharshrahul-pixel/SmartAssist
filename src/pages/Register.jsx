@@ -1,7 +1,7 @@
-import { useState, useContext } from 'react';
+import { useState, use } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { AppContext } from '../App';
+import { AppContext } from '../context/AppContext';
 import { UserPlus, User, Key, Mail } from 'lucide-react';
 import HelpTooltip from '../components/HelpTooltip';
 import { translateError } from '../utils/errorTranslator';
@@ -18,7 +18,7 @@ const Register = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { state, loginUser } = useContext(AppContext);
+  const { state, loginUser } = use(AppContext);
   const navigate = useNavigate();
   
   const flow = state.finalSpecialist ? 'booking' : 'account';
@@ -90,11 +90,12 @@ const Register = () => {
 
         <form onSubmit={handleSubmit}>
           <div className="mb-md">
-            <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <label htmlFor="reg-name" className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <User size={14} /> {t('full_name_label')}
               <HelpTooltip text={t('full_name_tooltip')} />
             </label>
             <input
+              id="reg-name"
               type="text"
               className="input-field"
               placeholder="John Doe"
@@ -105,11 +106,12 @@ const Register = () => {
           </div>
 
           <div className="mb-md">
-            <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <label htmlFor="reg-email" className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <Mail size={14} /> {t('email_label')}
               <HelpTooltip text={t('email_tooltip_register')} />
             </label>
             <input
+              id="reg-email"
               type="email"
               className="input-field"
               placeholder="john@example.com"
@@ -120,11 +122,12 @@ const Register = () => {
           </div>
 
           <div className="mb-lg">
-            <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <label htmlFor="reg-password" className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <Key size={14} /> {t('password_label')}
               <HelpTooltip text={t('password_tooltip_register')} />
             </label>
             <input
+              id="reg-password"
               type="password"
               className="input-field"
               placeholder="•••••••• (Min. 6 characters)"

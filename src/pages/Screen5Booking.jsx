@@ -1,7 +1,7 @@
-import { useState, useContext, useEffect } from 'react';
+import { useState, use, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { AppContext } from '../App';
+import { AppContext } from '../context/AppContext';
 import Stepper from '../components/Stepper';
 import HelpTooltip from '../components/HelpTooltip';
 import { translateError } from '../utils/errorTranslator';
@@ -13,7 +13,7 @@ const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || (window.location.hostnam
 
 const Screen5Booking = () => {
   const { t } = useTranslation();
-  const { state, updateState, user, token } = useContext(AppContext);
+  const { state, updateState, user, token } = use(AppContext);
   const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState('');
@@ -391,11 +391,12 @@ const Screen5Booking = () => {
 
                 {bookedFor !== 'myself' && (!user.familyProfiles || !user.familyProfiles.some(m => m.name === bookedFor)) && (
                   <div style={{ marginTop: '12px' }}>
-                    <label className="form-label">
+                    <label htmlFor="patient-name-input" className="form-label">
                       {t('patient_name')}
                       <HelpTooltip text={t('tooltip_patient_name')} />
                     </label>
                     <input 
+                      id="patient-name-input"
                       type="text" 
                       className="input-field" 
                       placeholder={t('patient_name_placeholder')}

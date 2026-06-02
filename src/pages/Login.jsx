@@ -1,7 +1,7 @@
-import { useState, useContext } from 'react';
+import { useState, use } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { AppContext } from '../App';
+import { AppContext } from '../context/AppContext';
 import { LogIn, Key, Mail } from 'lucide-react';
 import HelpTooltip from '../components/HelpTooltip';
 import { translateError } from '../utils/errorTranslator';
@@ -17,7 +17,7 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { state, loginUser } = useContext(AppContext);
+  const { state, loginUser } = use(AppContext);
   const navigate = useNavigate();
   
   const flow = state.finalSpecialist ? 'booking' : 'account';
@@ -88,11 +88,12 @@ const Login = () => {
 
         <form onSubmit={handleSubmit}>
           <div className="mb-md">
-            <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <label htmlFor="login-email" className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <Mail size={14} /> {t('email_label')}
               <HelpTooltip text={t('email_tooltip_register')} />
             </label>
             <input
+              id="login-email"
               type="email"
               className="input-field"
               placeholder={t('email_placeholder')}
@@ -103,11 +104,12 @@ const Login = () => {
           </div>
 
           <div className="mb-lg">
-            <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <label htmlFor="login-password" className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <Key size={14} /> {t('password_label')}
               <HelpTooltip text={t('password_tooltip_register')} />
             </label>
             <input
+              id="login-password"
               type="password"
               className="input-field"
               placeholder={t('password_placeholder')}

@@ -1,7 +1,7 @@
-import { useState, useContext, useMemo, useEffect } from 'react';
+import { useState, use, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { AppContext } from '../App';
+import { AppContext } from '../context/AppContext';
 import Stepper from '../components/Stepper';
 import HelpTooltip from '../components/HelpTooltip';
 import { Star, Clock, ChevronRight, Search, Filter } from 'lucide-react';
@@ -12,7 +12,7 @@ const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || (window.location.hostnam
 
 const Screen4Specialists = () => {
   const { t } = useTranslation();
-  const { state, updateState } = useContext(AppContext);
+  const { state, updateState } = use(AppContext);
   const navigate = useNavigate();
   const [specialistsData, setSpecialistsData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -34,7 +34,10 @@ const Screen4Specialists = () => {
   }, [state.accepted, navigate]);
 
   const categories = useMemo(() => {
-    const catsSet = new Set(specialistsData.map(s => s.category || s.specialization).filter(Boolean));
+    const catsSet = new Set(specialistsData.flatMap(s => {
+      const cat = s.category || s.specialization;
+      return cat ? [cat] : [];
+    }));
     if (state.recommendedSpecialist) {
       catsSet.add(state.recommendedSpecialist);
     }
@@ -75,13 +78,14 @@ const Screen4Specialists = () => {
         <div className="listing-container">
           <aside className="listing-sidebar">
             <div className="filter-group">
-              <label className="filter-label" style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '8px' }}>
+              <label htmlFor="specialist-search-input" className="filter-label" style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '8px' }}>
                 {t('search_specialist')}
                 <HelpTooltip text={t('search_placeholder')} />
               </label>
               <div style={{ position: 'relative', marginBottom: '24px' }}>
                 <Search size={18} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-muted)' }} />
                 <input 
+                  id="specialist-search-input"
                   type="text" 
                   className="input-field" 
                   placeholder={t('search_placeholder')} 

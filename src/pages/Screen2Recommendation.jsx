@@ -1,6 +1,6 @@
-import { useEffect, useState, useContext, useMemo } from 'react';
+import { useEffect, useState, use, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AppContext } from '../App';
+import { AppContext } from '../context/AppContext';
 import Stepper from '../components/Stepper';
 import { Activity, Scissors, Dumbbell, Stethoscope, Search, BarChart3, Info, AlertTriangle, Clock, CheckCircle } from 'lucide-react';
 
@@ -27,7 +27,7 @@ const specialistKeywords = {
 };
 
 const Screen2Recommendation = () => {
-  const { state, updateState } = useContext(AppContext);
+  const { state, updateState } = use(AppContext);
   const navigate = useNavigate();
   const [barWidth, setBarWidth] = useState(0);
 

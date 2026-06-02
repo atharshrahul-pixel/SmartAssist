@@ -1,14 +1,14 @@
-import { useState, useContext } from 'react';
+import { useState, use } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, Link } from 'react-router-dom';
-import { AppContext } from '../App';
+import { AppContext } from '../context/AppContext';
 import Stepper from '../components/Stepper';
 import HelpTooltip from '../components/HelpTooltip';
 import { ArrowLeft, ChevronRight, MessageSquare } from 'lucide-react';
 
 const Screen3Rejection = () => {
   const { t } = useTranslation();
-  const { state, updateState } = useContext(AppContext);
+  const { state, updateState } = use(AppContext);
   const navigate = useNavigate();
   const [reason, setReason] = useState(state.rejectionReason || '');
   const [other, setOther] = useState(state.rejectionReasonOther || '');
@@ -68,12 +68,13 @@ const Screen3Rejection = () => {
 
             {reason === t('reason_other') && (
               <div className="mb-lg" style={{ animation: 'fadeInSlideUp 0.3s ease' }}>
-                <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <label htmlFor="reject-other-input" className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <MessageSquare size={14} />
                   {t('tell_us_more')}
                   <HelpTooltip text={t('tooltip_rejection')} />
                 </label>
                 <textarea 
+                  id="reject-other-input"
                   className="input-field placeholder-dark"
                   placeholder={t('rejection_placeholder')}
                   style={{ minHeight: '120px', resize: 'vertical' }}

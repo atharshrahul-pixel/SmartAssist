@@ -1,7 +1,7 @@
-import { useState, useEffect, useContext, useCallback } from 'react';
+import { useState, useEffect, use, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { AppContext } from '../App';
+import { AppContext } from '../context/AppContext';
 import HelpTooltip from '../components/HelpTooltip';
 import Stepper from '../components/Stepper';
 import { 
@@ -15,14 +15,13 @@ const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || (window.location.hostnam
 
 const SpecialistDashboard = () => {
   const { t } = useTranslation();
-  const { token, logoutUser } = useContext(AppContext);
+  const { token, logoutUser } = use(AppContext);
   const navigate = useNavigate();
   const location = useLocation();
   const infoMessage = location.state?.infoMessage;
 
   const [specialist, setSpecialist] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [errorMsg, setErrorMsg] = useState('');
   
   // Dashboard navigation
   const [activeTab, setActiveTab] = useState('appointments');
@@ -30,7 +29,6 @@ const SpecialistDashboard = () => {
   // Appointments state
   const [appointments, setAppointments] = useState([]);
   const [activeSummary, setActiveSummary] = useState(null);
-  const [summaryLoading, setSummaryLoading] = useState(false);
 
   // Earnings state
   const [earnings, setEarnings] = useState({ totalEarnings: 0, earningsList: [] });
@@ -374,8 +372,9 @@ const SpecialistDashboard = () => {
               <h3 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '16px', textTransform: 'uppercase' }}>{t('update_reapply')}</h3>
               
               <div className="mb-md">
-                <label className="form-label">{t('full_name_label')}</label>
+                <label htmlFor="reapply-name" className="form-label">{t('full_name_label')}</label>
                 <input
+                  id="reapply-name"
                   type="text"
                   className="input-field"
                   value={reapplyData.name}
@@ -386,8 +385,9 @@ const SpecialistDashboard = () => {
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                 <div className="mb-md">
-                  <label className="form-label">{t('specialization')}</label>
+                  <label htmlFor="reapply-spec" className="form-label">{t('specialization')}</label>
                   <select
+                    id="reapply-spec"
                     className="input-field"
                     value={reapplyData.specialization}
                     onChange={e => setReapplyData(prev => ({ ...prev, specialization: e.target.value }))}
@@ -409,8 +409,9 @@ const SpecialistDashboard = () => {
                 </div>
 
                 <div className="mb-md">
-                  <label className="form-label">{t('years_experience')}</label>
+                  <label htmlFor="reapply-exp" className="form-label">{t('years_experience')}</label>
                   <input
+                    id="reapply-exp"
                     type="number"
                     className="input-field"
                     value={reapplyData.experience}
@@ -421,8 +422,9 @@ const SpecialistDashboard = () => {
               </div>
 
               <div className="mb-md">
-                <label className="form-label">{t('clinic_name_label')}</label>
+                <label htmlFor="reapply-clinic" className="form-label">{t('clinic_name_label')}</label>
                 <input
+                  id="reapply-clinic"
                   type="text"
                   className="input-field"
                   value={reapplyData.clinicName}
@@ -431,8 +433,9 @@ const SpecialistDashboard = () => {
               </div>
 
               <div className="mb-md">
-                <label className="form-label">{t('professional_bio_label')}</label>
+                <label htmlFor="reapply-bio" className="form-label">{t('professional_bio_label')}</label>
                 <textarea
+                  id="reapply-bio"
                   className="input-field"
                   value={reapplyData.bio}
                   onChange={e => setReapplyData(prev => ({ ...prev, bio: e.target.value }))}
@@ -442,12 +445,13 @@ const SpecialistDashboard = () => {
               </div>
 
               <div className="mb-lg">
-                <label className="form-label">{t('profile_image_label')}</label>
+                <label htmlFor="reapply-photo" className="form-label">{t('profile_image_label')}</label>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginTop: '8px' }}>
                   <div style={{ width: '48px', height: '48px', borderRadius: '8px', overflow: 'hidden', border: '1px solid #ddd' }}>
-                    {reapplyPreview ? <img src={reapplyPreview} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <Camera />}
+                    {reapplyPreview ? <img src={reapplyPreview} alt="Profile Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <Camera />}
                   </div>
                   <input
+                    id="reapply-photo"
                     type="file"
                     accept="image/*"
                     onChange={e => {
@@ -491,7 +495,7 @@ const SpecialistDashboard = () => {
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'var(--color-accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '800', fontSize: '18px', overflow: 'hidden' }}>
               {specialist.profilePhoto ? (
-                <img src={specialist.profilePhoto} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <img src={specialist.profilePhoto} alt={specialist.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               ) : (
                 specialist.name.substring(0, 2).toUpperCase()
               )}
@@ -627,10 +631,11 @@ const SpecialistDashboard = () => {
                           />
                           {mode.label}
                         </label>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                           <div>
-                            <label style={{ fontSize: '11px', opacity: 0.6 }}>{t('earnings_col')} (₹)</label>
+                            <label htmlFor={`mode-price-${mode.key}`} style={{ fontSize: '11px', opacity: 0.6 }}>{t('earnings_col')} (₹)</label>
                             <input 
+                              id={`mode-price-${mode.key}`}
                               type="number" 
                               className="input-field" 
                               value={modesConfig[mode.key]?.price}
@@ -643,8 +648,9 @@ const SpecialistDashboard = () => {
                             />
                           </div>
                           <div>
-                            <label style={{ fontSize: '11px', opacity: 0.6 }}>{t('duration', { defaultValue: 'Duration' })}</label>
+                            <label htmlFor={`mode-duration-${mode.key}`} style={{ fontSize: '11px', opacity: 0.6 }}>{t('duration', { defaultValue: 'Duration' })}</label>
                             <input 
+                              id={`mode-duration-${mode.key}`}
                               type="text" 
                               className="input-field" 
                               value={modesConfig[mode.key]?.duration}
@@ -670,6 +676,7 @@ const SpecialistDashboard = () => {
                       type="text" 
                       className="input-field" 
                       placeholder="e.g. 10:30 AM" 
+                      aria-label="Add availability slot"
                       value={newSlot}
                       onChange={e => setNewSlot(e.target.value)}
                       style={{ maxWidth: '200px' }}
@@ -713,8 +720,9 @@ const SpecialistDashboard = () => {
                 <h2 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '24px' }}>{t('professional_profile_details')}</h2>
 
                 <div className="mb-md">
-                  <label className="form-label">{t('clinic_name_label')}</label>
+                  <label htmlFor="profile-clinic" className="form-label">{t('clinic_name_label')}</label>
                   <input
+                    id="profile-clinic"
                     type="text"
                     className="input-field"
                     value={profileForm.clinicName}
@@ -723,8 +731,9 @@ const SpecialistDashboard = () => {
                 </div>
 
                 <div className="mb-md">
-                  <label className="form-label">{t('years_experience')}</label>
+                  <label htmlFor="profile-exp" className="form-label">{t('years_experience')}</label>
                   <input
+                    id="profile-exp"
                     type="number"
                     className="input-field"
                     value={profileForm.experience}
@@ -734,8 +743,9 @@ const SpecialistDashboard = () => {
                 </div>
 
                 <div className="mb-md">
-                  <label className="form-label">{t('professional_bio_label')}</label>
+                  <label htmlFor="profile-bio" className="form-label">{t('professional_bio_label')}</label>
                   <textarea
+                    id="profile-bio"
                     className="input-field"
                     value={profileForm.bio}
                     onChange={e => setProfileForm(prev => ({ ...prev, bio: e.target.value }))}
@@ -745,12 +755,13 @@ const SpecialistDashboard = () => {
                 </div>
 
                 <div className="mb-lg">
-                  <label className="form-label">{t('profile_image_label')}</label>
+                  <label htmlFor="profile-photo" className="form-label">{t('profile_image_label')}</label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginTop: '8px' }}>
                     <div style={{ width: '64px', height: '64px', borderRadius: '12px', overflow: 'hidden', border: '1px solid #ddd' }}>
-                      {photoPreview ? <img src={photoPreview} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <Camera />}
+                      {photoPreview ? <img src={photoPreview} alt="Profile Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <Camera />}
                     </div>
                     <input
+                      id="profile-photo"
                       type="file"
                       accept="image/*"
                       onChange={e => {

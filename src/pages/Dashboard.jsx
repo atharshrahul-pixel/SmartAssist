@@ -1,7 +1,7 @@
-import { useState, useEffect, useContext, useCallback } from 'react';
+import { useState, useEffect, use, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { AppContext } from '../App';
+import { AppContext } from '../context/AppContext';
 import HelpTooltip from '../components/HelpTooltip';
 import Stepper from '../components/Stepper';
 import { 
@@ -16,6 +16,11 @@ const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || (window.location.hostnam
 const WaitlistHoldTimer = ({ notifiedAt, onExpire }) => {
   const { t } = useTranslation();
   const [timeLeft, setTimeLeft] = useState('');
+  const onExpireRef = useRef(onExpire);
+
+  useEffect(() => {
+    onExpireRef.current = onExpire;
+  }, [onExpire]);
 
   useEffect(() => {
     const calculateTimeLeft = () => {
@@ -27,7 +32,7 @@ const WaitlistHoldTimer = ({ notifiedAt, onExpire }) => {
 
       if (difference <= 0) {
         setTimeLeft('Expired');
-        if (onExpire) onExpire();
+        if (onExpireRef.current) onExpireRef.current();
         return;
       }
 
@@ -39,7 +44,7 @@ const WaitlistHoldTimer = ({ notifiedAt, onExpire }) => {
     calculateTimeLeft();
     const interval = setInterval(calculateTimeLeft, 1000);
     return () => clearInterval(interval);
-  }, [notifiedAt, onExpire, t]);
+  }, [notifiedAt, t]);
 
   return (
     <span style={{ fontSize: '12px', color: 'var(--color-orange)', fontWeight: 'bold' }}>
@@ -48,9 +53,10 @@ const WaitlistHoldTimer = ({ notifiedAt, onExpire }) => {
   );
 };
 
+
 const Dashboard = () => {
   const { t } = useTranslation();
-  const { user, token, logoutUser, refreshUser } = useContext(AppContext);
+  const { user, token, logoutUser, refreshUser } = use(AppContext);
   const navigate = useNavigate();
   
   const [activeTab, setActiveTab] = useState('appointments');
@@ -375,11 +381,12 @@ const Dashboard = () => {
                     <h3 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '16px' }}>{t('add_family_member')}</h3>
                     
                     <div className="mb-md">
-                      <label className="form-label">
+                      <label htmlFor="family-name-input" className="form-label">
                         {t('your_name')}
                         <HelpTooltip text={t('tooltip_your_name')} />
                       </label>
                       <input 
+                        id="family-name-input"
                         type="text" 
                         className="input-field" 
                         value={familyFields.name}
@@ -408,11 +415,12 @@ const Dashboard = () => {
 
                     {familyFields.relationship === 'Other' && (
                       <div className="mb-lg" style={{ animation: 'fadeInSlideUp 0.25s ease' }}>
-                        <label className="form-label">
+                        <label htmlFor="family-relationship-other" className="form-label">
                           {t('specify_relationship')}
                           <HelpTooltip text="Tell us how you are related to this person (e.g. Sibling, Cousin, Friend)." />
                         </label>
                         <input
+                          id="family-relationship-other"
                           type="text"
                           className="input-field"
                           value={otherRelationship}
@@ -513,7 +521,7 @@ const Dashboard = () => {
             
             <form onSubmit={handleSubmitRating}>
               <div className="mb-lg" style={{ textAlign: 'center' }}>
-                <label className="form-label" style={{ marginBottom: '12px' }}>Rating (1 - 5 Stars)</label>
+                <span className="form-label" style={{ display: 'block', marginBottom: '12px' }}>Rating (1 - 5 Stars)</span>
                 <div style={{ display: 'flex', justifyContent: 'center', gap: '12px' }}>
                   {[1, 2, 3, 4, 5].map(val => (
                     <button 
