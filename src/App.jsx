@@ -1,4 +1,4 @@
-import { useState, createContext, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Screen1Input from './pages/Screen1Input';
@@ -18,8 +18,7 @@ import Dashboard from './pages/Dashboard';
 import SpecialistRegister from './pages/SpecialistRegister';
 import SpecialistDashboard from './pages/SpecialistDashboard';
 import SupportChatWidget from './components/SupportChatWidget';
-
-export const AppContext = createContext();
+import { AppContext } from './context/AppContext';
 
 function App() {
   const [state, setState] = useState({
