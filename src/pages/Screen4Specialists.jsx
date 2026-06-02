@@ -147,6 +147,7 @@ const Screen4Specialists = () => {
 
                   <div style={{ display: 'flex', alignItems: 'center', gap: '24px', flexWrap: 'wrap' }}>
                     <button 
+                      type="button"
                       className="btn-primary" 
                       style={{ marginLeft: 'auto', padding: '12px 24px' }}
                       onClick={() => handleSelect(specialist)}
@@ -162,7 +163,7 @@ const Screen4Specialists = () => {
                 <Search size={48} color="var(--color-muted)" style={{ marginBottom: '16px' }} />
                 <h3>{t('no_specialists_found')}</h3>
                 <p style={{ opacity: 0.6 }}>{t('adjust_filters')}</p>
-                <button className="btn-ghost mt-lg" onClick={() => {setFilter('All'); setSearchQuery('');}}>
+                <button type="button" className="btn-ghost mt-lg" onClick={() => {setFilter('All'); setSearchQuery('');}}>
                   {t('clear_filters')}
                 </button>
               </div>

@@ -57,26 +57,9 @@ const SupportChatWidget = () => {
     <div style={{ position: 'fixed', bottom: '24px', right: '24px', zIndex: 9999, fontFamily: 'sans-serif' }}>
       {/* Floating Action Button */}
       <button
+        type="button"
+        className="support-fab"
         onClick={() => setIsOpen(!isOpen)}
-        style={{
-          height: '56px',
-          borderRadius: '28px',
-          background: 'var(--color-orange, #E05830)',
-          color: 'white',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          padding: '0 20px',
-          boxShadow: '0 8px 24px rgba(224, 88, 48, 0.35)',
-          border: 'none',
-          cursor: 'pointer',
-          outline: 'none',
-          fontWeight: 'bold',
-          fontSize: '15px',
-          transition: 'transform 0.2s ease-in-out'
-        }}
-        onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-        onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
       >
         {isOpen ? <X size={20} /> : <MessageSquare size={20} />}
         <span>{t('need_help')}</span>
@@ -84,14 +67,7 @@ const SupportChatWidget = () => {
 
       {/* Chat Window */}
       {isOpen && (
-        <div className="card-light page-transition" style={{
-          position: 'absolute', bottom: '72px', right: '0',
-          width: '340px', height: '450px',
-          display: 'flex', flexDirection: 'column',
-          borderRadius: '16px', boxShadow: '0 12px 36px rgba(0,0,0,0.15)',
-          border: '1px solid rgba(0,0,0,0.08)',
-          background: '#FFFFFF', overflow: 'hidden'
-        }}>
+        <div className="card-light page-transition support-chat-window">
           {/* Header */}
           <div style={{
             padding: '16px 20px',
@@ -105,7 +81,7 @@ const SupportChatWidget = () => {
               <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#22c55e' }} />
               <span style={{ fontWeight: 'bold', fontSize: '15px' }}>{t('support_assistant')}</span>
             </div>
-            <button onClick={() => setIsOpen(false)} style={{ color: '#FFFFFF', opacity: 0.8 }}><X size={18} /></button>
+            <button type="button" onClick={() => setIsOpen(false)} style={{ color: '#FFFFFF', opacity: 0.8 }}><X size={18} /></button>
           </div>
 
           {/* Messages */}
@@ -117,14 +93,7 @@ const SupportChatWidget = () => {
               const isUser = msg.role === 'user';
               return (
                 <div key={i} style={{ display: 'flex', justifyContent: isUser ? 'flex-end' : 'flex-start' }}>
-                  <div style={{
-                    maxWidth: '80%', padding: '10px 14px', borderRadius: isUser ? '12px 12px 2px 12px' : '12px 12px 12px 2px',
-                    background: isUser ? 'var(--color-orange, #E05830)' : '#FFFFFF',
-                    color: isUser ? '#FFFFFF' : 'var(--color-dark, #1C1008)',
-                    boxShadow: '0 2px 6px rgba(0,0,0,0.03)',
-                    fontSize: '13px', lineHeight: '1.4', whiteSpace: 'pre-line',
-                    border: isUser ? 'none' : '1px solid rgba(0,0,0,0.05)'
-                  }}>
+                  <div className={`support-message ${isUser ? 'support-message-user' : 'support-message-bot'}`}>
                     {msg.content}
                   </div>
                 </div>
@@ -150,6 +119,7 @@ const SupportChatWidget = () => {
             {['faq_how_to_book', 'faq_about_waitlists', 'faq_consultation_modes', 'faq_contact_support'].map(key => (
               <button
                 key={key}
+                type="button"
                 onClick={() => handleSend(key)}
                 className="support-widget-faq-btn"
               >

@@ -111,7 +111,7 @@ const Screen2Recommendation = () => {
           <p style={{ color: 'var(--color-dark)', opacity: 0.7, marginBottom: '32px', lineHeight: '1.6' }}>
             To protect your privacy and ensure clinical accuracy, inactive triage sessions are automatically cleared. Please restart the assessment.
           </p>
-          <button className="btn-primary w-full" onClick={() => navigate('/')}>
+          <button type="button" className="btn-primary w-full" onClick={() => navigate('/')}>
             Restart Assessment
           </button>
         </div>
@@ -398,6 +398,7 @@ const Screen2Recommendation = () => {
                     📍 Find Nearest Emergency Room (ER)
                   </a>
                   <button 
+                    type="button"
                     className="btn-danger w-full" 
                     onClick={() => navigate('/')} 
                     style={{ background: 'transparent' }}
@@ -408,6 +409,7 @@ const Screen2Recommendation = () => {
               ) : (!hasSpecialists) ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   <button 
+                    type="button"
                     className="btn-primary w-full" 
                     onClick={() => {
                       updateState({ accepted: true, finalSpecialist: null, recommendedSpecialist: 'All' });
@@ -418,6 +420,7 @@ const Screen2Recommendation = () => {
                     Browse Available Specialists
                   </button>
                   <button 
+                    type="button"
                     className="btn-danger w-full" 
                     onClick={() => navigate('/')} 
                     style={{ background: 'transparent' }}
@@ -427,10 +430,10 @@ const Screen2Recommendation = () => {
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  <button className="btn-primary w-full" onClick={handleAccept} style={{ padding: '16px' }}>
+                  <button type="button" className="btn-primary w-full" onClick={handleAccept} style={{ padding: '16px' }}>
                     Accept & Book Appointment
                   </button>
-                  <button className="btn-danger w-full" onClick={handleReject} style={{ background: 'transparent' }}>
+                  <button type="button" className="btn-danger w-full" onClick={handleReject} style={{ background: 'transparent' }}>
                     Not right for me
                   </button>
                 </div>

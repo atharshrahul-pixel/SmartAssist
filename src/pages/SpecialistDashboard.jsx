@@ -321,7 +321,7 @@ const SpecialistDashboard = () => {
               {t('hello')}, <strong>{specialist.name}</strong>. {t('triage_description', { defaultValue: 'Your request is under review.' })}
               (<strong>{specialist.licenseNumber}</strong>).
             </p>
-            <button onClick={handleLogout} className="btn-secondary w-full" style={{ padding: '12px' }}>
+            <button type="button" onClick={handleLogout} className="btn-secondary w-full" style={{ padding: '12px' }}>
               <LogOut size={16} style={{ marginRight: '8px' }} /> {t('logout')}
             </button>
           </div>
@@ -501,7 +501,7 @@ const SpecialistDashboard = () => {
               <p style={{ opacity: 0.6, fontSize: '14px' }}>{t('practitioner_portal')} ({t(`category_${specialist.specialization}`, { defaultValue: specialist.specialization })})</p>
             </div>
           </div>
-          <button onClick={handleLogout} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px' }}>
+          <button type="button" onClick={handleLogout} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px' }}>
             <LogOut size={16} /> {t('logout')}
           </button>
         </div>
@@ -512,6 +512,7 @@ const SpecialistDashboard = () => {
           <div>
             <div className="card-light" style={{ padding: '12px' }}>
               <button 
+                type="button"
                 onClick={() => setActiveTab('appointments')} 
                 style={{
                   width: '100%', padding: '14px 16px', display: 'flex', alignItems: 'center', gap: '12px',
@@ -524,6 +525,7 @@ const SpecialistDashboard = () => {
                 <Calendar size={18} /> {t('appointments')}
               </button>
               <button 
+                type="button"
                 onClick={() => setActiveTab('availability')} 
                 style={{
                   width: '100%', padding: '14px 16px', display: 'flex', alignItems: 'center', gap: '12px',
@@ -536,6 +538,7 @@ const SpecialistDashboard = () => {
                 <Settings size={18} /> {t('slots_pricing')}
               </button>
               <button 
+                type="button"
                 onClick={() => setActiveTab('profile')} 
                 style={{
                   width: '100%', padding: '14px 16px', display: 'flex', alignItems: 'center', gap: '12px',
@@ -548,6 +551,7 @@ const SpecialistDashboard = () => {
                 <User size={18} /> {t('manage_profile')}
               </button>
               <button 
+                type="button"
                 onClick={() => setActiveTab('earnings')} 
                 style={{
                   width: '100%', padding: '14px 16px', display: 'flex', alignItems: 'center', gap: '12px',
@@ -584,6 +588,7 @@ const SpecialistDashboard = () => {
                           </div>
                         </div>
                         <button 
+                          type="button"
                           onClick={() => fetchPrevisitSummary(b._id)} 
                           className="btn-secondary"
                           style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px' }}
@@ -669,7 +674,7 @@ const SpecialistDashboard = () => {
                       onChange={e => setNewSlot(e.target.value)}
                       style={{ maxWidth: '200px' }}
                     />
-                    <button onClick={handleAddSlot} className="btn-primary" style={{ padding: '0 20px', display: 'flex', alignItems: 'center' }}>
+                    <button type="button" onClick={handleAddSlot} className="btn-primary" style={{ padding: '0 20px', display: 'flex', alignItems: 'center' }}>
                       <Plus size={16} /> {t('add_slot_btn')}
                     </button>
                   </div>
@@ -697,7 +702,7 @@ const SpecialistDashboard = () => {
                   </div>
                 </div>
 
-                <button onClick={handleSaveAvailability} className="btn-primary" disabled={saveLoading} style={{ padding: '12px 24px' }}>
+                <button type="button" onClick={handleSaveAvailability} className="btn-primary" disabled={saveLoading} style={{ padding: '12px 24px' }}>
                   {saveLoading ? t('saving_settings') : t('save_availability_pricing')}
                 </button>
               </div>
@@ -845,6 +850,7 @@ const SpecialistDashboard = () => {
         }}>
           <div className="card-light" style={{ maxWidth: '640px', width: '100%', padding: '32px', position: 'relative', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}>
             <button 
+              type="button"
               onClick={() => setActiveSummary(null)} 
               style={{ position: 'absolute', top: '16px', right: '16px', background: 'transparent', border: 'none', cursor: 'pointer' }}
             >
@@ -981,7 +987,7 @@ const SpecialistDashboard = () => {
               )}
             </div>
 
-            <button onClick={() => setActiveSummary(null)} className="btn-primary w-full" style={{ marginTop: '20px', padding: '14px' }}>
+            <button type="button" onClick={() => setActiveSummary(null)} className="btn-primary w-full" style={{ marginTop: '20px', padding: '14px' }}>
               {t('close_summary_btn')}
             </button>
           </div>

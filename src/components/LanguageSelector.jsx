@@ -2,19 +2,19 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Globe, ChevronDown, Check } from 'lucide-react';
 
+const languages = [
+  { code: 'en', label: 'English', native: 'English' },
+  { code: 'hi', label: 'Hindi', native: 'हिन्दी' },
+  { code: 'ta', label: 'Tamil', native: 'தமிழ்' },
+  { code: 'te', label: 'Telugu', native: 'తెలుగు' },
+  { code: 'ml', label: 'Malayalam', native: 'മലയാളം' },
+  { code: 'kn', label: 'Kannada', native: 'ಕನ್ನಡ' }
+];
+
 const LanguageSelector = () => {
   const { i18n } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
-
-  const languages = [
-    { code: 'en', label: 'English', native: 'English' },
-    { code: 'hi', label: 'Hindi', native: 'हिन्दी' },
-    { code: 'ta', label: 'Tamil', native: 'தமிழ்' },
-    { code: 'te', label: 'Telugu', native: 'తెలుగు' },
-    { code: 'ml', label: 'Malayalam', native: 'മലയാളം' },
-    { code: 'kn', label: 'Kannada', native: 'ಕನ್ನಡ' }
-  ];
 
   const currentLang = languages.find(l => l.code === i18n.language) || languages[0];
 
@@ -37,6 +37,7 @@ const LanguageSelector = () => {
   return (
     <div ref={dropdownRef} style={{ position: 'relative', display: 'inline-block' }}>
       <button
+        type="button"
         onClick={() => setIsOpen(!isOpen)}
         className="lang-selector-btn"
       >
@@ -52,30 +53,9 @@ const LanguageSelector = () => {
             return (
               <button
                 key={lang.code}
+                type="button"
                 onClick={() => handleLanguageChange(lang.code)}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  width: '100%',
-                  padding: '8px 12px',
-                  borderRadius: 'var(--r-sm)',
-                  color: isSelected ? 'var(--color-accent)' : 'var(--color-white)',
-                  fontSize: '13px',
-                  fontWeight: isSelected ? '700' : '500',
-                  textAlign: 'left',
-                  cursor: 'pointer',
-                  transition: 'all 0.15s ease',
-                  backgroundColor: 'transparent',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
-                  if (!isSelected) e.currentTarget.style.color = 'var(--color-white)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                  if (!isSelected) e.currentTarget.style.color = 'rgba(255, 255, 255, 0.8)';
-                }}
+                className={`lang-selector-item ${isSelected ? 'selected' : ''}`}
               >
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
                   <span style={{ fontSize: '13px' }}>{lang.native}</span>

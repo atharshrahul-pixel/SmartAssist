@@ -101,7 +101,7 @@ const Screen6Confirmation = () => {
               </div>
             </div>
 
-            <button className="btn-primary" onClick={handleBookAnother} style={{ gap: '12px', padding: '16px 32px' }}>
+            <button type="button" className="btn-primary" onClick={handleBookAnother} style={{ gap: '12px', padding: '16px 32px' }}>
               <RefreshCcw size={18} />
               {t('book_another')}
             </button>
@@ -171,10 +171,10 @@ const Screen6Confirmation = () => {
                   {t('show_receipt_desc')}
                 </p>
                 <div style={{ display: 'flex', justifyContent: 'center', gap: '12px' }}>
-                  <button className="btn-secondary" style={{ padding: '8px 16px', fontSize: '12px', gap: '8px' }}>
+                  <button type="button" className="btn-secondary" style={{ padding: '8px 16px', fontSize: '12px', gap: '8px' }}>
                     <Share2 size={14} /> {t('share')}
                   </button>
-                  <button className="btn-secondary" style={{ padding: '8px 16px', fontSize: '12px', gap: '8px' }}>
+                  <button type="button" className="btn-secondary" style={{ padding: '8px 16px', fontSize: '12px', gap: '8px' }}>
                     <Download size={14} /> {t('save_pdf')}
                   </button>
                 </div>

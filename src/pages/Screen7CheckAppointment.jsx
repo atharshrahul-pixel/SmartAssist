@@ -94,7 +94,7 @@ const Screen7CheckAppointment = () => {
                 onChange={e => setQuery(e.target.value)} 
                 onKeyDown={e => { if (e.key === 'Enter') handleSearch(); }}
               />
-              <button className="btn-primary" onClick={() => handleSearch()} disabled={loading}>{loading ? t('searching') : t('lookup_btn')}</button>
+              <button type="button" className="btn-primary" onClick={() => handleSearch()} disabled={loading}>{loading ? t('searching') : t('lookup_btn')}</button>
           </div>
         </div>
         {error && <p style={{ color: 'var(--color-orange)', marginTop: '16px' }}>{error}</p>}

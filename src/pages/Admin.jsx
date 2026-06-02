@@ -125,7 +125,7 @@ const Admin = () => {
           onChange={e => setSecret(e.target.value)} 
           style={{ marginBottom: '16px' }}
         />
-        <button className="btn-primary w-full" onClick={fetchDashboard} disabled={loading}>
+        <button type="button" className="btn-primary w-full" onClick={fetchDashboard} disabled={loading}>
           {loading ? t('verifying') : t('access_dashboard')}
         </button>
         {error && <p style={{ color: 'var(--color-orange)', marginTop: '16px', fontSize: '14px' }}>{error}</p>}
@@ -145,6 +145,7 @@ const Admin = () => {
       {/* Tab Navigation */}
       <div style={{ display: 'flex', gap: '16px', marginBottom: '32px', borderBottom: '1px solid var(--color-cream-dark)' }}>
         <button 
+          type="button"
           onClick={() => setActiveTab('bookings')} 
           style={{
             background: 'transparent', border: 'none', padding: '12px 16px', fontWeight: '700', fontSize: '15px', cursor: 'pointer',
@@ -156,6 +157,7 @@ const Admin = () => {
           {t('appointments')} ({data ? data.length : 0})
         </button>
         <button 
+          type="button"
           onClick={() => setActiveTab('specialists')} 
           style={{
             background: 'transparent', border: 'none', padding: '12px 16px', fontWeight: '700', fontSize: '15px', cursor: 'pointer',
@@ -221,7 +223,7 @@ const Admin = () => {
                     )}
                   </td>
                   <td style={{ padding: '24px' }}>
-                      <button className="btn-danger" style={{ padding: '8px' }} onClick={() => deleteBooking(b._id)}>
+                      <button type="button" className="btn-danger" style={{ padding: '8px' }} onClick={() => deleteBooking(b._id)}>
                           <Trash2 size={16} />
                       </button>
                   </td>
@@ -286,6 +288,7 @@ const Admin = () => {
                   <td style={{ padding: '24px' }}>
                     <div style={{ display: 'flex', gap: '8px' }} onClick={e => e.stopPropagation()}>
                       <button 
+                        type="button"
                         className="btn-primary" 
                         style={{ padding: '8px 16px', fontSize: '13px' }} 
                         onClick={() => handleApproveSpecialist(s._id)}
@@ -293,6 +296,7 @@ const Admin = () => {
                         {t('approve')}
                       </button>
                       <button 
+                        type="button"
                         className="btn-danger" 
                         style={{ padding: '8px 16px', fontSize: '13px' }} 
                         onClick={() => handleRejectSpecialist(s._id)}
@@ -339,6 +343,7 @@ const Admin = () => {
             
             {/* Close Button */}
             <button 
+              type="button"
               onClick={() => setSelectedSpecialist(null)}
               style={{
                 position: 'absolute',
@@ -471,6 +476,7 @@ const Admin = () => {
               gap: '12px'
             }}>
               <button 
+                type="button"
                 className="btn-danger" 
                 style={{ padding: '12px 24px', fontSize: '14px', fontWeight: '700' }} 
                 onClick={() => handleRejectSpecialist(selectedSpecialist._id)}
@@ -478,6 +484,7 @@ const Admin = () => {
                 {t('reject_app')}
               </button>
               <button 
+                type="button"
                 className="btn-primary" 
                 style={{ padding: '12px 24px', fontSize: '14px', fontWeight: '700' }} 
                 onClick={() => handleApproveSpecialist(selectedSpecialist._id)}

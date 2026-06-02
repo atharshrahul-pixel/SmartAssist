@@ -247,7 +247,7 @@ const Dashboard = () => {
             <p style={{ opacity: 0.6, fontSize: '14px' }}>{t('health_portal_welcome')}</p>
           </div>
         </div>
-        <button onClick={handleLogout} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px' }}>
+        <button type="button" onClick={handleLogout} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px' }}>
           <LogOut size={16} /> {t('logout')}
         </button>
       </div>
@@ -258,6 +258,7 @@ const Dashboard = () => {
         <div>
           <div className="card-light" style={{ padding: '12px' }}>
             <button 
+              type="button"
               onClick={() => setActiveTab('appointments')} 
               style={{
                 width: '100%', padding: '14px 16px', display: 'flex', alignItems: 'center', gap: '12px',
@@ -270,6 +271,7 @@ const Dashboard = () => {
               <Calendar size={18} /> {t('appointments')}
             </button>
             <button 
+              type="button"
               onClick={() => setActiveTab('family')} 
               style={{
                 width: '100%', padding: '14px 16px', display: 'flex', alignItems: 'center', gap: '12px',
@@ -282,6 +284,7 @@ const Dashboard = () => {
               <Users size={18} /> {t('family_profiles', { defaultValue: 'Family Profiles' })}
             </button>
             <button 
+              type="button"
               onClick={() => setActiveTab('waitlists')} 
               style={{
                 width: '100%', padding: '14px 16px', display: 'flex', alignItems: 'center', gap: '12px',
@@ -305,7 +308,7 @@ const Dashboard = () => {
               ) : bookings.length === 0 ? (
                 <div className="card-light" style={{ textAlign: 'center', padding: '48px' }}>
                   <p style={{ opacity: 0.6, marginBottom: '16px' }}>{t('no_appointments')}</p>
-                  <button onClick={() => navigate('/')} className="btn-primary">{t('book_now')}</button>
+                  <button type="button" onClick={() => navigate('/')} className="btn-primary">{t('book_now')}</button>
                 </div>
               ) : (
                 <div style={{ display: 'grid', gap: '16px' }}>
@@ -325,6 +328,7 @@ const Dashboard = () => {
 
                       <div>
                         <button 
+                          type="button"
                           onClick={() => setRatingSpecialist({ id: b.specialistId, name: b.specialistName })} 
                           className="btn-ghost" 
                           style={{ padding: '8px 16px', display: 'flex', alignItems: 'center', gap: '8px' }}
@@ -356,7 +360,7 @@ const Dashboard = () => {
                             <div style={{ fontWeight: '700', fontSize: '16px' }}>{member.name}</div>
                             <div style={{ fontSize: '13px', color: 'var(--color-orange)', fontWeight: '600' }}>{member.relationship}</div>
                           </div>
-                          <button onClick={() => handleDeleteFamilyMember(member._id)} className="btn-danger" style={{ padding: '8px' }}>
+                           <button type="button" onClick={() => handleDeleteFamilyMember(member._id)} className="btn-danger" style={{ padding: '8px' }}>
                             <Trash2 size={16} />
                           </button>
                         </div>
@@ -474,7 +478,8 @@ const Dashboard = () => {
 
                       {entry.status === 'notified' && (
                         <div>
-                          <button 
+                           <button 
+                            type="button"
                             onClick={() => handleClaimAndBook(entry)} 
                             className="btn-primary" 
                             style={{ 

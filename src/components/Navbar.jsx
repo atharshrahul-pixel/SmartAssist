@@ -11,16 +11,7 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <nav style={{
-      backgroundColor: 'var(--color-dark)',
-      height: '68px',
-      borderBottom: '1px solid rgba(255,255,255,0.08)',
-      display: 'flex',
-      alignItems: 'center',
-      padding: '0 var(--sp-md)',
-      position: 'relative',
-      zIndex: 1000
-    }}>
+    <nav className="navbar-main">
       <div style={{
         maxWidth: '1200px',
         margin: '0 auto',
@@ -45,18 +36,7 @@ const Navbar = () => {
             {t('check_appointments')}
           </Link>
           {user ? (
-            <Link to={user.role === 'specialist' ? '/specialist/dashboard' : '/dashboard'} style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              backgroundColor: 'var(--color-accent)',
-              color: 'var(--color-dark)',
-              padding: '6px 16px',
-              borderRadius: 'var(--r-pill)',
-              fontWeight: '700',
-              fontSize: '13px',
-              textDecoration: 'none'
-            }}>
+            <Link to={user.role === 'specialist' ? '/specialist/dashboard' : '/dashboard'} className="navbar-user-badge">
               <User size={14} /> {user.name}
             </Link>
           ) : (
@@ -76,18 +56,9 @@ const Navbar = () => {
 
         {/* Mobile Hamburger Toggle Button */}
         <button 
+          type="button"
           className="nav-mobile-toggle"
           onClick={() => setIsOpen(!isOpen)}
-          style={{
-            background: 'transparent',
-            border: 'none',
-            color: 'var(--color-white)',
-            cursor: 'pointer',
-            padding: '8px',
-            display: 'none',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}
         >
           {isOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
@@ -95,23 +66,7 @@ const Navbar = () => {
 
       {/* Mobile Navigation Dropdown Menu */}
       {isOpen && (
-        <div 
-          className="nav-mobile-menu"
-          style={{
-            position: 'absolute',
-            top: '68px',
-            left: 0,
-            width: '100%',
-            backgroundColor: 'var(--color-dark)',
-            borderBottom: '1px solid rgba(255,255,255,0.08)',
-            padding: '16px 24px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '16px',
-            boxShadow: '0 10px 15px rgba(0,0,0,0.2)',
-            animation: 'fadeInSlideDown 0.25s ease'
-          }}
-        >
+        <div className="nav-mobile-menu">
           <LanguageSelector />
           <Link 
             to="/lookup" 
@@ -129,18 +84,7 @@ const Navbar = () => {
           {user ? (
             <Link 
               to={user.role === 'specialist' ? '/specialist/dashboard' : '/dashboard'} 
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                backgroundColor: 'var(--color-accent)',
-                color: 'var(--color-dark)',
-                padding: '12px 16px',
-                borderRadius: '8px',
-                fontWeight: '700',
-                fontSize: '15px',
-                textDecoration: 'none'
-              }}
+              className="nav-mobile-user-badge"
               onClick={() => setIsOpen(false)}
             >
               <User size={16} /> {user.name} ({t('dashboard')})
@@ -148,16 +92,7 @@ const Navbar = () => {
           ) : (
             <Link 
               to="/login" 
-              style={{
-                backgroundColor: 'rgba(255, 255, 255, 0.08)',
-                color: 'var(--color-white)',
-                padding: '12px 16px',
-                borderRadius: '8px',
-                fontWeight: '600',
-                fontSize: '15px',
-                textDecoration: 'none',
-                textAlign: 'center'
-              }}
+              className="nav-mobile-login"
               onClick={() => setIsOpen(false)}
             >
               {t('login_register')}

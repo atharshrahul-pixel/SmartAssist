@@ -241,6 +241,7 @@ const Screen5Booking = () => {
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                 <button 
+                  type="button"
                   className="btn-ghost" 
                   onClick={handlePrevMonth} 
                   disabled={isPrevMonthDisabled} 
@@ -252,6 +253,7 @@ const Screen5Booking = () => {
                   {t(`month_${currentMonth}`)} {currentYear}
                 </div>
                 <button 
+                  type="button"
                   className="btn-ghost" 
                   onClick={handleNextMonth} 
                   style={{ padding: '8px', borderRadius: '50%', cursor: 'pointer' }}
@@ -278,6 +280,7 @@ const Screen5Booking = () => {
                 return (
                   <button
                     key={`day-${dayDate.getTime()}`}
+                    type="button"
                     disabled={isPast}
                     className={`cal-day ${isSelected ? 'selected' : ''} ${isToday ? 'today' : ''}`}
                     onClick={() => { setSelectedDate(formattedStr); setSelectedTime(''); setErrorMsg(''); }}
@@ -306,6 +309,7 @@ const Screen5Booking = () => {
                   <div style={{ color: 'var(--color-accent)', fontSize: '12px', fontWeight: '700', textTransform: 'uppercase' }}>{state.finalSpecialist.category}</div>
                 </div>
                 <button 
+                  type="button"
                   className="btn-ghost" 
                   style={{ marginLeft: 'auto', padding: '6px 12px', fontSize: '12px', border: 'none', background: 'rgba(255,255,255,0.1)', color: 'white' }}
                   onClick={() => navigate('/specialists')}
@@ -423,6 +427,7 @@ const Screen5Booking = () => {
                     return (
                       <button
                         key={slot}
+                        type="button"
                         className={`time-slot ${isSelected ? 'active' : ''}`}
                         style={{
                           position: 'relative',
@@ -465,6 +470,7 @@ const Screen5Booking = () => {
 
               {selectedDate && isSelectedTimeOccupied ? (
                 <button 
+                  type="button"
                   className="btn-primary w-full"
                   disabled={loading}
                   onClick={() => {
@@ -485,6 +491,7 @@ const Screen5Booking = () => {
                 </button>
               ) : (
                 <button 
+                  type="button"
                   className="btn-primary w-full"
                   disabled={loading}
                   onClick={() => {
