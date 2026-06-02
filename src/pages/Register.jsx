@@ -135,16 +135,7 @@ const Register = () => {
           </div>
 
           {error && (
-            <div style={{
-              background: 'rgba(224, 88, 48, 0.1)',
-              color: 'var(--color-orange)',
-              padding: '12px',
-              borderRadius: 'var(--r-sm)',
-              fontSize: '13px',
-              fontWeight: '600',
-              marginBottom: '20px',
-              textAlign: 'center'
-            }}>
+            <div className="error-alert-banner">
               {error}
             </div>
           )}

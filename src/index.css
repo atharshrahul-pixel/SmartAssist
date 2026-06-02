@@ -1347,6 +1347,31 @@ a {
   display: block;
 }
 
+/* Auth / Form Helper Classes */
+.auth-icon-wrapper {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(237, 184, 32, 0.1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-accent);
+  margin-bottom: 16px;
+}
+
+.error-alert-banner {
+  background: rgba(224, 88, 48, 0.1);
+  color: var(--color-orange);
+  padding: 12px;
+  border-radius: var(--r-sm);
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+
 
 
 

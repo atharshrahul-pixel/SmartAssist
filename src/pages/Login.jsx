@@ -76,17 +76,7 @@ const Login = () => {
       <div className="container" style={{ maxWidth: '480px', paddingTop: '40px', flex: 1 }}>
       <div className="card-light" style={{ padding: '40px' }}>
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-          <div style={{
-            width: '56px',
-            height: '56px',
-            borderRadius: '50%',
-            background: 'rgba(237, 184, 32, 0.1)',
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'var(--color-accent)',
-            marginBottom: '16px'
-          }}>
+          <div className="auth-icon-wrapper">
             <LogIn size={24} />
           </div>
           <h2 
@@ -128,16 +118,7 @@ const Login = () => {
           </div>
 
           {error && (
-            <div style={{
-              background: 'rgba(224, 88, 48, 0.1)',
-              color: 'var(--color-orange)',
-              padding: '12px',
-              borderRadius: 'var(--r-sm)',
-              fontSize: '13px',
-              fontWeight: '600',
-              marginBottom: '20px',
-              textAlign: 'center'
-            }}>
+            <div className="error-alert-banner">
               {error}
             </div>
           )}
