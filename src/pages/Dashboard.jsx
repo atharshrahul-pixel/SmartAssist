@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { AppContext } from '../App';
@@ -39,7 +39,7 @@ const WaitlistHoldTimer = ({ notifiedAt, onExpire }) => {
     calculateTimeLeft();
     const interval = setInterval(calculateTimeLeft, 1000);
     return () => clearInterval(interval);
-  }, [notifiedAt, onExpire]);
+  }, [notifiedAt, onExpire, t]);
 
   return (
     <span style={{ fontSize: '12px', color: 'var(--color-orange)', fontWeight: 'bold' }}>
@@ -67,16 +67,7 @@ const Dashboard = () => {
   const [otherRelationship, setOtherRelationship] = useState('');
   const [familyLoading, setFamilyLoading] = useState(false);
 
-  useEffect(() => {
-    if (!token || !user) {
-      navigate('/login');
-    } else {
-      fetchBookings();
-      fetchProfile();
-    }
-  }, [token, user, navigate]);
-
-  const fetchBookings = async () => {
+  const fetchBookings = useCallback(async () => {
     try {
       const res = await fetch(`${BACKEND_URL}/bookings/my-bookings`, {
         headers: { 'Authorization': `Bearer ${token}` }
@@ -90,9 +81,9 @@ const Dashboard = () => {
     } finally {
       setHasLoaded(true);
     }
-  };
+  }, [token]);
 
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     try {
       const res = await fetch(`${BACKEND_URL}/auth/me`, {
         headers: { 'Authorization': `Bearer ${token}` }
@@ -104,7 +95,16 @@ const Dashboard = () => {
     } catch (err) {
       console.error(err);
     }
-  };
+  }, [token, refreshUser]);
+
+  useEffect(() => {
+    if (!token || !user) {
+      navigate('/login');
+    } else {
+      fetchBookings();
+      fetchProfile();
+    }
+  }, [token, user, navigate, fetchBookings, fetchProfile]);
 
   const handleAddFamilyMember = async (e) => {
     e.preventDefault();
