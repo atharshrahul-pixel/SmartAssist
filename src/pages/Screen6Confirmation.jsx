@@ -1,4 +1,4 @@
-import { useEffect, useContext, useState } from 'react';
+import { useEffect, useContext, useState, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { AppContext } from '../App';
@@ -10,6 +10,7 @@ const Screen6Confirmation = () => {
   const { state, updateState, addBooking } = useContext(AppContext);
   const navigate = useNavigate();
   const [showContent, setShowContent] = useState(false);
+  const bookingAddedRef = useRef(false);
 
   useEffect(() => {
     if (!state.bookingId || !state.bookedDate) {
@@ -17,16 +18,18 @@ const Screen6Confirmation = () => {
       return;
     }
 
-    addBooking({
-      specialistId: state.finalSpecialist.id,
-      date: state.bookedDate,
-      time: state.bookedTime
-    });
+    if (!bookingAddedRef.current) {
+      addBooking({
+        specialistId: state.finalSpecialist.id,
+        date: state.bookedDate,
+        time: state.bookedTime
+      });
+      bookingAddedRef.current = true;
+    }
 
     const timer = setTimeout(() => setShowContent(true), 100);
     return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [state.bookingId, state.bookedDate, state.bookedTime, state.finalSpecialist, navigate, addBooking]);
 
   const handleBookAnother = () => {
     updateState({
