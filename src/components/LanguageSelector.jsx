@@ -38,31 +38,7 @@ const LanguageSelector = () => {
     <div ref={dropdownRef} style={{ position: 'relative', display: 'inline-block' }}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          backgroundColor: 'rgba(255, 255, 255, 0.06)',
-          border: '1px solid rgba(255, 255, 255, 0.12)',
-          padding: '6px 12px',
-          borderRadius: 'var(--r-pill)',
-          color: 'var(--color-white)',
-          fontSize: '13px',
-          fontWeight: '600',
-          cursor: 'pointer',
-          transition: 'all 0.2s ease',
-          height: '36px',
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.12)';
-          e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.24)';
-        }}
-        onMouseLeave={(e) => {
-          if (!isOpen) {
-            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.06)';
-            e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.12)';
-          }
-        }}
+        className="lang-selector-btn"
       >
         <Globe size={14} style={{ color: 'var(--color-accent)' }} />
         <span>{currentLang.native}</span>
@@ -70,23 +46,7 @@ const LanguageSelector = () => {
       </button>
 
       {isOpen && (
-        <div style={{
-          position: 'absolute',
-          top: 'calc(100% + 8px)',
-          right: 0,
-          backgroundColor: 'rgba(36, 21, 8, 0.98)',
-          border: '1px solid rgba(255, 255, 255, 0.12)',
-          borderRadius: 'var(--r-lg)',
-          boxShadow: '0 12px 30px rgba(0,0,0,0.3)',
-          padding: '6px',
-          minWidth: '150px',
-          zIndex: 1100,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '2px',
-          backdropFilter: 'blur(12px)',
-          animation: 'fadeInSlideUp 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards'
-        }}>
+        <div className="lang-selector-dropdown">
           {languages.map((lang) => {
             const isSelected = lang.code === currentLang.code;
             return (
@@ -119,7 +79,7 @@ const LanguageSelector = () => {
               >
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
                   <span style={{ fontSize: '13px' }}>{lang.native}</span>
-                  <span style={{ fontSize: '10px', opacity: 0.5, fontWeight: '400' }}>{lang.label}</span>
+                  <span style={{ fontSize: '12px', opacity: 0.5, fontWeight: '400' }}>{lang.label}</span>
                 </div>
                 {isSelected && <Check size={14} style={{ color: 'var(--color-accent)', marginLeft: '8px' }} />}
               </button>
