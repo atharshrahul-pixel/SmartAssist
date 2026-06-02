@@ -23,12 +23,12 @@ const Admin = () => {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch(`${BACKEND_URL}/admin/bookings`, {
+      const res = await fetch(`${BACKEND_URL}/admin/dashboard`, {
         headers: { 'x-admin-secret': secret }
       });
       const json = await res.json();
       
-      const specRes = await fetch(`${BACKEND_URL}/admin/specialists/pending`, {
+      const specRes = await fetch(`${BACKEND_URL}/admin/dashboard/specialists/pending`, {
         headers: { 'x-admin-secret': secret }
       });
       const specJson = await specRes.json();
@@ -51,7 +51,7 @@ const Admin = () => {
   const deleteBooking = async (id) => {
     if (!window.confirm(t('confirm_delete_appointment'))) return;
     try {
-      const res = await fetch(`${BACKEND_URL}/admin/bookings/${id}`, {
+      const res = await fetch(`${BACKEND_URL}/admin/dashboard/${id}`, {
         method: 'DELETE',
         headers: { 'x-admin-secret': secret }
       });
@@ -68,7 +68,7 @@ const Admin = () => {
   const handleApproveSpecialist = async (id) => {
     if (!window.confirm(t('confirm_approve_specialist'))) return;
     try {
-      const res = await fetch(`${BACKEND_URL}/admin/specialists/${id}/approve`, {
+      const res = await fetch(`${BACKEND_URL}/admin/dashboard/specialists/${id}/approve`, {
         method: 'POST',
         headers: { 'x-admin-secret': secret }
       });
@@ -94,7 +94,7 @@ const Admin = () => {
     }
 
     try {
-      const res = await fetch(`${BACKEND_URL}/admin/specialists/${id}/reject`, {
+      const res = await fetch(`${BACKEND_URL}/admin/dashboard/specialists/${id}/reject`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
