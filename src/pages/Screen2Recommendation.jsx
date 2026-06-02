@@ -319,7 +319,7 @@ const Screen2Recommendation = () => {
                   lineHeight: '1.5',
                   color: 'rgba(255, 255, 255, 0.9)',
                 }}>
-                  We don't have a <strong>{state.idealCategory}</strong> right now, but we suggest you visit a <strong>{state.recommendedSpecialist}</strong> first.
+                  We don't have a <strong>{state.idealCategory}</strong> right now.
                 </div>
               )}
 
@@ -339,9 +339,11 @@ const Screen2Recommendation = () => {
                 </div>
               )}
               
-              <p style={{ fontSize: '15px', color: 'var(--color-muted)', marginBottom: '40px', lineHeight: 1.6 }}>
-                {state.recommendationExplanation}
-              </p>
+              {!(state.idealCategory && state.idealCategory.toLowerCase() !== state.recommendedSpecialist.toLowerCase() && state.recommendedSpecialist !== 'Emergency Services') && (
+                <p style={{ fontSize: '15px', color: 'var(--color-muted)', marginBottom: '40px', lineHeight: 1.6 }}>
+                  {state.recommendationExplanation}
+                </p>
+              )}
 
               {state.urgency === 'Urgent' && state.recommendedSpecialist !== 'Emergency Services' && (
                 <div style={{
