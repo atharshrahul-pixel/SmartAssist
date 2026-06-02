@@ -58,15 +58,10 @@ const Screen2Recommendation = () => {
       .catch(err => console.error("Error checking specialist availability:", err));
   }, [hasExpired, state.recommendedSpecialist]);
 
-  const calculateConfidence = () => {
-    if (hasExpired) return 0;
-    return state.confidence || 85;
-  };
-
   useEffect(() => {
     if (!hasExpired) {
       const timer = setTimeout(() => {
-        setBarWidth(calculateConfidence());
+        setBarWidth(state.confidence || 85);
       }, 300);
       return () => clearTimeout(timer);
     }
