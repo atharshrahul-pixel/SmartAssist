@@ -257,7 +257,6 @@ const getTriageResponse = async ({ name, messages, forceFallback = false }) => {
     'Physiotherapist',
     'Gym Trainer',
     'Salon Specialist',
-    'General Practitioner',
     'Emergency Services'
   ];
   const allAvailableCategories = Array.from(new Set([...baseCategories, ...dbCategories]));
@@ -280,7 +279,6 @@ const getTriageResponse = async ({ name, messages, forceFallback = false }) => {
     'Physiotherapist': 'for joint pain, muscle pain, posture, physical injuries, back/knee/neck pain.',
     'Gym Trainer': 'for fitness, exercise, weight loss/gain, strength, and workout plans.',
     'Salon Specialist': 'for skin care, hair styling, nails, cosmetics, and general grooming/beauty.',
-    'General Practitioner': 'for general medical concerns, fever, infections, cough, sore throat, headache, abdominal pain, or any condition requiring a primary care medical doctor.',
     'Emergency Services': 'for serious or life-threatening symptoms requiring immediate emergency care.'
   };
 
@@ -304,8 +302,8 @@ If the symptoms are NOT urgent, but the patient needs a specialist that is NOT d
 - Musculoskeletal, joint, bone, and physical mobility needs (like Orthopedics, Chiropractic, sprains) must map to Physiotherapist.
 - Weight management, nutrition, fitness, and diet needs (like Dietitians) must map to Gym Trainer.
 - Cosmetic, hair, scalp, and beauty needs (like minor skin/hair care) must map to Salon Specialist.
-- Systemic medical issues, infections, fevers, and internal medicine concerns must map to General Practitioner.
-Do not default to General Practitioner for physical mobility, fitness, or cosmetic concerns. Explain your reasoning and alternative mapping gracefully in the text.
+- Systemic medical issues, infections, fevers, and internal medicine concerns must map to the closest logical base specialist (or suggest seeing a physician in the explanation).
+Do not use unsupported categories. Explain your reasoning and alternative mapping gracefully in the text.
 
 URGENCY ASSESSMENT RULE:
 You MUST evaluate the urgency of the symptoms and assign exactly one value to the "urgency" field:
@@ -332,7 +330,7 @@ Choose one of the two formats:
 {
   "type": "recommendation",
   "specialistCategory": "One of: ${allAvailableCategories.join(', ')}",
-  "idealCategory": "The ideal specialist they need (e.g. Orthopedist, Cardiologist, Dentist, General Practitioner, Emergency Services, etc.)",
+  "idealCategory": "The ideal specialist they need (e.g. Orthopedist, Cardiologist, Dentist, Emergency Services, etc.)",
   "confidence": 85, // integer percentage score representing match confidence from 50 to 99
   "urgency": "Routine", // exactly one of: Routine, Soon, Urgent
   "text": "Explanation of the recommendation, including the alternative specialist mapping disclaimer if applicable."

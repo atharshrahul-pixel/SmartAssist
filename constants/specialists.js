@@ -3,7 +3,6 @@ const SPECIALIST_CATEGORIES = Object.freeze([
   'Physiotherapist',
   'Gym Trainer',
   'Salon Specialist',
-  'General Practitioner',
 ]);
 
 const KEYWORD_MAPPINGS = Object.freeze({
@@ -87,23 +86,6 @@ const KEYWORD_MAPPINGS = Object.freeze({
     '美甲',
     '沙龙',
     '面部护理',
-  ],
-  'General Practitioner': [
-    'headache',
-    'fever',
-    'sore throat',
-    'cough',
-    'throat',
-    'stomach',
-    'cold',
-    'flu',
-    'chest pain',
-    'breathing',
-    'vomiting',
-    'nausea',
-    'doctor',
-    'physician',
-    'gp'
   ]
 });
 
