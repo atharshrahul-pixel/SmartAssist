@@ -49,6 +49,7 @@ const Screen1Input = () => {
   const timerRef = useRef(null);
   const audioChunksRef = useRef([]);
 
+  // eslint-disable-next-line react-doctor/exhaustive-deps
   useEffect(() => {
     return () => {
       if (timerRef.current) {
