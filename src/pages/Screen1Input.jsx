@@ -26,20 +26,11 @@ const Screen1Input = () => {
   const [appointmentFor, setAppointmentFor] = useState(state.appointmentFor || 'myself');
   const [otherName, setOtherName] = useState(state.otherName || '');
 
-  useEffect(() => {
-    if (user) {
-      if (appointmentFor === 'myself') {
-        setName(user.name);
-        setEmail(user.email);
-      } else if (appointmentFor === 'other') {
-        setName(otherName);
-        setEmail(user.email);
-      } else {
-        setName(appointmentFor);
-        setEmail(user.email);
-      }
-    }
-  }, [appointmentFor, otherName, user]);
+  const resolvedName = user
+    ? (appointmentFor === 'myself' ? user.name : (appointmentFor === 'other' ? otherName : appointmentFor))
+    : name;
+
+  const resolvedEmail = user ? user.email : email;
 
   const [triageStarted, setTriageStarted] = useState(false);
   const [chatHistory, setChatHistory] = useState([]);
@@ -70,7 +61,8 @@ const Screen1Input = () => {
         streamRef.current.getTracks().forEach((track) => track.stop());
       }
     };
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [timerRef, mediaRecorderRef, streamRef]);
 
   const startRecording = async () => {
     setMicError(null);
@@ -223,8 +215,8 @@ const Screen1Input = () => {
     }
     setErrorMsg('');
     updateState({
-      name: name.trim(),
-      email: email.trim(),
+      name: resolvedName.trim(),
+      email: resolvedEmail.trim(),
       appointmentFor,
       otherName: appointmentFor === 'other' ? otherName.trim() : ''
     });
@@ -232,7 +224,7 @@ const Screen1Input = () => {
     setChatHistory([
       {
         role: 'assistant',
-        content: t('nurse_greeting', { name: name.trim() })
+        content: t('nurse_greeting', { name: resolvedName.trim() })
       }
     ]);
   };
@@ -243,7 +235,7 @@ const Screen1Input = () => {
     setChatHistory([
       {
         role: 'assistant',
-        content: t('nurse_greeting', { name: name.trim() })
+        content: t('nurse_greeting', { name: resolvedName.trim() })
       }
     ]);
   };
@@ -268,7 +260,7 @@ const Screen1Input = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name,
+          name: resolvedName,
           messages: updatedHistory
         })
       });
@@ -291,8 +283,8 @@ const Screen1Input = () => {
           );
 
           updateState({
-            name,
-            email,
+            name: resolvedName,
+            email: resolvedEmail,
             appointmentFor,
             otherName: appointmentFor === 'other' ? otherName.trim() : '',
             problem: problemText,
