@@ -303,7 +303,7 @@ const Screen5Booking = () => {
                 </div>
                 <div>
                   <div style={{ color: 'var(--color-white)', fontSize: '16px', fontWeight: '700' }}>{state.finalSpecialist.name}</div>
-                  <div style={{ color: 'var(--color-accent)', fontSize: '11px', fontWeight: '700', textTransform: 'uppercase' }}>{state.finalSpecialist.category}</div>
+                  <div style={{ color: 'var(--color-accent)', fontSize: '12px', fontWeight: '700', textTransform: 'uppercase' }}>{state.finalSpecialist.category}</div>
                 </div>
                 <button 
                   className="btn-ghost" 
@@ -342,25 +342,17 @@ const Screen5Booking = () => {
                       key={m.key}
                       type="button"
                       onClick={() => { setSelectedMode(m.key); setSelectedTime(''); setErrorMsg(''); }}
+                      className="booking-mode-btn"
                       style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        padding: '10px 4px',
-                        borderRadius: '8px',
                         background: isSel ? 'var(--color-orange)' : 'rgba(0,0,0,0.03)',
                         border: isSel ? '1px solid var(--color-orange)' : '1px solid rgba(0,0,0,0.08)',
-                        color: isSel ? 'white' : 'var(--color-dark)',
-                        cursor: 'pointer',
-                        transition: 'all 0.15s ease',
-                        gap: '2px',
-                        outline: 'none'
+                        color: isSel ? 'white' : 'var(--color-dark)'
                       }}
                     >
                       <div style={{ opacity: isSel ? 1 : 0.6 }}>{m.icon}</div>
-                      <span style={{ fontSize: '11px', fontWeight: '800' }}>{m.label}</span>
-                      <span style={{ fontSize: '9px', opacity: 0.6 }}>{modeConfig.duration}</span>
-                      <span style={{ fontSize: '10px', fontWeight: '700', marginTop: '2px' }}>₹{modeConfig.price}</span>
+                      <span style={{ fontSize: '12px', fontWeight: '800' }}>{m.label}</span>
+                      <span style={{ fontSize: '12px', opacity: 0.6 }}>{modeConfig.duration}</span>
+                      <span style={{ fontSize: '12px', fontWeight: '700', marginTop: '2px' }}>₹{modeConfig.price}</span>
                     </button>
                   );
                 })}
@@ -395,7 +387,7 @@ const Screen5Booking = () => {
 
                 {bookedFor !== 'myself' && (!user.familyProfiles || !user.familyProfiles.some(m => m.name === bookedFor)) && (
                   <div style={{ marginTop: '12px' }}>
-                    <label className="form-label" style={{ fontSize: '11px' }}>
+                    <label className="form-label">
                       {t('patient_name')}
                       <HelpTooltip text={t('tooltip_patient_name')} />
                     </label>
