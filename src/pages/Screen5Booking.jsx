@@ -384,7 +384,7 @@ const Screen5Booking = () => {
                 >
                   <option value="myself">{t('myself_label', { name: user.name })}</option>
                   {user.familyProfiles && user.familyProfiles.map(member => (
-                    <option key={member._id} value={member.name}>{member.name} ({member.relationship})</option>
+                    <option key={member._id} value={member.name}>{member.name} ({t(`rel_${member.relationship.toLowerCase()}`, { defaultValue: member.relationship })})</option>
                   ))}
                   <option value="other">{t('someone_else')}</option>
                 </select>

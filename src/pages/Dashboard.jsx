@@ -364,7 +364,7 @@ const Dashboard = () => {
                         <div key={member._id} className="card-light" style={{ padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                           <div>
                             <div style={{ fontWeight: '700', fontSize: '16px' }}>{member.name}</div>
-                            <div style={{ fontSize: '13px', color: 'var(--color-orange)', fontWeight: '600' }}>{member.relationship}</div>
+                            <div style={{ fontSize: '13px', color: 'var(--color-orange)', fontWeight: '600' }}>{t(`rel_${member.relationship.toLowerCase()}`, { defaultValue: member.relationship })}</div>
                           </div>
                            <button type="button" onClick={() => handleDeleteFamilyMember(member._id)} className="btn-danger" style={{ padding: '8px' }}>
                             <Trash2 size={16} />

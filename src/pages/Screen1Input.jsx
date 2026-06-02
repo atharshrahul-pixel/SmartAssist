@@ -451,7 +451,7 @@ const Screen1Input = () => {
                         <option value="myself">{t('myself')} ({user.name})</option>
                         {user.familyProfiles && user.familyProfiles.map((member) => (
                           <option key={member._id} value={member.name}>
-                            {member.name} ({member.relationship})
+                            {member.name} ({t(`rel_${member.relationship.toLowerCase()}`, { defaultValue: member.relationship })})
                           </option>
                         ))}
                         <option value="other">{t('someone_else')}</option>
