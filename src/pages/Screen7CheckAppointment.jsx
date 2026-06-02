@@ -11,7 +11,10 @@ const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || (window.location.hostnam
 
 const Screen7CheckAppointment = () => {
   const { t } = useTranslation();
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('receiptId') || '';
+  });
   const [bookings, setBookings] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -41,11 +44,32 @@ const Screen7CheckAppointment = () => {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const receiptId = params.get('receiptId');
-    if (receiptId) {
-      setQuery(receiptId);
-      handleSearch(receiptId);
-    }
-  }, []);
+    if (!receiptId) return;
+
+    let isMounted = true;
+    const fetchBookingOnMount = async () => {
+      setLoading(true);
+      setError('');
+      try {
+        const res = await fetch(`${BACKEND_URL}/bookings/lookup/${receiptId}`);
+        const json = await res.json();
+        if (!isMounted) return;
+        if (json.success) {
+          setBookings(json.bookings);
+        } else {
+          setError(t('no_appointments_found'));
+        }
+      } catch {
+        if (isMounted) setError(t('connection_error'));
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+    fetchBookingOnMount();
+    return () => {
+      isMounted = false;
+    };
+  }, [t]);
 
   return (
     <div className="page-transition" style={{ display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
