@@ -142,7 +142,7 @@ const getFallbackResponse = (category, userMsgs) => {
     let text = `Based on your answers, we recommend a ${category} for your symptoms.`;
     
     if (idealCategory !== category) {
-      text = `We don't have a ${idealCategory} right now, but we suggest you visit a ${category} first.`;
+      text = `We don't have a ${idealCategory} right now.`;
     } else {
       if (category === 'Physiotherapist') {
         text = 'Based on your answers, we recommend a Physiotherapist to assess and guide you.';
