@@ -75,6 +75,9 @@ const detectIdealCategory = (messages, assignedCategory) => {
   if (text.includes('diet') || text.includes('nutrition') || text.includes('weight loss')) {
     return 'Dietitian';
   }
+  if (text.includes('foot') || text.includes('heel') || text.includes('plantar') || text.includes('flat feet') || text.includes('podiatrist')) {
+    return 'Podiatrist';
+  }
   return assignedCategory;
 };
 
@@ -98,6 +101,7 @@ const detectUrgency = (messages) => {
     text.includes('fracture') ||
     text.includes('fever') ||
     text.includes('severe pain') ||
+    (text.includes('severe') && text.includes('pain')) ||
     text.includes('toothache') ||
     text.includes('sprain') ||
     text.includes('infection')
