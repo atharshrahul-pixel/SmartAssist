@@ -78,17 +78,7 @@ const Register = () => {
       <div className="container" style={{ maxWidth: '480px', paddingTop: '40px', flex: 1 }}>
         <div className="card-light" style={{ padding: '40px' }}>
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-          <div style={{
-            width: '56px',
-            height: '56px',
-            borderRadius: '50%',
-            background: 'rgba(237, 184, 32, 0.1)',
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'var(--color-accent)',
-            marginBottom: '16px'
-          }}>
+          <div className="register-avatar-icon">
             <UserPlus size={24} />
           </div>
           <h2 
