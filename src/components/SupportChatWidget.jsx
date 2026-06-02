@@ -145,17 +145,13 @@ const SupportChatWidget = () => {
             <div ref={chatEndRef} />
           </div>
 
-          {/* Quick FAQ Chips */}
-          <div style={{ padding: '8px 12px', background: '#F5F5F4', display: 'flex', gap: '6px', overflowX: 'auto', borderTop: '1px solid rgba(0,0,0,0.05)' }}>
+          {/* FAQ Quick suggestions */}
+          <div style={{ display: 'flex', gap: '8px', padding: '12px 16px', overflowX: 'auto', background: '#FAFAF9', borderTop: '1px solid rgba(0,0,0,0.06)' }}>
             {['faq_how_to_book', 'faq_about_waitlists', 'faq_consultation_modes', 'faq_contact_support'].map(key => (
               <button
                 key={key}
                 onClick={() => handleSend(key)}
-                style={{
-                  padding: '6px 12px', borderRadius: '14px', background: '#FFFFFF',
-                  border: '1.5px solid var(--color-orange)', color: 'var(--color-orange)',
-                  fontSize: '11px', fontWeight: 'bold', whiteSpace: 'nowrap', cursor: 'pointer'
-                }}
+                className="support-widget-faq-btn"
               >
                 {t(key)}
               </button>
@@ -172,10 +168,7 @@ const SupportChatWidget = () => {
               placeholder={t('ask_question')}
               value={input}
               onChange={e => setInput(e.target.value)}
-              style={{
-                flex: 1, padding: '10px 12px', borderRadius: '8px',
-                border: '1px solid rgba(0,0,0,0.1)', outline: 'none', fontSize: '13px'
-              }}
+              className="support-widget-input"
             />
             <button
               type="submit"
