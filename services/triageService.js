@@ -50,6 +50,9 @@ const parseJsonResponse = (text, allowedCategories) => {
     if (typeof parsed.confidence !== 'number' || parsed.confidence < 0 || parsed.confidence > 100) {
       parsed.confidence = 85;
     }
+    if (typeof parsed.suspectedCondition !== 'string' || !parsed.suspectedCondition.trim()) {
+      parsed.suspectedCondition = 'General Health Issue';
+    }
     const validUrgencies = ['Routine', 'Soon', 'Urgent'];
     if (!validUrgencies.includes(parsed.urgency)) {
       parsed.urgency = 'Routine';
@@ -80,6 +83,7 @@ const detectIdealCategory = (messages, assignedCategory) => {
   }
   return assignedCategory;
 };
+
 
 const detectUrgency = (messages) => {
   const text = messages.map(m => m.content).join(' ').toLowerCase();
@@ -153,6 +157,7 @@ const getFallbackResponse = (category, userMsgs) => {
     
     return {
       type: 'recommendation',
+      suspectedCondition: `${idealCategory} Consultation`,
       specialistCategory: category,
       idealCategory: idealCategory,
       confidence,
@@ -292,11 +297,16 @@ const getTriageResponse = async ({ name, messages, forceFallback = false }) => {
   }).join('\n');
 
   const systemInstructions = `You are a conversational AI triage nurse assistant (not a real doctor).
-Your goal is to ask 2-3 clarifying questions to understand the patient's symptoms, and then recommend the most relevant specialist.
+Your goal is to ask 2-3 clarifying questions to understand the patient's symptoms, infer their likely condition, determine the ideal specialist category downstream of that condition, and map it to a supported specialist.
 The patient's name is "${name}". Address them by name when appropriate.
 
 Supported specialists on our platform:
 ${supportedSpecialistsText}
+
+CONDITION PREDICTION RULE:
+You MUST infer the most likely condition (e.g., Plantar Fasciitis, Tension Headache, Tooth Decay, Achilles Tendinopathy, etc.) based on the symptoms and patterns.
+Then, determine the ideal specialist category downstream of that condition (e.g., Podiatrist, Orthopedist, Cardiologist, Dentist, Neurologist, etc.).
+Finally, if the ideal category is not directly supported on our platform, map it to the most clinically relevant supported category (specialistCategory).
 
 EMERGENCY RULE:
 If you evaluate the patient's symptoms as "Urgent" (red flags like chest pain, severe shortness of breath, sudden numbness, severe head injury, heavy bleeding), you MUST set "specialistCategory" to "Emergency Services", "idealCategory" to "Emergency Services", and "urgency" to "Urgent". Your explanation text must advise the patient to seek immediate emergency care or call emergency services.
@@ -304,6 +314,7 @@ If you evaluate the patient's symptoms as "Urgent" (red flags like chest pain, s
 CRITICAL MAPPING RULE:
 If the symptoms are NOT urgent, but the patient needs a specialist that is NOT directly available on our platform (e.g., Orthopedist, Cardiologist, Dermatologist, Podiatrist, Neurologist, etc.), you MUST dynamically determine the most appropriate alternative from the supported categories listed above based on the following clinical relevance guidelines:
 - Musculoskeletal, joint, bone, and physical mobility needs (like Orthopedics, Chiropractic, sprains) must map to Physiotherapist.
+- Foot, ankle, heel, flat feet, and plantar pain or conditions (like Podiatry) must map to Physiotherapist (with "idealCategory" as "Podiatrist").
 - Weight management, nutrition, fitness, and diet needs (like Dietitians) must map to Gym Trainer.
 - Cosmetic, hair, scalp, and beauty needs (like minor skin/hair care) must map to Salon Specialist.
 - Systemic medical issues, infections, fevers, and internal medicine concerns must map to the closest logical base specialist (or suggest seeing a physician in the explanation).
@@ -333,8 +344,9 @@ Choose one of the two formats:
 2. If making a recommendation:
 {
   "type": "recommendation",
+  "suspectedCondition": "Likely condition inferred (e.g., Plantar Fasciitis, Tension Headache, etc.)",
   "specialistCategory": "One of: ${allAvailableCategories.join(', ')}",
-  "idealCategory": "The ideal specialist they need (e.g. Orthopedist, Cardiologist, Dentist, Emergency Services, etc.)",
+  "idealCategory": "The ideal specialist downstream of condition (e.g. Podiatrist, Orthopedist, Cardiologist, Dentist, Emergency Services, etc.)",
   "confidence": 85, // integer percentage score representing match confidence from 50 to 99
   "urgency": "Routine", // exactly one of: Routine, Soon, Urgent
   "text": "Explanation of the recommendation, including the alternative specialist mapping disclaimer if applicable."
