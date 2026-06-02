@@ -239,6 +239,7 @@ const Screen1Input = () => {
 
   const handleResetChat = () => {
     setChatInput('');
+    setTriageError('');
     setChatHistory([
       {
         role: 'assistant',
@@ -252,6 +253,7 @@ const Screen1Input = () => {
     const messageText = chatInput.trim();
     if (!messageText || messageText.length > 500 || loading || userTurnCount >= 3) return;
 
+    setTriageError('');
     const updatedHistory = [...chatHistory, { role: 'user', content: messageText }];
     setChatHistory(updatedHistory);
     setChatInput('');
