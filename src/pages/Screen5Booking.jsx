@@ -49,22 +49,27 @@ const Screen5Booking = () => {
   }, [state.finalSpecialist, navigate]);
 
   useEffect(() => {
-    if (selectedDate && state.finalSpecialist) {
-      fetchOccupiedSlots();
-    }
-  }, [selectedDate, state.finalSpecialist]);
+    if (!selectedDate || !state.finalSpecialist) return;
 
-  const fetchOccupiedSlots = async () => {
-    try {
-      const res = await fetch(`${BACKEND_URL}/bookings/occupied?specialistId=${state.finalSpecialist.id}&bookingDate=${selectedDate}`);
-      const json = await res.json();
-      if (json.success) {
-        setOccupiedSlots(json.slots);
+    let isMounted = true;
+    const fetchOccupiedSlots = async () => {
+      try {
+        const res = await fetch(`${BACKEND_URL}/bookings/occupied?specialistId=${state.finalSpecialist.id}&bookingDate=${selectedDate}`);
+        const json = await res.json();
+        if (!isMounted) return;
+        if (json.success) {
+          setOccupiedSlots(json.slots);
+        }
+      } catch (err) {
+        console.error(err);
       }
-    } catch (err) {
-      console.error(err);
-    }
-  };
+    };
+
+    fetchOccupiedSlots();
+    return () => {
+      isMounted = false;
+    };
+  }, [selectedDate, state.finalSpecialist]);
 
   const handleConfirm = async () => {
     setLoading(true);
