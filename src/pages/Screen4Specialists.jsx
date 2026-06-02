@@ -130,14 +130,14 @@ const Screen4Specialists = () => {
                     <div>
                       <h3 style={{ fontSize: '22px', fontWeight: '800', marginBottom: '4px' }}>{specialist.name}</h3>
                       <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                        <span className="pill-tag" style={{ fontSize: '10px' }}>{t(`category_${specialist.category || specialist.specialization}`, { defaultValue: specialist.category || specialist.specialization })}</span>
+                        <span className="pill-tag">{t(`category_${specialist.category || specialist.specialization}`, { defaultValue: specialist.category || specialist.specialization })}</span>
                         <span className="experience-tag">{specialist.experience}</span>
                       </div>
                     </div>
                     <div className="rating-badge">
                       <Star size={14} fill="currentColor" />
                       {specialist.rating}
-                      <span style={{ fontWeight: '400', opacity: 0.6, fontSize: '11px' }}>({specialist.reviews})</span>
+                      <span style={{ fontWeight: '400', opacity: 0.6, fontSize: '12px' }}>({specialist.reviews})</span>
                     </div>
                   </div>
 
