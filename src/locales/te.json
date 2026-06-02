@@ -70,5 +70,19 @@
   "waitlist_notifications": "వెయిట్‌లిస్ట్ నోటిఫికేషన్‌లు",
   "claim_slot": "స్లాట్‌ను క్లెయిమ్ చేయండి",
   "copyright": "© 2026 స్మార్ట్ అసిస్ట్ హెల్త్ AI. అన్ని హక్కులు రిజర్వ్ చేయబడ్డాయి.",
-  "error_patient_name_short": "దయచేసి రోగి పేరును నమోదు చేయండి."
+  "error_patient_name_short": "దయచేసి రోగి పేరును నమోదు చేయండి.",
+  "step_title": "దశ {{current}} / {{total}}: {{name}}",
+  "step_1_name": "లక్షణాల అంచనా",
+  "step_2_name": "AI సిఫార్సు",
+  "step_3_name": "అభిప్రాయం",
+  "step_4_name": "వైద్యుడిని ఎంచుకోండి",
+  "step_5_name": "సమయం షెడ్యూల్ చేయండి",
+  "step_6_name": "ధృవీకరణ",
+  "step_1_account": "రిజిస్ట్రేషన్",
+  "step_2_account": "ధృవీకరణ",
+  "account_complete_title": "ఖాతా సెటప్ పూర్తయింది",
+  "step_1_lookup": "వివరాల నమోదు",
+  "step_2_lookup": "టికెట్ వివరాలు",
+  "lookup_complete_title": "వివరాలు కనుగొనబడ్డాయి",
+  "booking_complete_title": "బుకింగ్ పూర్తయింది"
 }

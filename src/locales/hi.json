@@ -52,5 +52,19 @@
   "tooltip_patient_name": "मरीज का पूरा कानूनी नाम दर्ज करें।",
   "tooltip_your_name": "कृपया अपना पूरा नाम दर्ज करें।",
   "tooltip_email": "आपके ईमेल का उपयोग सूचनाओं के लिए किया जाता है।",
-  "copyright": "© 2026 स्मार्टअसिस्ट हेल्थ एआई। सर्वाधिकार सुरक्षित।"
+  "copyright": "© 2026 स्मार्टअसिस्ट हेल्थ एआई। सर्वाधिकार सुरक्षित।",
+  "step_title": "चरण {{current}} / {{total}}: {{name}}",
+  "step_1_name": "लक्षण मूल्यांकन",
+  "step_2_name": "एआई सिफारिश",
+  "step_3_name": "प्रतिक्रिया",
+  "step_4_name": "डॉक्टर चुनें",
+  "step_5_name": "समय निर्धारित करें",
+  "step_6_name": "पुष्टिकरण",
+  "step_1_account": "पंजीकरण",
+  "step_2_account": "सत्यापन",
+  "account_complete_title": "खाता तैयार है",
+  "step_1_lookup": "विवरण प्रविष्टि",
+  "step_2_lookup": "टिकट विवरण",
+  "lookup_complete_title": "विवरण मिल गया",
+  "booking_complete_title": "बुकिंग पूरी हुई"
 }

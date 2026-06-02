@@ -10,5 +10,19 @@
   "logout": "ലോഗ് ഔട്ട്",
   "specialist": "സ്പെഷ്യലിസ്റ്റ്",
   "appointments": "അപ്പോയിന്റ്മെന്റുകൾ",
-  "language": "ഭാഷ"
+  "language": "ഭാഷ",
+  "step_title": "ഘട്ടം {{current}} / {{total}}: {{name}}",
+  "step_1_name": "ലക്ഷണ പരിശോധന",
+  "step_2_name": "AI നിർദ്ദേശം",
+  "step_3_name": "അഭിപ്രായം",
+  "step_4_name": "ഡോക്ടറെ തിരഞ്ഞെടുക്കുക",
+  "step_5_name": "സമയം നിശ്ചയിക്കുക",
+  "step_6_name": "സ്ഥിരീകരണം",
+  "step_1_account": "രജിസ്ട്രേഷൻ",
+  "step_2_account": "പരിശോധന",
+  "account_complete_title": "അക്കൗണ്ട് സജ്ജീകരിച്ചു",
+  "step_1_lookup": "വിവരങ്ങൾ നൽകുക",
+  "step_2_lookup": "ടിക്കറ്റ് വിവരങ്ങൾ",
+  "lookup_complete_title": "വിവരങ്ങൾ ലഭിച്ചു",
+  "booking_complete_title": "ബുക്കിംഗ് പൂർത്തിയായി"
 }

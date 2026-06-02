@@ -10,5 +10,19 @@
   "logout": "ಲಾಗ್ ಔಟ್",
   "specialist": "ತಜ್ಞರು",
   "appointments": "ಅಪಾಯಿಂಟ್ಮೆಂಟ್ಗಳು",
-  "language": "ಭಾಷೆ"
+  "language": "ಭಾಷೆ",
+  "step_title": "ಹಂತ {{current}} / {{total}}: {{name}}",
+  "step_1_name": "ಲಕ್ಷಣಗಳ ಮೌಲ್ಯಮಾಪನ",
+  "step_2_name": "AI ಶಿಫಾರಸು",
+  "step_3_name": "ಪ್ರತಿಕ್ರಿಯೆ",
+  "step_4_name": "ವೈದ್ಯರನ್ನು ಆಯ್ಕೆಮಾಡಿ",
+  "step_5_name": "ಸಮಯ ನಿಗದಿಪಡಿಸಿ",
+  "step_6_name": "ದೃಢೀಕರಣ",
+  "step_1_account": "ನೋಂದಣಿ",
+  "step_2_account": "ಪರಿಶೀಲನೆ",
+  "account_complete_title": "ಖಾತೆ ಸಿದ್ಧವಾಗಿದೆ",
+  "step_1_lookup": "ವಿವರಗಳ ನಮೂದು",
+  "step_2_lookup": "ಟಿಕೆಟ್ ವಿವರಗಳು",
+  "lookup_complete_title": "ವಿವರಗಳು ದೊರೆತಿವೆ",
+  "booking_complete_title": "ಬುಕಿಂಗ್ ಪೂರ್ಣಗೊಂಡಿದೆ"
 }

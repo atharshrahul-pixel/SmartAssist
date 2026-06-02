@@ -182,5 +182,19 @@
   "symptom_level_2": "Worse",
   "symptom_level_3": "Same",
   "symptom_level_4": "Better",
-  "symptom_level_5": "Much Better"
+  "symptom_level_5": "Much Better",
+  "step_title": "Step {{current}} of {{total}}: {{name}}",
+  "step_1_name": "Symptom Assessment",
+  "step_2_name": "AI Recommendation",
+  "step_3_name": "Feedback",
+  "step_4_name": "Choose Doctor",
+  "step_5_name": "Schedule Time",
+  "step_6_name": "Confirmation",
+  "step_1_account": "Registration",
+  "step_2_account": "Verification",
+  "account_complete_title": "Account Set Up",
+  "step_1_lookup": "Details Entry",
+  "step_2_lookup": "Ticket Details",
+  "lookup_complete_title": "Details Found",
+  "booking_complete_title": "Booking Complete"
 }
