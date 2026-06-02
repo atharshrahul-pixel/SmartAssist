@@ -3,9 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ShieldCheck, Calendar, Mail, Clock, Trash2, Award, Shield, MapPin, X } from 'lucide-react';
 
-const BACKEND_URL = window.location.hostname === 'localhost'
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || (window.location.hostname === 'localhost'
   ? 'http://localhost:5000/api'
-  : 'https://akeno7594-internship-project-backend.hf.space/api';
+  : 'https://p01--smart-assist-backend--qnbs82bxhg66.code.run/api');
 
 const Admin = () => {
   const { t } = useTranslation();

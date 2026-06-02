@@ -5,9 +5,9 @@ import Stepper from '../components/Stepper';
 import HelpTooltip from '../components/HelpTooltip';
 import { Search, Calendar, Clock, User, Mail } from 'lucide-react';
 
-const BACKEND_URL = window.location.hostname === 'localhost'
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || (window.location.hostname === 'localhost'
   ? 'http://localhost:5000/api'
-  : 'https://akeno7594-internship-project-backend.hf.space/api';
+  : 'https://p01--smart-assist-backend--qnbs82bxhg66.code.run/api');
 
 const Screen7CheckAppointment = () => {
   const { t } = useTranslation();
