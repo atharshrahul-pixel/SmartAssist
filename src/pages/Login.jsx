@@ -63,7 +63,7 @@ const Login = () => {
       } else {
         setError(translateError(json.message || 'Invalid email or password.'));
       }
-    } catch (err) {
+    } catch {
       setError(translateError('Connection failed. Please try again.'));
     } finally {
       setLoading(false);

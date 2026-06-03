@@ -14,7 +14,6 @@ const TriageChat = ({
   triageError,
   setTriageError,
   userTurnCount,
-  resolvedName,
   chatBottomRef,
   onResetChat,
   onSendMessage,

@@ -1,5 +1,4 @@
 import { useReducer } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ShieldCheck, Calendar, Mail, Clock, Trash2, Award, Shield, MapPin, X } from 'lucide-react';
 
@@ -481,7 +480,6 @@ const SpecialistDetailsModal = ({ s, onClose, onApprove, onReject, t }) => {
 
 const Admin = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
 
   const [state, dispatch] = useReducer(adminReducer, initialState);
 
@@ -525,7 +523,7 @@ const Admin = () => {
       } else {
         alert('Failed to delete appointment');
       }
-    } catch (err) {
+    } catch {
       alert('Failed to delete appointment');
     }
   };

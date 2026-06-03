@@ -1,11 +1,10 @@
-import { useState, useEffect, use, useCallback } from 'react';
+import { useState, useEffect, useCallback, useContext } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { AppContext } from '../context/AppContext';
-import HelpTooltip from '../components/HelpTooltip';
 import Stepper from '../components/Stepper';
 import { 
-  Calendar, Clock, User, Award, Shield, FileText, Camera, 
+  Calendar, Clock, User, Camera, 
   AlertCircle, DollarSign, Settings, LogOut, CheckCircle, Eye, Plus, X 
 } from 'lucide-react';
 
@@ -15,13 +14,14 @@ const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || (window.location.hostnam
 
 const SpecialistDashboard = () => {
   const { t } = useTranslation();
-  const { token, logoutUser } = use(AppContext);
+  const { token, logoutUser } = useContext(AppContext);
   const navigate = useNavigate();
   const location = useLocation();
   const infoMessage = location.state?.infoMessage;
 
   const [specialist, setSpecialist] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState('');
   
   // Dashboard navigation
   const [activeTab, setActiveTab] = useState('appointments');
@@ -29,6 +29,7 @@ const SpecialistDashboard = () => {
   // Appointments state
   const [appointments, setAppointments] = useState([]);
   const [activeSummary, setActiveSummary] = useState(null);
+  const [summaryLoading, setSummaryLoading] = useState(false);
 
   // Earnings state
   const [earnings, setEarnings] = useState({ totalEarnings: 0, earningsList: [] });

@@ -5,8 +5,8 @@ import { AppContext } from '../context/AppContext';
 import HelpTooltip from '../components/HelpTooltip';
 import Stepper from '../components/Stepper';
 import { 
-  Calendar, Clock, User, Heart, Star, Users, List, 
-  Trash2, Plus, Bell, LogOut, CheckCircle, Award
+  Calendar, Clock, Star, Users, 
+  Trash2, Plus, Bell, LogOut
 } from 'lucide-react';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || (window.location.hostname === 'localhost'

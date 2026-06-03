@@ -119,14 +119,10 @@ export function useTriage(appContextState, updateState, user) {
   const [triageState, dispatch] = useReducer(triageReducer, initialTriageState);
 
   const {
-    triageStarted,
     chatHistory,
     chatInput,
     loading,
-    triageError,
     recording,
-    transcribing,
-    micError,
     recordingSeconds,
   } = triageState;
 

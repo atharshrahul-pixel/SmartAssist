@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Screen1Input from './pages/Screen1Input';
@@ -85,7 +85,7 @@ function App() {
     loginUser,
     logoutUser,
     refreshUser
-  }), [state, bookings, user, token]);
+  }), [state, updateState, bookings, addBooking, user, token, loginUser, logoutUser, refreshUser]);
 
   return (
     <AppContext.Provider value={contextValue}>

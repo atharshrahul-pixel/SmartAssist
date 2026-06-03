@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { HelpCircle, MessageSquare, Send, X, Phone, Mail } from 'lucide-react';
+import { MessageSquare, Send, X } from 'lucide-react';
 
 const SupportChatWidget = () => {
   const { t } = useTranslation();
@@ -32,7 +32,8 @@ const SupportChatWidget = () => {
     if (!text.trim()) return;
 
     // Add user message
-    setMessages(prev => [...prev, { role: 'user', content: text }]);
+    const displayMessage = text.startsWith('faq_') ? t(text) : text;
+    setMessages(prev => [...prev, { role: 'user', content: displayMessage }]);
     setInput('');
     setIsTyping(true);
 
