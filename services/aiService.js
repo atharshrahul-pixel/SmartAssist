@@ -189,6 +189,8 @@ const getAiRecommendation = async ({ problemDescription }) => {
 
 let daemonProcess = null;
 let daemonReady = false;
+let restartCount = 0;
+const MAX_RESTARTS = 3;
 const queue = [];
 let processing = false;
 
@@ -215,6 +217,7 @@ const startDaemon = () => {
       if (trimmed === 'READY') {
         console.log('Whisper daemon is READY.');
         daemonReady = true;
+        restartCount = 0;
         processQueue();
       } else if (trimmed.startsWith('INIT_ERROR:')) {
         console.error('Whisper daemon initialization error:', trimmed);
@@ -240,10 +243,7 @@ const startDaemon = () => {
   });
 
   daemonProcess.stderr.on('data', (data) => {
-    const msg = data.toString().trim();
-    if (msg.toLowerCase().includes('error')) {
-      console.error(`Whisper daemon stderr: ${msg}`);
-    }
+    console.error(`Whisper daemon stderr: ${data.toString().trim()}`);
   });
 
   daemonProcess.on('error', (err) => {
@@ -254,7 +254,14 @@ const startDaemon = () => {
   daemonProcess.on('exit', (code) => {
     console.warn(`Whisper daemon exited with code ${code}`);
     cleanupDaemon();
-    setTimeout(startDaemon, 5000);
+    
+    restartCount += 1;
+    if (restartCount <= MAX_RESTARTS) {
+      console.log(`Re-starting Whisper daemon (attempt ${restartCount}/${MAX_RESTARTS})...`);
+      setTimeout(startDaemon, 5000);
+    } else {
+      console.error('Whisper daemon crashed too many times. Disabling local transcription restarts. Will use external API fallback.');
+    }
   });
 };
 
@@ -290,16 +297,97 @@ process.on('SIGTERM', () => {
   process.exit();
 });
 
-const transcribeAudioLocal = (filePath) => {
-  return new Promise((resolve, reject) => {
-    queue.push({ filePath, resolve, reject });
-    processQueue();
-  });
+const transcribeAudioExternal = async (filePath) => {
+  if (env.groqApiKey) {
+    try {
+      console.log('Attempting transcription via Groq Whisper API...');
+      const formData = new FormData();
+      const fs = require('fs');
+      const blob = new Blob([fs.readFileSync(filePath)], { type: 'audio/wav' });
+      formData.append('file', blob, 'audio.wav');
+      formData.append('model', 'whisper-large-v3');
+
+      const response = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${env.groqApiKey}`,
+        },
+        body: formData,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.text) {
+          console.log('Groq Whisper transcription success.');
+          return data.text.trim();
+        }
+      }
+      console.warn('Groq Whisper API returned status:', response.status);
+    } catch (err) {
+      console.error('Groq Whisper API error:', err);
+    }
+  }
+
+  if (env.openAiApiKey) {
+    try {
+      console.log('Attempting transcription via OpenAI Whisper API...');
+      const formData = new FormData();
+      const fs = require('fs');
+      const blob = new Blob([fs.readFileSync(filePath)], { type: 'audio/wav' });
+      formData.append('file', blob, 'audio.wav');
+      formData.append('model', 'whisper-1');
+
+      const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${env.openAiApiKey}`,
+        },
+        body: formData,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.text) {
+          console.log('OpenAI Whisper transcription success.');
+          return data.text.trim();
+        }
+      }
+      console.warn('OpenAI Whisper API returned status:', response.status);
+    } catch (err) {
+      console.error('OpenAI Whisper API error:', err);
+    }
+  }
+
+  throw new Error('External transcription API keys are missing or requests failed.');
+};
+
+const transcribeAudioResilient = async (filePath) => {
+  if (!daemonReady) {
+    try {
+      return await transcribeAudioExternal(filePath);
+    } catch (err) {
+      console.warn('External fallback failed, trying local queue:', err.message);
+    }
+  }
+
+  try {
+    return await new Promise((resolve, reject) => {
+      queue.push({ filePath, resolve, reject });
+      processQueue();
+    });
+  } catch (localErr) {
+    console.warn('Local transcription failed, trying external fallback:', localErr.message);
+    try {
+      return await transcribeAudioExternal(filePath);
+    } catch (extErr) {
+      throw new Error(`Transcription failed: Local (${localErr.message}), External (${extErr.message})`);
+    }
+  }
 };
 
 module.exports = {
   getAiRecommendation,
   fetchWithRetry,
   fetchWithTimeout,
-  transcribeAudioLocal,
+  transcribeAudioLocal: transcribeAudioResilient,
 };

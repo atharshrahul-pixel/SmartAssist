@@ -7,6 +7,7 @@ RUN apt-get update && apt-get install -y \
     python3-pip \
     python3-venv \
     ffmpeg \
+    libgomp1 \
     && rm -rf /var/lib/apt/lists/*
 
 # Create and change to the app directory
