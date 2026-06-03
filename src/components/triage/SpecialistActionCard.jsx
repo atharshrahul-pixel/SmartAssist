@@ -7,6 +7,7 @@ const SpecialistActionCard = ({
   handleAccept,
   handleReject,
   onNavigate,
+  handleAcceptFallback,
 }) => {
   const u = state.urgency;
   const config = {
@@ -38,6 +39,64 @@ const SpecialistActionCard = ({
     textColor: '#34d399',
     icon: <CheckCircle size={12} color="#34d399" style={{ marginRight: '4px' }} />
   };
+
+  const isNotAvailable = state.recommendedSpecialist !== 'Emergency Services' && 
+    (!hasSpecialists || (state.idealCategory && state.idealCategory.toLowerCase() !== state.recommendedSpecialist.toLowerCase()));
+
+  if (isNotAvailable) {
+    const unavailableSpecialistName = state.idealCategory || state.recommendedSpecialist;
+    return (
+      <div className="card-dark card-dark-container">
+        <div className="specialist-icon-container">
+          {getSpecialistIcon(unavailableSpecialistName)}
+        </div>
+        
+        <div className="specialist-pill-row">
+          <span className="pill-tag recommended-pill">
+            NOT AVAILABLE
+          </span>
+        </div>
+        
+        <h2 style={{ fontSize: '32px', fontWeight: '800', color: 'var(--color-white)', marginBottom: '24px' }}>
+          {unavailableSpecialistName}
+        </h2>
+
+        <div style={{
+          textAlign: 'left',
+          fontSize: '15px',
+          lineHeight: '1.6',
+          color: 'rgba(255, 255, 255, 0.9)',
+          marginBottom: '40px'
+        }}>
+          <p style={{ margin: '0 0 12px 0', fontSize: '18px', fontWeight: '700' }}>
+            We don't have a {unavailableSpecialistName} right now.
+          </p>
+          <p style={{ margin: 0, opacity: 0.8 }}>
+            You can browse all available specialists and book whoever fits best.
+          </p>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <button 
+            type="button"
+            className="btn-primary w-full" 
+            onClick={handleAcceptFallback || handleAccept} 
+            style={{ padding: '16px', fontWeight: '700' }}
+          >
+            BROWSE ALL SPECIALISTS →
+          </button>
+          <button 
+            type="button"
+            className="btn-danger w-full" 
+            onClick={() => onNavigate('/')} 
+            style={{ background: 'transparent' }}
+          >
+            Go Back to Homepage
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="card-dark card-dark-container">
@@ -78,24 +137,6 @@ const SpecialistActionCard = ({
         </div>
       )}
 
-      {state.idealCategory && state.idealCategory.toLowerCase() !== state.recommendedSpecialist.toLowerCase() && state.recommendedSpecialist !== 'Emergency Services' && (
-        <div className="unavailable-specialist-box">
-          We don't have a <strong>{state.idealCategory}</strong> right now.
-        </div>
-      )}
-
-      {!hasSpecialists && state.recommendedSpecialist !== 'Emergency Services' && (
-        <div className="unavailable-specialist-box">
-          ℹ️ <strong>Availability Note:</strong> We currently do not have any active <strong>{state.recommendedSpecialist}</strong> specialists registered in our network. You can browse other available specialists.
-        </div>
-      )}
-      
-      {!(state.idealCategory && state.idealCategory.toLowerCase() !== state.recommendedSpecialist.toLowerCase() && state.recommendedSpecialist !== 'Emergency Services') && (
-        <p style={{ fontSize: '15px', color: 'var(--color-muted)', marginBottom: '40px', lineHeight: 1.6 }}>
-          {state.recommendationExplanation}
-        </p>
-      )}
-
       {state.urgency === 'Urgent' && state.recommendedSpecialist !== 'Emergency Services' && (
         <div className="emergency-alert-box-urgent">
           <AlertTriangle size={20} color="#f87171" style={{ marginTop: '2px', flexShrink: 0 }} />
@@ -107,6 +148,10 @@ const SpecialistActionCard = ({
           </div>
         </div>
       )}
+
+      <p style={{ fontSize: '15px', color: 'var(--color-muted)', marginBottom: '40px', lineHeight: 1.6 }}>
+        {state.recommendationExplanation}
+      </p>
 
       {state.recommendedSpecialist === 'Emergency Services' ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -142,25 +187,6 @@ const SpecialistActionCard = ({
           >
             📍 Find Nearest Emergency Room (ER)
           </a>
-          <button 
-            type="button"
-            className="btn-danger w-full" 
-            onClick={() => onNavigate('/')} 
-            style={{ background: 'transparent' }}
-          >
-            Go Back to Homepage
-          </button>
-        </div>
-      ) : (!hasSpecialists) ? (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <button 
-            type="button"
-            className="btn-primary w-full" 
-            onClick={handleAccept} 
-            style={{ padding: '16px' }}
-          >
-            Browse Available Specialists
-          </button>
           <button 
             type="button"
             className="btn-danger w-full" 
