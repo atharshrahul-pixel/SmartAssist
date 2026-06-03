@@ -2,7 +2,10 @@ import { useEffect, useState, use, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppContext } from '../context/AppContext';
 import Stepper from '../components/Stepper';
-import { Activity, Scissors, Dumbbell, Stethoscope, Search, BarChart3, Info, AlertTriangle, Clock, CheckCircle } from 'lucide-react';
+import ExpiredSession from '../components/triage/ExpiredSession';
+import AIReportCard from '../components/triage/AIReportCard';
+import SpecialistActionCard from '../components/triage/SpecialistActionCard';
+import { Activity, Scissors, Dumbbell, Stethoscope, AlertTriangle, Info } from 'lucide-react';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || (window.location.hostname === 'localhost'
   ? 'http://localhost:5000/api'
@@ -72,6 +75,11 @@ const Screen2Recommendation = () => {
     navigate('/specialists');
   };
 
+  const handleAcceptFallback = () => {
+    updateState({ accepted: true, finalSpecialist: null, recommendedSpecialist: 'All' });
+    navigate('/specialists');
+  };
+
   const handleReject = () => {
     updateState({ accepted: false });
     navigate('/rejection');
@@ -79,42 +87,36 @@ const Screen2Recommendation = () => {
 
   if (hasExpired) {
     return (
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: '80vh',
-        padding: '24px',
-        background: 'var(--color-bg)',
-      }}>
-        <div className="card-light" style={{
-          maxWidth: '480px',
-          textAlign: 'center',
-          padding: '48px 32px',
-          borderRadius: '16px',
-          boxShadow: '0 20px 40px rgba(0,0,0,0.05)',
-          border: '1px solid rgba(237,184,32,0.1)'
-        }}>
-          <div style={{
-            width: '64px',
-            height: '64px',
-            borderRadius: '50%',
-            background: 'rgba(237,184,32,0.1)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            margin: '0 auto 24px'
-          }}>
-            <Info size={32} color="var(--color-orange)" />
-          </div>
-          <h2 style={{ fontSize: '24px', fontWeight: '800', marginBottom: '12px' }}>Triage Session Expired</h2>
-          <p style={{ color: 'var(--color-dark)', opacity: 0.7, marginBottom: '32px', lineHeight: '1.6' }}>
-            To protect your privacy and ensure clinical accuracy, inactive triage sessions are automatically cleared. Please restart the assessment.
-          </p>
-          <button type="button" className="btn-primary w-full" onClick={() => navigate('/')}>
-            Restart Assessment
-          </button>
-        </div>
+      <div className="page-transition" style={{ minHeight: '100%', display: 'flex', flexDirection: 'column' }}>
+        <style>{`
+          .expired-session-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+            padding: 24px;
+            background: var(--color-bg);
+          }
+          .expired-session-card {
+            max-width: 480px;
+            text-align: center;
+            padding: 48px 32px;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+            border: 1px solid rgba(237,184,32,0.1);
+          }
+          .expired-icon-wrapper {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: rgba(237,184,32,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+          }
+        `}</style>
+        <ExpiredSession onRestart={() => navigate('/')} />
       </div>
     );
   }
@@ -123,6 +125,142 @@ const Screen2Recommendation = () => {
     <div className="page-transition" style={{ minHeight: '100%', display: 'flex', flexDirection: 'column' }}>
       <Stepper currentStep={2} />
       
+      <style>{`
+        .report-card-header {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          margin-bottom: 20px;
+        }
+        .suspected-condition-box {
+          margin-bottom: 24px;
+          padding: 14px 16px;
+          background: var(--color-cream);
+          border-radius: 12px;
+          border-left: 4px solid var(--color-orange);
+          box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        }
+        .suspected-condition-label {
+          font-size: 11px;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          opacity: 0.6;
+          font-weight: 700;
+          display: block;
+          margin-bottom: 4px;
+          color: var(--color-dark);
+        }
+        .suspected-condition-value {
+          font-size: 16px;
+          color: var(--color-dark);
+          display: block;
+        }
+        .confidence-label {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin-bottom: 12px;
+          font-size: 14px;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+        }
+        .confidence-bar-bg {
+          background: var(--color-cream);
+          height: 12px;
+          border-radius: 6px;
+          overflow: hidden;
+          position: relative;
+        }
+        .confidence-bar-fill {
+          background: var(--color-orange);
+          height: 100%;
+          transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .confidence-percent {
+          text-align: right;
+          font-size: 13px;
+          font-weight: 700;
+          margin-top: 6px;
+          color: var(--color-orange);
+        }
+        .keywords-label {
+          font-size: 14px;
+          font-weight: 600;
+          margin-bottom: 12px;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+        }
+        .keywords-fallback {
+          font-size: 14px;
+          color: var(--color-dark);
+          opacity: 0.5;
+        }
+        
+        .card-dark-container {
+          padding: 40px;
+          text-align: center;
+        }
+        .specialist-icon-container {
+          width: 100px;
+          height: 100px;
+          border-radius: 50%;
+          background-color: rgba(237,184,32,0.1);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin: 0 auto 24px;
+          border: 1px solid rgba(237,184,32,0.2);
+        }
+        .specialist-pill-row {
+          display: flex;
+          justify-content: center;
+          gap: 8px;
+          flex-wrap: wrap;
+          margin-bottom: 16px;
+        }
+        .recommended-pill {
+          background: rgba(255,255,255,0.1);
+          color: var(--color-white);
+          margin: 0;
+        }
+        .emergency-alert-box {
+          background: rgba(239, 68, 68, 0.15);
+          border: 2px solid #ef4444;
+          border-radius: 12px;
+          padding: 16px;
+          margin-bottom: 24px;
+          text-align: left;
+          font-size: 14.5px;
+          line-height: 1.6;
+          color: #fca5a5;
+          animation: fadeInSlideUp 0.3s ease;
+        }
+        .unavailable-specialist-box {
+          background: rgba(237, 184, 32, 0.1);
+          border: 1.5px solid var(--color-orange);
+          border-radius: 12px;
+          padding: 14px 16px;
+          margin-bottom: 24px;
+          text-align: left;
+          font-size: 13px;
+          line-height: 1.5;
+          color: rgba(255, 255, 255, 0.9);
+        }
+        .emergency-alert-box-urgent {
+          background: rgba(239, 68, 68, 0.1);
+          border: 1.5px solid #ef4444;
+          border-radius: 12px;
+          padding: 16px;
+          margin-bottom: 24px;
+          text-align: left;
+          display: flex;
+          align-items: flex-start;
+          gap: 12px;
+          animation: fadeInSlideUp 0.3s ease;
+        }
+      `}</style>
+
       <div className="container" style={{ flex: 1 }}>
         <div className="text-center mb-xl">
           <span className="pill-tag mb-lg">ANALYSIS COMPLETE</span>
@@ -136,71 +274,12 @@ const Screen2Recommendation = () => {
  
         <div className="split-layout">
           <div className="split-content">
-            <div className="analysis-card mb-lg">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
-                <Search size={20} color="var(--color-orange)" />
-                <h3 style={{ fontSize: '18px', fontWeight: '700' }}>AI Analysis Report</h3>
-              </div>
-              
-              <p style={{ fontSize: '15px', lineHeight: '1.6', color: 'var(--color-dark)', opacity: 0.8, marginBottom: '24px' }}>
-                Our triage engine analyzed your description and detected key medical markers that strongly correlate with <strong>{state.idealCategory || state.recommendedSpecialist}</strong> expertise.
-              </p>
+            <AIReportCard
+              state={state}
+              barWidth={barWidth}
+              detectedKeywords={detectedKeywords}
+            />
 
-              {state.suspectedCondition && (
-                <div style={{
-                  marginBottom: '24px',
-                  padding: '14px 16px',
-                  background: 'var(--color-cream)',
-                  borderRadius: '12px',
-                  borderLeft: '4px solid var(--color-orange)',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.02)'
-                }}>
-                  <span style={{
-                    fontSize: '11px',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em',
-                    opacity: 0.6,
-                    fontWeight: '700',
-                    display: 'block',
-                    marginBottom: '4px',
-                    color: 'var(--color-dark)'
-                  }}>Suspected Condition</span>
-                  <strong style={{
-                    fontSize: '16px',
-                    color: 'var(--color-dark)',
-                    display: 'block'
-                  }}>{state.suspectedCondition}</strong>
-                </div>
-              )}
- 
-              <div style={{ marginBottom: '24px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', fontSize: '14px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                  <BarChart3 size={16} />
-                  Match confidence
-                </div>
-                <div style={{ background: 'var(--color-cream)', height: '12px', borderRadius: '6px', overflow: 'hidden', position: 'relative' }}>
-                  <div style={{ 
-                    background: 'var(--color-orange)', 
-                    height: '100%', 
-                    width: `${barWidth}%`,
-                    transition: 'width 1.2s cubic-bezier(0.34, 1.56, 0.64, 1)'
-                  }} />
-                </div>
-                <div style={{ textAlign: 'right', fontSize: '13px', fontWeight: '700', marginTop: '6px', color: 'var(--color-orange)' }}>
-                  {barWidth}% Match
-                </div>
-              </div>
- 
-              <div>
-                <div style={{ fontSize: '14px', fontWeight: '600', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Detected Keywords</div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-                  {detectedKeywords.length > 0 ? detectedKeywords.map(word => (
-                    <span key={word} className="tag-highlight">{word}</span>
-                  )) : <span style={{ fontSize: '14px', color: 'var(--color-dark)', opacity: 0.5 }}>Contextual markers detected</span>}
-                </div>
-              </div>
-            </div>
- 
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', padding: '0 16px' }}>
               <Info size={18} style={{ marginTop: '2px', flexShrink: 0, color: 'var(--color-orange)' }} />
               <p className="footer-text">
@@ -210,235 +289,15 @@ const Screen2Recommendation = () => {
           </div>
  
           <div className="split-form">
-            <div className="card-dark" style={{ padding: '40px', textAlign: 'center' }}>
-              <div style={{
-                width: '100px',
-                height: '100px',
-                borderRadius: '50%',
-                backgroundColor: 'rgba(237,184,32,0.1)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                margin: '0 auto 24px',
-                border: '1px solid rgba(237,184,32,0.2)'
-              }}>
-                {getSpecialistIcon(state.idealCategory || state.recommendedSpecialist)}
-              </div>
-              
-              <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '16px' }}>
-                <span className="pill-tag" style={{ background: 'rgba(255,255,255,0.1)', color: 'var(--color-white)', margin: 0 }}>
-                  RECOMMENDED
-                </span>
-                {state.urgency && (() => {
-                  const u = state.urgency;
-                  const config = {
-                    Urgent: {
-                      text: 'Urgent — consider ER',
-                      bgColor: 'rgba(239, 68, 68, 0.15)',
-                      borderColor: '#ef4444',
-                      textColor: '#f87171',
-                      icon: <AlertTriangle size={12} color="#f87171" style={{ marginRight: '4px' }} />
-                    },
-                    Soon: {
-                      text: 'Soon — within days',
-                      bgColor: 'rgba(245, 158, 11, 0.15)',
-                      borderColor: '#f59e0b',
-                      textColor: '#fbbf24',
-                      icon: <Clock size={12} color="#fbbf24" style={{ marginRight: '4px' }} />
-                    },
-                    Routine: {
-                      text: 'Routine — book anytime',
-                      bgColor: 'rgba(16, 185, 129, 0.15)',
-                      borderColor: '#10b981',
-                      textColor: '#34d399',
-                      icon: <CheckCircle size={12} color="#34d399" style={{ marginRight: '4px' }} />
-                    }
-                  }[u] || {
-                    text: 'Routine — book anytime',
-                    bgColor: 'rgba(16, 185, 129, 0.15)',
-                    borderColor: '#10b981',
-                    textColor: '#34d399',
-                    icon: <CheckCircle size={12} color="#34d399" style={{ marginRight: '4px' }} />
-                  };
-
-                  return (
-                    <span 
-                      className="pill-tag" 
-                      style={{
-                        background: config.bgColor,
-                        border: `1px solid ${config.borderColor}`,
-                        color: config.textColor,
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        margin: 0
-                      }}
-                    >
-                      {config.icon}
-                      {config.text.toUpperCase()}
-                    </span>
-                  );
-                })()}
-              </div>
-              
-              <h2 style={{ fontSize: '32px', fontWeight: '800', color: 'var(--color-white)', marginBottom: '12px' }}>
-                {state.idealCategory || state.recommendedSpecialist}
-              </h2>
-
-              {state.recommendedSpecialist === 'Emergency Services' && (
-                <div style={{
-                  background: 'rgba(239, 68, 68, 0.15)',
-                  border: '2px solid #ef4444',
-                  borderRadius: '12px',
-                  padding: '16px',
-                  marginBottom: '24px',
-                  textAlign: 'left',
-                  fontSize: '14.5px',
-                  lineHeight: '1.6',
-                  color: '#fca5a5',
-                  animation: 'fadeInSlideUp 0.3s ease'
-                }}>
-                  <AlertTriangle size={24} color="#f87171" style={{ float: 'left', marginRight: '12px', marginTop: '2px' }} />
-                  <strong>CRITICAL EMERGENCY:</strong> Your symptoms indicate a high-risk medical emergency. <strong>Please visit the nearest Emergency Room (ER) or call Emergency Services (911) immediately.</strong> Do not attempt to schedule a wellness appointment.
-                </div>
-              )}
-
-              {state.idealCategory && state.idealCategory.toLowerCase() !== state.recommendedSpecialist.toLowerCase() && state.recommendedSpecialist !== 'Emergency Services' && (
-                <div style={{
-                  background: 'rgba(237, 184, 32, 0.1)',
-                  border: '1.5px solid var(--color-orange)',
-                  borderRadius: '12px',
-                  padding: '14px 16px',
-                  marginBottom: '24px',
-                  textAlign: 'left',
-                  fontSize: '13px',
-                  lineHeight: '1.5',
-                  color: 'rgba(255, 255, 255, 0.9)',
-                }}>
-                  We don't have a <strong>{state.idealCategory}</strong> right now.
-                </div>
-              )}
-
-              {!hasSpecialists && state.recommendedSpecialist !== 'Emergency Services' && (
-                <div style={{
-                  background: 'rgba(237, 184, 32, 0.1)',
-                  border: '1.5px solid var(--color-orange)',
-                  borderRadius: '12px',
-                  padding: '14px 16px',
-                  marginBottom: '24px',
-                  textAlign: 'left',
-                  fontSize: '13px',
-                  lineHeight: '1.5',
-                  color: 'rgba(255, 255, 255, 0.9)',
-                }}>
-                  ℹ️ <strong>Availability Note:</strong> We currently do not have any active <strong>{state.recommendedSpecialist}</strong> specialists registered in our network. You can browse other available specialists.
-                </div>
-              )}
-              
-              {!(state.idealCategory && state.idealCategory.toLowerCase() !== state.recommendedSpecialist.toLowerCase() && state.recommendedSpecialist !== 'Emergency Services') && (
-                <p style={{ fontSize: '15px', color: 'var(--color-muted)', marginBottom: '40px', lineHeight: 1.6 }}>
-                  {state.recommendationExplanation}
-                </p>
-              )}
-
-              {state.urgency === 'Urgent' && state.recommendedSpecialist !== 'Emergency Services' && (
-                <div style={{
-                  background: 'rgba(239, 68, 68, 0.1)',
-                  border: '1.5px solid #ef4444',
-                  borderRadius: '12px',
-                  padding: '16px',
-                  marginBottom: '24px',
-                  textAlign: 'left',
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  gap: '12px',
-                  animation: 'fadeInSlideUp 0.3s ease'
-                }}>
-                  <AlertTriangle size={20} color="#f87171" style={{ marginTop: '2px', flexShrink: 0 }} />
-                  <div>
-                    <h4 style={{ margin: '0 0 4px 0', fontSize: '14px', fontWeight: '700', color: '#f87171' }}>Emergency Warning</h4>
-                    <p style={{ margin: 0, fontSize: '13px', lineHeight: '1.5', color: '#fca5a5' }}>
-                      Potential emergency detected. If you are experiencing chest pain, breathing difficulty, or severe symptoms, please visit the nearest Emergency Room (ER) immediately.
-                    </p>
-                  </div>
-                </div>
-              )}
- 
-              {state.recommendedSpecialist === 'Emergency Services' ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  <a 
-                    href="tel:911" 
-                    className="btn-danger w-full text-center animate-pulse" 
-                    style={{ 
-                      padding: '16px', 
-                      display: 'block', 
-                      textDecoration: 'none', 
-                      fontWeight: '800', 
-                      fontSize: '16px',
-                      backgroundColor: '#ef4444',
-                      color: 'var(--color-white)',
-                      borderRadius: 'var(--r-md)',
-                      boxShadow: '0 0 0 0 rgba(239, 68, 68, 0.7)',
-                      animation: 'pulse 1.5s infinite'
-                    }}
-                  >
-                    🚨 Call Emergency Services (911)
-                  </a>
-                  <a 
-                    href="https://www.google.com/maps/search/?api=1&query=emergency+room+near+me" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="btn-primary w-full text-center" 
-                    style={{ 
-                      padding: '16px', 
-                      display: 'block', 
-                      textDecoration: 'none', 
-                      fontWeight: '700'
-                    }}
-                  >
-                    📍 Find Nearest Emergency Room (ER)
-                  </a>
-                  <button 
-                    type="button"
-                    className="btn-danger w-full" 
-                    onClick={() => navigate('/')} 
-                    style={{ background: 'transparent' }}
-                  >
-                    Go Back to Homepage
-                  </button>
-                </div>
-              ) : (!hasSpecialists) ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  <button 
-                    type="button"
-                    className="btn-primary w-full" 
-                    onClick={() => {
-                      updateState({ accepted: true, finalSpecialist: null, recommendedSpecialist: 'All' });
-                      navigate('/specialists');
-                    }} 
-                    style={{ padding: '16px' }}
-                  >
-                    Browse Available Specialists
-                  </button>
-                  <button 
-                    type="button"
-                    className="btn-danger w-full" 
-                    onClick={() => navigate('/')} 
-                    style={{ background: 'transparent' }}
-                  >
-                    Go Back to Homepage
-                  </button>
-                </div>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  <button type="button" className="btn-primary w-full" onClick={handleAccept} style={{ padding: '16px' }}>
-                    Accept & Book Appointment
-                  </button>
-                  <button type="button" className="btn-danger w-full" onClick={handleReject} style={{ background: 'transparent' }}>
-                    Not right for me
-                  </button>
-                </div>
-              )}
-            </div>
+            <SpecialistActionCard
+              state={state}
+              hasSpecialists={hasSpecialists}
+              getSpecialistIcon={getSpecialistIcon}
+              handleAccept={handleAccept}
+              handleReject={handleReject}
+              onNavigate={navigate}
+              handleAcceptFallback={handleAcceptFallback}
+            />
           </div>
         </div>
       </div>
