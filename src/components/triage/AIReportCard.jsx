@@ -13,7 +13,12 @@ const AIReportCard = ({
       </div>
       
       <p style={{ fontSize: '15px', lineHeight: '1.6', color: 'var(--color-dark)', opacity: 0.8, marginBottom: '24px' }}>
-        Our triage engine analyzed your description and detected key medical markers that strongly correlate with <strong>{state.idealCategory || state.recommendedSpecialist}</strong> expertise.
+        Our triage engine analyzed your description and detected key medical markers that strongly correlate with{' '}
+        <strong>
+          {(state.idealCategory || state.recommendedSpecialist).toLowerCase().includes('evaluation')
+            ? (state.idealCategory || state.recommendedSpecialist)
+            : `${state.idealCategory || state.recommendedSpecialist} expertise`}
+        </strong>.
       </p>
 
       {state.suspectedCondition && (

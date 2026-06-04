@@ -53,28 +53,46 @@ const SpecialistActionCard = ({
         
         <div className="specialist-pill-row">
           <span className="pill-tag recommended-pill">
-            NOT AVAILABLE
+            RECOMMENDED
           </span>
+          {state.urgency && (
+            <span 
+              className="pill-tag" 
+              style={{
+                background: config.bgColor,
+                border: `1px solid ${config.borderColor}`,
+                color: config.textColor,
+                display: 'inline-flex',
+                alignItems: 'center',
+                margin: 0
+              }}
+            >
+              {config.icon}
+              {config.text.toUpperCase()}
+            </span>
+          )}
         </div>
         
-        <h2 style={{ fontSize: '32px', fontWeight: '800', color: 'var(--color-white)', marginBottom: '24px' }}>
-          {unavailableSpecialistName}
+        <h2 style={{ fontSize: '32px', fontWeight: '800', color: 'var(--color-white)', marginBottom: '12px' }}>
+          Specialist unavailable
         </h2>
 
-        <div style={{
-          textAlign: 'left',
-          fontSize: '15px',
-          lineHeight: '1.6',
-          color: 'rgba(255, 255, 255, 0.9)',
-          marginBottom: '40px'
+        <div className="unavailable-specialist-box" style={{
+          border: '1.5px solid var(--color-orange)',
+          borderRadius: '12px',
+          padding: '14px 16px',
+          marginBottom: '24px',
+          textAlign: 'center',
+          fontSize: '14.5px',
+          lineHeight: '1.5',
+          color: 'var(--color-white)'
         }}>
-          <p style={{ margin: '0 0 12px 0', fontSize: '18px', fontWeight: '700' }}>
-            We don't have a {unavailableSpecialistName} right now.
-          </p>
-          <p style={{ margin: 0, opacity: 0.8 }}>
-            You can browse all available specialists and book whoever fits best.
-          </p>
+          We currently don't have a specialist available for this condition.
         </div>
+
+        <p style={{ fontSize: '15px', color: 'var(--color-muted)', marginBottom: '40px', lineHeight: 1.6, textAlign: 'left' }}>
+          {state.recommendationExplanation}
+        </p>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <button 
@@ -83,15 +101,14 @@ const SpecialistActionCard = ({
             onClick={handleAcceptFallback || handleAccept} 
             style={{ padding: '16px', fontWeight: '700' }}
           >
-            BROWSE ALL SPECIALISTS →
+            BROWSE AVAILABLE SPECIALISTS
           </button>
           <button 
             type="button"
             className="btn-danger w-full" 
             onClick={() => onNavigate('/')} 
-            style={{ background: 'transparent' }}
           >
-            Go Back to Homepage
+            GO BACK TO HOMEPAGE
           </button>
         </div>
       </div>
