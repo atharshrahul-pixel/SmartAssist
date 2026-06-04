@@ -48,9 +48,11 @@ const Screen2Recommendation = () => {
 
   useEffect(() => {
     if (hasExpired) return;
+    let active = true;
     fetch(`${BACKEND_URL}/specialists`)
       .then(res => res.json())
       .then(data => {
+        if (!active) return;
         if (data.success && state.recommendedSpecialist) {
           const matching = data.specialists.filter(s => 
             (s.category || s.specialization || '').toLowerCase() === state.recommendedSpecialist.toLowerCase()
@@ -58,7 +60,12 @@ const Screen2Recommendation = () => {
           setHasSpecialists(matching.length > 0);
         }
       })
-      .catch(err => console.error("Error checking specialist availability:", err));
+      .catch(err => {
+        if (active) console.error("Error checking specialist availability:", err);
+      });
+    return () => {
+      active = false;
+    };
   }, [hasExpired, state.recommendedSpecialist]);
 
   useEffect(() => {
@@ -141,7 +148,7 @@ const Screen2Recommendation = () => {
           box-shadow: 0 2px 8px rgba(0,0,0,0.02);
         }
         .suspected-condition-label {
-          font-size: 11px;
+          font-size: 12px;
           text-transform: uppercase;
           letter-spacing: 0.05em;
           opacity: 0.6;

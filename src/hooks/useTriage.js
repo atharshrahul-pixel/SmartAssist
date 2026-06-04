@@ -139,15 +139,18 @@ export function useTriage(appContextState, updateState, user) {
   const audioChunksRef = useRef([]);
 
   useEffect(() => {
+    const activeTimerRef = timerRef;
+    const activeMediaRecorderRef = mediaRecorderRef;
+    const activeStreamRef = streamRef;
     return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
+      if (activeTimerRef.current) {
+        clearInterval(activeTimerRef.current);
       }
-      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
-        mediaRecorderRef.current.stop();
+      if (activeMediaRecorderRef.current && activeMediaRecorderRef.current.state !== 'inactive') {
+        activeMediaRecorderRef.current.stop();
       }
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach((track) => track.stop());
+      if (activeStreamRef.current) {
+        activeStreamRef.current.getTracks().forEach((track) => track.stop());
       }
     };
   }, []);

@@ -90,7 +90,7 @@ const SupportChatWidget = () => {
               const isLatest = i === messages.length - 1;
               const showChips = !isUser && isLatest && !isTyping;
               return (
-                <div key={i} className={`support-message-wrapper ${isUser ? 'user' : 'assistant'}`}>
+                <div key={`support-msg-${msg.role}-${i}`} className={`support-message-wrapper ${isUser ? 'user' : 'assistant'}`}>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxWidth: '85%' }}>
                     <div className={`support-message ${isUser ? 'support-message-user' : 'support-message-bot'}`}>
                       {msg.content}

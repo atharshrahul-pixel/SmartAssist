@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { AppContext } from '../context/AppContext';
 import Stepper from '../components/Stepper';
 import { Check, Download, RefreshCcw, Share2, Calendar, Clock, User, ShieldCheck } from 'lucide-react';
+import { renderSafeTitle } from '../utils/titleRenderer';
 
 const Screen6Confirmation = () => {
   const { t } = useTranslation();
@@ -64,10 +65,9 @@ const Screen6Confirmation = () => {
               <Check size={32} color="#059669" strokeWidth={3} />
             </div>
 
-            <h1 
-              style={{ fontSize: '64px', lineHeight: '1', marginBottom: '24px', maxWidth: '500px' }}
-              dangerouslySetInnerHTML={{ __html: t('all_set') }}
-            />
+            <h1 style={{ fontSize: '64px', lineHeight: '1', marginBottom: '24px', maxWidth: '500px' }}>
+              {renderSafeTitle(t('all_set'))}
+            </h1>
             <p style={{ fontSize: '20px', color: 'var(--color-dark)', opacity: 0.8, maxWidth: '480px', marginBottom: '48px', lineHeight: '1.5' }}>
               {t('appointment_success_desc')}
             </p>
@@ -127,7 +127,7 @@ const Screen6Confirmation = () => {
                   </div>
                   <div>
                     <h3 style={{ fontSize: '20px', fontWeight: '800', marginBottom: '4px' }}>{state.finalSpecialist.name}</h3>
-                    <span className="pill-tag" style={{ fontSize: '10px' }}>{t(`category_${state.finalSpecialist.category}`, { defaultValue: state.finalSpecialist.category })}</span>
+                    <span className="pill-tag" style={{ fontSize: '12px' }}>{t(`category_${state.finalSpecialist.category}`, { defaultValue: state.finalSpecialist.category })}</span>
                   </div>
                 </div>
 

@@ -79,10 +79,9 @@ const Login = () => {
           <div className="auth-icon-wrapper">
             <LogIn size={24} />
           </div>
-          <h2 
-            style={{ fontSize: '28px', fontWeight: '700', marginBottom: '8px' }}
-            dangerouslySetInnerHTML={{ __html: t('welcome_back') }}
-          />
+          <h2 style={{ fontSize: '28px', fontWeight: '700', marginBottom: '8px' }}>
+            {t('welcome_back')}
+          </h2>
           <p style={{ opacity: 0.6, fontSize: '14px' }}>{t('login_desc')}</p>
         </div>
 

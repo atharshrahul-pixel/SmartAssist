@@ -43,7 +43,7 @@ const TriageChat = ({
           const isUser = msg.role === 'user';
           return (
             <div
-              key={index}
+              key={`msg-${msg.role}-${index}`}
               className={`message-wrapper ${isUser ? 'user' : 'assistant'}`}
             >
               <div className={`message-bubble ${isUser ? 'user' : 'assistant'}`}>

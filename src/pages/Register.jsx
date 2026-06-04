@@ -81,10 +81,9 @@ const Register = () => {
           <div className="register-avatar-icon">
             <UserPlus size={24} />
           </div>
-          <h2 
-            style={{ fontSize: '28px', fontWeight: '700', marginBottom: '8px' }}
-            dangerouslySetInnerHTML={{ __html: t('create_account') }}
-          />
+          <h2 style={{ fontSize: '28px', fontWeight: '700', marginBottom: '8px' }}>
+            {t('create_account')}
+          </h2>
           <p style={{ opacity: 0.6, fontSize: '14px' }}>{t('join_us_desc')}</p>
         </div>
 

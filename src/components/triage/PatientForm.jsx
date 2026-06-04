@@ -31,11 +31,12 @@ const PatientForm = ({
       {user ? (
         <>
           <div className="mb-lg">
-            <label className="form-label">
+            <label htmlFor="appointment-for-select" className="form-label">
               {t('appointment_for_label')}
               <HelpTooltip text={t('tooltip_appointment_for')} />
             </label>
             <select
+              id="appointment-for-select"
               className="input-field"
               value={appointmentFor}
               onChange={(e) => {

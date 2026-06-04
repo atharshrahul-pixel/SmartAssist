@@ -399,11 +399,12 @@ const Dashboard = () => {
                     </div>
 
                     <div className="mb-lg">
-                      <label className="form-label">
+                      <label htmlFor="family-relationship-select" className="form-label">
                         {t('relationship', { defaultValue: 'Relationship' })}
                         <HelpTooltip text="Select how this person is related to you." />
                       </label>
                       <select 
+                        id="family-relationship-select"
                         className="input-field"
                         value={familyFields.relationship}
                         onChange={e => setFamilyFields(prev => ({ ...prev, relationship: e.target.value }))}

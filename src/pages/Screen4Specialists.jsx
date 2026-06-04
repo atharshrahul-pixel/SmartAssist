@@ -5,6 +5,7 @@ import { AppContext } from '../context/AppContext';
 import Stepper from '../components/Stepper';
 import HelpTooltip from '../components/HelpTooltip';
 import { Star, ChevronRight, Search } from 'lucide-react';
+import { renderSafeTitle } from '../utils/titleRenderer';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || (window.location.hostname === 'localhost'
   ? 'http://localhost:5000/api'
@@ -24,13 +25,22 @@ const Screen4Specialists = () => {
       navigate('/');
       return;
     }
+    let active = true;
     fetch(`${BACKEND_URL}/specialists`)
       .then(res => res.json())
       .then(data => {
+        if (!active) return;
         if (data.success) setSpecialistsData(data.specialists);
       })
-      .catch(err => console.error("Error fetching specialists:", err))
-      .finally(() => setIsLoading(false));
+      .catch(err => {
+        if (active) console.error("Error fetching specialists:", err);
+      })
+      .finally(() => {
+        if (active) setIsLoading(false);
+      });
+    return () => {
+      active = false;
+    };
   }, [state.accepted, navigate]);
 
   const categories = useMemo(() => {
@@ -66,10 +76,9 @@ const Screen4Specialists = () => {
       <div className="container" style={{ paddingTop: '0' }}>
         <header className="sticky-header text-center" style={{ paddingTop: '48px' }}>
           <span className="pill-tag mb-lg">{t('choose_partner')}</span>
-          <h1 
-            style={{ fontSize: '48px', lineHeight: '1.1', marginBottom: 'var(--sp-md)' }}
-            dangerouslySetInnerHTML={{ __html: t('perfect_specialist_title') }}
-          />
+          <h1 style={{ fontSize: '48px', lineHeight: '1.1', marginBottom: 'var(--sp-md)' }}>
+            {renderSafeTitle(t('perfect_specialist_title'))}
+          </h1>
           <p style={{ color: 'var(--color-dark)', opacity: 0.6, fontSize: '16px', maxWidth: '600px', margin: '0 auto' }}>
             {t('perfect_specialist_desc')}
           </p>
@@ -95,15 +104,18 @@ const Screen4Specialists = () => {
                 />
               </div>
 
-              <label className="filter-label" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <span className="filter-label" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                 {t('categories')}
                 <HelpTooltip text={t('specialization_tooltip')} />
-              </label>
+              </span>
               {categories.map(cat => (
                 <div 
                   key={cat} 
                   className={`filter-option ${filter === cat ? 'active' : ''}`}
                   onClick={() => setFilter(cat)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { setFilter(cat); } }}
                 >
                   {cat === 'All' ? t('all') : t(`category_${cat}`, { defaultValue: cat })}
                   <span style={{ fontSize: '12px', opacity: 0.5 }}>

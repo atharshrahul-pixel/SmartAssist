@@ -10,6 +10,7 @@ const HelpTooltip = ({ text }) => {
         onMouseLeave={() => setShow(false)}
         onClick={() => setShow(!show)}
         className="help-tooltip-btn"
+        aria-label="Help info"
       >
         ?
       </button>

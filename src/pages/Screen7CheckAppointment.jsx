@@ -81,12 +81,13 @@ const Screen7CheckAppointment = () => {
       
       <div className="card-light" style={{ padding: '24px', marginBottom: '32px' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
-          <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '4px', margin: 0 }}>
+          <label htmlFor="lookup-input" className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '4px', margin: 0 }}>
             {t('lookup_details')}
             <HelpTooltip text={t('lookup_tooltip')} />
           </label>
           <div style={{ display: 'flex', gap: '12px' }}>
               <input 
+                id="lookup-input"
                 className="input-field" 
                 placeholder={t('email_receipt_placeholder')} 
                 aria-label={t('email_receipt_placeholder')}

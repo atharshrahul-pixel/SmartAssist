@@ -25,11 +25,12 @@ const SpecialistRegisterForm = ({
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
         <div className="mb-md" style={{ gridColumn: 'span 2' }}>
-          <label className="form-label">
+          <label htmlFor="spec-name" className="form-label">
             <User size={14} style={{ marginRight: '6px' }} /> {t('full_name_label')}
             <HelpTooltip text={t('full_name_register_tooltip')} />
           </label>
           <input
+            id="spec-name"
             type="text"
             name="name"
             className="input-field"
@@ -41,11 +42,12 @@ const SpecialistRegisterForm = ({
         </div>
 
         <div className="mb-md">
-          <label className="form-label">
+          <label htmlFor="spec-email" className="form-label">
             <Mail size={14} style={{ marginRight: '6px' }} /> Email Address
             <HelpTooltip text="Your login email where waitlist updates and approvals will be sent." />
           </label>
           <input
+            id="spec-email"
             type="email"
             name="email"
             className="input-field"
@@ -57,11 +59,12 @@ const SpecialistRegisterForm = ({
         </div>
 
         <div className="mb-md">
-          <label className="form-label">
+          <label htmlFor="spec-password" className="form-label">
             <Key size={14} style={{ marginRight: '6px' }} /> Password
             <HelpTooltip text="Must contain at least 6 characters." />
           </label>
           <input
+            id="spec-password"
             type="password"
             name="password"
             className="input-field"
@@ -73,11 +76,12 @@ const SpecialistRegisterForm = ({
         </div>
 
         <div className="mb-md">
-          <label className="form-label">
+          <label htmlFor="spec-specialization" className="form-label">
             <Award size={14} style={{ marginRight: '6px' }} /> Specialization
             <HelpTooltip text="Select your primary health or wellness specialization category." />
           </label>
           <select
+            id="spec-specialization"
             name="specialization"
             className="input-field"
             value={formData.specialization}
@@ -101,11 +105,12 @@ const SpecialistRegisterForm = ({
         </div>
 
         <div className="mb-md">
-          <label className="form-label">
+          <label htmlFor="spec-experience" className="form-label">
             <Award size={14} style={{ marginRight: '6px' }} /> Years of Experience
             <HelpTooltip text="Number of years you have been practicing." />
           </label>
           <input
+            id="spec-experience"
             type="number"
             name="experience"
             className="input-field"
@@ -118,11 +123,12 @@ const SpecialistRegisterForm = ({
         </div>
 
         <div className="mb-md">
-          <label className="form-label">
+          <label htmlFor="spec-clinicName" className="form-label">
             <MapPin size={14} style={{ marginRight: '6px' }} /> Clinic Name
             <HelpTooltip text="Name of the clinic or institution where you currently practice." />
           </label>
           <input
+            id="spec-clinicName"
             type="text"
             name="clinicName"
             className="input-field"
@@ -133,11 +139,12 @@ const SpecialistRegisterForm = ({
         </div>
 
         <div className="mb-md">
-          <label className="form-label">
+          <label htmlFor="spec-licenseNumber" className="form-label">
             <Shield size={14} style={{ marginRight: '6px' }} /> {t('license_number_label')}
             <HelpTooltip text={t('license_number_tooltip')} />
           </label>
           <input
+            id="spec-licenseNumber"
             type="text"
             name="licenseNumber"
             className="input-field"
@@ -149,11 +156,12 @@ const SpecialistRegisterForm = ({
         </div>
 
         <div className="mb-md" style={{ gridColumn: 'span 2' }}>
-          <label className="form-label">
+          <label htmlFor="spec-bio" className="form-label">
             <FileText size={14} style={{ marginRight: '6px' }} /> Professional Bio
             <HelpTooltip text="A brief summary of your practice, specialties, and approach to patient care." />
           </label>
           <textarea
+            id="spec-bio"
             name="bio"
             className="input-field"
             placeholder="Tell patients about your background..."
@@ -165,7 +173,7 @@ const SpecialistRegisterForm = ({
         </div>
 
         <div className="mb-lg" style={{ gridColumn: 'span 2' }}>
-          <label className="form-label">
+          <label htmlFor="spec-photo" className="form-label">
             <Camera size={14} style={{ marginRight: '6px' }} /> Profile Photo
             <HelpTooltip text="Upload a professional profile photo. Max size: 1MB." />
           </label>
@@ -178,6 +186,7 @@ const SpecialistRegisterForm = ({
               )}
             </div>
             <input
+              id="spec-photo"
               type="file"
               accept="image/*"
               onChange={handlePhotoUpload}

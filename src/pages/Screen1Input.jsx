@@ -261,7 +261,7 @@ const Screen1Input = () => {
         .counter-row {
           display: flex;
           justify-content: space-between;
-          font-size: 11px;
+          font-size: 12px;
           color: var(--color-muted);
           padding: 0 4px;
         }

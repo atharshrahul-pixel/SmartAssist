@@ -7,6 +7,9 @@ import HelpTooltip from '../components/HelpTooltip';
 import { translateError } from '../utils/errorTranslator';
 import { ChevronLeft, ChevronRight, Calendar as CalIcon, Clock, User, AlertCircle, Bell, MapPin, Video, MessageSquare } from 'lucide-react';
 
+const getDaysInMonth = (year, month) => new Date(year, month + 1, 0).getDate();
+const getFirstDayOfMonth = (year, month) => new Date(year, month, 1).getDay();
+
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || (window.location.hostname === 'localhost'
   ? 'http://localhost:5000/api'
   : 'https://p01--smart-assist-backend--qnbs82bxhg66.code.run/api');
@@ -157,10 +160,10 @@ const BookingDetailsSidebar = ({
       </div>
 
       <div className="card-light" style={{ padding: '20px', marginBottom: '24px' }}>
-        <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', marginBottom: '12px' }}>
+        <span className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', marginBottom: '12px' }}>
           <Clock size={14} /> {t('appointment_mode_label')}
           <HelpTooltip text={t('tooltip_mode')} />
-        </label>
+        </span>
         
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
           {[
@@ -200,7 +203,7 @@ const BookingDetailsSidebar = ({
               >
                 {m.icon}
                 <span style={{ fontSize: '12px', fontWeight: '700' }}>{m.label}</span>
-                <span style={{ fontSize: '11px', opacity: 0.6 }}>${modeConfig.price}</span>
+                <span style={{ fontSize: '12px', opacity: 0.6 }}>${modeConfig.price}</span>
               </button>
             );
           })}
@@ -209,10 +212,10 @@ const BookingDetailsSidebar = ({
 
       <div className="card-light" style={{ padding: '24px' }}>
         <div style={{ marginBottom: '24px' }}>
-          <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', marginBottom: '12px' }}>
+          <span className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', marginBottom: '12px' }}>
             <User size={14} /> {t('appointment_for_label')}
             <HelpTooltip text={t('tooltip_appointment_for')} />
-          </label>
+          </span>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
             <button 
               type="button"
@@ -261,10 +264,10 @@ const BookingDetailsSidebar = ({
         </div>
 
         <div style={{ marginBottom: '24px' }}>
-          <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', marginBottom: '12px' }}>
+          <span className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', marginBottom: '12px' }}>
             <Clock size={14} /> {t('select_time')}
             <HelpTooltip text={t('tooltip_time')} />
-          </label>
+          </span>
           
           {selectedDate ? (
             <div className="time-grid mb-xl">
@@ -495,9 +498,6 @@ const Screen5Booking = () => {
   const currentMonth = bookingState.currentDate.getMonth();
   const currentYear = bookingState.currentDate.getFullYear();
   
-  const getDaysInMonth = (year, month) => new Date(year, month + 1, 0).getDate();
-  const getFirstDayOfMonth = (year, month) => new Date(year, month, 1).getDay();
-
   const firstDayIndex = getFirstDayOfMonth(currentYear, currentMonth);
   const totalDays = getDaysInMonth(currentYear, currentMonth);
   

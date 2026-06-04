@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useContext } from 'react';
+import { useState, useEffect, useCallback, use } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { AppContext } from '../context/AppContext';
@@ -14,7 +14,7 @@ const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || (window.location.hostnam
 
 const SpecialistDashboard = () => {
   const { t } = useTranslation();
-  const { token, logoutUser } = useContext(AppContext);
+  const { token, logoutUser } = use(AppContext);
   const navigate = useNavigate();
   const location = useLocation();
   const infoMessage = location.state?.infoMessage;
@@ -539,7 +539,7 @@ const SpecialistDashboard = () => {
                   borderRadius: 'var(--r-md)', textAlign: 'left', fontWeight: '600', border: 'none', cursor: 'pointer',
                   background: activeTab === 'appointments' ? 'var(--color-accent)' : 'transparent',
                   color: activeTab === 'appointments' ? 'var(--color-dark)' : 'inherit',
-                  marginBottom: '4px', outline: 'none'
+                  marginBottom: '4px'
                 }}
               >
                 <Calendar size={18} /> {t('appointments')}
@@ -552,7 +552,7 @@ const SpecialistDashboard = () => {
                   borderRadius: 'var(--r-md)', textAlign: 'left', fontWeight: '600', border: 'none', cursor: 'pointer',
                   background: activeTab === 'availability' ? 'var(--color-accent)' : 'transparent',
                   color: activeTab === 'availability' ? 'var(--color-dark)' : 'inherit',
-                  marginBottom: '4px', outline: 'none'
+                  marginBottom: '4px'
                 }}
               >
                 <Settings size={18} /> {t('slots_pricing')}
@@ -565,7 +565,7 @@ const SpecialistDashboard = () => {
                   borderRadius: 'var(--r-md)', textAlign: 'left', fontWeight: '600', border: 'none', cursor: 'pointer',
                   background: activeTab === 'profile' ? 'var(--color-accent)' : 'transparent',
                   color: activeTab === 'profile' ? 'var(--color-dark)' : 'inherit',
-                  marginBottom: '4px', outline: 'none'
+                  marginBottom: '4px'
                 }}
               >
                 <User size={18} /> {t('manage_profile')}
@@ -577,8 +577,7 @@ const SpecialistDashboard = () => {
                   width: '100%', padding: '14px 16px', display: 'flex', alignItems: 'center', gap: '12px',
                   borderRadius: 'var(--r-md)', textAlign: 'left', fontWeight: '600', border: 'none', cursor: 'pointer',
                   background: activeTab === 'earnings' ? 'var(--color-accent)' : 'transparent',
-                  color: activeTab === 'earnings' ? 'var(--color-dark)' : 'inherit',
-                  outline: 'none'
+                  color: activeTab === 'earnings' ? 'var(--color-dark)' : 'inherit'
                 }}
               >
                 <DollarSign size={18} /> {t('earnings_tab')}
@@ -650,7 +649,7 @@ const SpecialistDashboard = () => {
                         </label>
                          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                           <div>
-                            <label htmlFor={`mode-price-${mode.key}`} style={{ fontSize: '11px', opacity: 0.6 }}>{t('earnings_col')} (₹)</label>
+                            <label htmlFor={`mode-price-${mode.key}`} style={{ fontSize: '12px', opacity: 0.6 }}>{t('earnings_col')} (₹)</label>
                             <input 
                               id={`mode-price-${mode.key}`}
                               type="number" 
@@ -665,7 +664,7 @@ const SpecialistDashboard = () => {
                             />
                           </div>
                           <div>
-                            <label htmlFor={`mode-duration-${mode.key}`} style={{ fontSize: '11px', opacity: 0.6 }}>{t('duration', { defaultValue: 'Duration' })}</label>
+                            <label htmlFor={`mode-duration-${mode.key}`} style={{ fontSize: '12px', opacity: 0.6 }}>{t('duration', { defaultValue: 'Duration' })}</label>
                             <input 
                               id={`mode-duration-${mode.key}`}
                               type="text" 
@@ -893,17 +892,17 @@ const SpecialistDashboard = () => {
             <div style={{ overflowY: 'auto', flex: 1, display: 'flex', flexDirection: 'column', gap: '16px', paddingRight: '4px' }}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                 <div>
-                  <label style={{ fontSize: '11px', opacity: 0.5, textTransform: 'uppercase' }}>{t('patient_name_col')}</label>
+                  <label style={{ fontSize: '12px', opacity: 0.5, textTransform: 'uppercase' }}>{t('patient_name_col')}</label>
                   <div style={{ fontWeight: '700', fontSize: '15px' }}>{activeSummary.patientName}</div>
                 </div>
 
                 <div>
-                  <label style={{ fontSize: '11px', opacity: 0.5, textTransform: 'uppercase' }}>{t('patient_contact_label')}</label>
+                  <label style={{ fontSize: '12px', opacity: 0.5, textTransform: 'uppercase' }}>{t('patient_contact_label')}</label>
                   <div style={{ fontSize: '14px' }}>{activeSummary.patientEmail}</div>
                 </div>
 
                 <div style={{ gridColumn: 'span 2' }}>
-                  <label style={{ fontSize: '11px', opacity: 0.5, textTransform: 'uppercase' }}>{t('appointment_details_label')}</label>
+                  <label style={{ fontSize: '12px', opacity: 0.5, textTransform: 'uppercase' }}>{t('appointment_details_label')}</label>
                   <div style={{ fontSize: '14px', fontWeight: '600' }}>
                     {activeSummary.date} at {activeSummary.time} ({activeSummary.appointmentMode})
                   </div>
@@ -920,14 +919,14 @@ const SpecialistDashboard = () => {
 
                 return (
                   <div>
-                    <label style={{ fontSize: '11px', opacity: 0.5, textTransform: 'uppercase', display: 'block', marginBottom: '4px' }}>{t('urgency_level_label')}</label>
+                    <label style={{ fontSize: '12px', opacity: 0.5, textTransform: 'uppercase', display: 'block', marginBottom: '4px' }}>{t('urgency_level_label')}</label>
                     <div style={{
                       backgroundColor: config.bgColor,
                       color: config.color,
                       border: `1.5px solid ${config.color}`,
                       padding: '6px 12px',
                       borderRadius: '6px',
-                      fontSize: '11px',
+                      fontSize: '12px',
                       fontWeight: '800',
                       textTransform: 'uppercase',
                       letterSpacing: '0.05em',
@@ -940,7 +939,7 @@ const SpecialistDashboard = () => {
               })()}
 
               <div>
-                <label style={{ fontSize: '11px', opacity: 0.5, textTransform: 'uppercase' }}>{t('primary_symptoms_label')}</label>
+                <label style={{ fontSize: '12px', opacity: 0.5, textTransform: 'uppercase' }}>{t('primary_symptoms_label')}</label>
                 <div style={{
                   padding: '12px', background: 'var(--color-cream)', borderRadius: '8px', 
                   fontSize: '14px', lineHeight: '1.5', fontStyle: 'italic', marginTop: '4px'
@@ -951,7 +950,7 @@ const SpecialistDashboard = () => {
 
               {activeSummary.triageExplanation && (
                 <div>
-                  <label style={{ fontSize: '11px', opacity: 0.5, textTransform: 'uppercase' }}>{t('ai_triage_rec_label')}</label>
+                  <label style={{ fontSize: '12px', opacity: 0.5, textTransform: 'uppercase' }}>{t('ai_triage_rec_label')}</label>
                   <div style={{
                     padding: '12px', background: 'rgba(237, 184, 32, 0.05)', border: '1px solid rgba(237, 184, 32, 0.2)', borderRadius: '8px', 
                     fontSize: '14px', lineHeight: '1.5', marginTop: '4px'
@@ -963,7 +962,7 @@ const SpecialistDashboard = () => {
 
               {activeSummary.triageKeywords && activeSummary.triageKeywords.length > 0 && (
                 <div>
-                  <label style={{ fontSize: '11px', opacity: 0.5, textTransform: 'uppercase', display: 'block', marginBottom: '6px' }}>{t('detected_symptoms_markers_label')}</label>
+                  <label style={{ fontSize: '12px', opacity: 0.5, textTransform: 'uppercase', display: 'block', marginBottom: '6px' }}>{t('detected_symptoms_markers_label')}</label>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                     {activeSummary.triageKeywords.map(keyword => (
                       <span key={keyword} style={{
@@ -972,7 +971,7 @@ const SpecialistDashboard = () => {
                         color: 'var(--color-dark)',
                         padding: '4px 10px',
                         borderRadius: '12px',
-                        fontSize: '11px',
+                        fontSize: '12px',
                         fontWeight: '700'
                       }}>
                         {keyword}
@@ -984,7 +983,7 @@ const SpecialistDashboard = () => {
 
               {activeSummary.triageHistory && activeSummary.triageHistory.length > 0 && (
                 <div>
-                  <label style={{ fontSize: '11px', opacity: 0.5, textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>{t('triage_history_label')}</label>
+                  <label style={{ fontSize: '12px', opacity: 0.5, textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>{t('triage_history_label')}</label>
                   <div style={{
                     background: 'var(--color-cream)',
                     border: '1px solid var(--color-cream-dark)',
@@ -999,7 +998,7 @@ const SpecialistDashboard = () => {
                     {activeSummary.triageHistory.map((msg, i) => {
                       const isUser = msg.role === 'user';
                       return (
-                        <div key={i} style={{
+                        <div key={`triage-msg-${msg.role}-${i}`} style={{
                           alignSelf: isUser ? 'flex-end' : 'flex-start',
                           backgroundColor: isUser ? 'var(--color-orange)' : 'var(--color-white)',
                           color: isUser ? 'var(--color-white)' : 'var(--color-dark)',
