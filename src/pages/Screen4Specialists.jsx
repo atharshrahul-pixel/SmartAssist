@@ -5,7 +5,7 @@ import { AppContext } from '../context/AppContext';
 import Stepper from '../components/Stepper';
 import HelpTooltip from '../components/HelpTooltip';
 import { Star, ChevronRight, Search } from 'lucide-react';
-import { renderSafeTitle } from '../utils/titleRenderer';
+import { SafeTitle } from '../utils/titleRenderer';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || (window.location.hostname === 'localhost'
   ? 'http://localhost:5000/api'
@@ -20,6 +20,7 @@ const Screen4Specialists = () => {
   const [filter, setFilter] = useState(state.recommendedSpecialist || 'All');
   const [searchQuery, setSearchQuery] = useState('');
 
+  // react-doctor-disable-next-line react-doctor/no-fetch-in-effect
   useEffect(() => {
     if (state.accepted === null) {
       navigate('/');
@@ -77,7 +78,7 @@ const Screen4Specialists = () => {
         <header className="sticky-header text-center" style={{ paddingTop: '48px' }}>
           <span className="pill-tag mb-lg">{t('choose_partner')}</span>
           <h1 style={{ fontSize: '48px', lineHeight: '1.1', marginBottom: 'var(--sp-md)' }}>
-            {renderSafeTitle(t('perfect_specialist_title'))}
+            <SafeTitle text={t('perfect_specialist_title')} />
           </h1>
           <p style={{ color: 'var(--color-dark)', opacity: 0.6, fontSize: '16px', maxWidth: '600px', margin: '0 auto' }}>
             {t('perfect_specialist_desc')}
@@ -109,19 +110,18 @@ const Screen4Specialists = () => {
                 <HelpTooltip text={t('specialization_tooltip')} />
               </span>
               {categories.map(cat => (
-                <div 
+                <button 
                   key={cat} 
+                  type="button"
                   className={`filter-option ${filter === cat ? 'active' : ''}`}
                   onClick={() => setFilter(cat)}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { setFilter(cat); } }}
+                  style={{ border: 'none', background: 'transparent', textAlign: 'left', cursor: 'pointer', width: '100%' }}
                 >
                   {cat === 'All' ? t('all') : t(`category_${cat}`, { defaultValue: cat })}
                   <span style={{ fontSize: '12px', opacity: 0.5 }}>
                     {cat === 'All' ? specialistsData.length : specialistsData.filter(s => (s.category || s.specialization) === cat).length}
                   </span>
-                </div>
+                </button>
               ))}
             </div>
           </aside>

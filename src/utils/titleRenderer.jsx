@@ -4,11 +4,12 @@ import React from 'react';
  * Safely parses and renders translation strings containing <span class="accent-word">...</span> tags
  * to avoid dangerouslySetInnerHTML and prevent XSS.
  * 
- * @param {string} text - The translation string
+ * @param {object} props - Component props
+ * @param {string} props.text - The translation string
  * @returns {React.ReactNode} Safely parsed React elements
  */
-export const renderSafeTitle = (text) => {
-  if (!text) return '';
+export const SafeTitle = ({ text }) => {
+  if (!text) return null;
   const match = text.match(/^(.*)<span class="accent-word">(.*)<\/span>(.*)$/);
   if (match) {
     return (
@@ -19,3 +20,4 @@ export const renderSafeTitle = (text) => {
   }
   return text;
 };
+

@@ -5,7 +5,7 @@ import { translateError } from '../utils/errorTranslator';
 import SpecialistSuccessCard from '../components/specialist/SpecialistSuccessCard';
 import SpecialistRegisterForm from '../components/specialist/SpecialistRegisterForm';
 import { UserPlus } from 'lucide-react';
-import { renderSafeTitle } from '../utils/titleRenderer';
+import { SafeTitle } from '../utils/titleRenderer';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || (window.location.hostname === 'localhost'
   ? 'http://localhost:5000/api'
@@ -187,7 +187,7 @@ const SpecialistRegister = () => {
               <UserPlus size={24} />
             </div>
             <h2 style={{ fontSize: '28px', fontWeight: '700', marginBottom: '8px' }}>
-              {renderSafeTitle(t('specialist_onboarding_title'))}
+              <SafeTitle text={t('specialist_onboarding_title')} />
             </h2>
             <p style={{ opacity: 0.6, fontSize: '14px' }}>{t('specialist_onboarding_desc')}</p>
           </div>

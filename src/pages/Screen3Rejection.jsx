@@ -80,7 +80,6 @@ const Screen3Rejection = () => {
                   style={{ minHeight: '120px', resize: 'vertical' }}
                   value={other}
                   onChange={(e) => setOther(e.target.value)}
-                  autoFocus
                 />
               </div>
             )}

@@ -77,16 +77,7 @@ const SpecialistActionCard = ({
           Specialist unavailable
         </h2>
 
-        <div className="unavailable-specialist-box" style={{
-          border: '1.5px solid var(--color-orange)',
-          borderRadius: '12px',
-          padding: '14px 16px',
-          marginBottom: '24px',
-          textAlign: 'center',
-          fontSize: '14.5px',
-          lineHeight: '1.5',
-          color: 'var(--color-white)'
-        }}>
+        <div className="unavailable-specialist-box specialist-unavailable-banner">
           We currently don't have a specialist available for this condition.
         </div>
 
@@ -174,19 +165,7 @@ const SpecialistActionCard = ({
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <a 
             href="tel:911" 
-            className="btn-danger w-full text-center animate-pulse" 
-            style={{ 
-              padding: '16px', 
-              display: 'block', 
-              textDecoration: 'none', 
-              fontWeight: '800', 
-              fontSize: '16px',
-              backgroundColor: '#ef4444',
-              color: 'var(--color-white)',
-              borderRadius: 'var(--r-md)',
-              boxShadow: '0 0 0 0 rgba(239, 68, 68, 0.7)',
-              animation: 'pulse 1.5s infinite'
-            }}
+            className="btn-danger w-full text-center animate-pulse emergency-call-btn" 
           >
             🚨 Call Emergency Services (911)
           </a>

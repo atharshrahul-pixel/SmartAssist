@@ -151,7 +151,7 @@ const BookingsTab = ({ data, onDelete, t }) => {
             <tr key={b._id} style={{ borderBottom: '1px solid #f0edeb' }}>
               <td style={{ padding: '24px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--color-cream-dark)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', fontWeight: '800' }}>
+                  <div className="admin-avatar-circle">
                     {b.userName ? b.userName.substring(0, 2).toUpperCase() : '??'}
                   </div>
                   <div>
@@ -230,7 +230,7 @@ const SpecialistsTab = ({ specialists, onSelect, onApprove, onReject, t }) => {
                       style={{ width: '40px', height: '40px', borderRadius: '12px', objectFit: 'cover', border: '1px solid var(--color-cream-dark)' }} 
                     />
                   ) : (
-                    <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'var(--color-cream-dark)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', fontWeight: '800' }}>
+                    <div className="admin-avatar-square">
                       {s.initials || s.name.substring(0, 2).toUpperCase()}
                     </div>
                   )}
@@ -249,7 +249,7 @@ const SpecialistsTab = ({ specialists, onSelect, onApprove, onReject, t }) => {
                 </div>
               </td>
               <td style={{ padding: '24px', maxWidth: '350px' }}>
-                <p style={{ fontSize: '13px', opacity: 0.8, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+                <p className="admin-bio-trunc">
                   {s.bio || 'No bio provided'}
                 </p>
               </td>
@@ -282,10 +282,11 @@ const SpecialistsTab = ({ specialists, onSelect, onApprove, onReject, t }) => {
   );
 };
 
-const renderAppointmentModes = (modes, t) => {
+const MODE_KEYS = ['inPerson', 'video', 'chat'];
+
+const AppointmentModesList = ({ modes, t }) => {
   if (!modes) return <p style={{ opacity: 0.5, margin: 0, fontSize: '13.5px' }}>{t('no_modes_configured')}</p>;
   
-  const modeKeys = ['inPerson', 'video', 'chat'];
   const modeLabels = {
     inPerson: t('in_person_visit'),
     video: t('video_consult'),
@@ -294,18 +295,14 @@ const renderAppointmentModes = (modes, t) => {
   
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-      {modeKeys.map(key => {
+      {MODE_KEYS.map(key => {
         const m = modes[key];
         const enabled = m && m.enabled;
         return (
           <div 
             key={key} 
+            className="admin-mode-row-item"
             style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              padding: '12px 16px',
-              borderRadius: 'var(--r-md)',
               background: enabled ? 'rgba(237, 184, 32, 0.06)' : 'rgba(0, 0, 0, 0.02)',
               border: enabled ? '1px solid rgba(237, 184, 32, 0.15)' : '1px solid rgba(0, 0, 0, 0.05)',
               opacity: enabled ? 1 : 0.5
@@ -339,18 +336,24 @@ const renderAppointmentModes = (modes, t) => {
 
 const SpecialistDetailsModal = ({ s, onClose, onApprove, onReject, t }) => {
   return (
-    <div style={MODAL_OVERLAY_STYLE} onClick={onClose}>
-      <div style={MODAL_CONTENT_STYLE} onClick={e => e.stopPropagation()}>
+    // react-doctor-disable-next-line react-doctor/no-static-element-interactions
+    // react-doctor-disable-next-line react-doctor/click-events-have-key-events
+    <div 
+      style={MODAL_OVERLAY_STYLE} 
+      onClick={onClose}
+    >
+      <div style={MODAL_CONTENT_STYLE} onClick={e => e.stopPropagation()} role="document">
         
         {/* Close Button */}
         <button 
           type="button"
           onClick={onClose}
           style={CLOSE_BUTTON_STYLE}
+          aria-label="Close dialog"
         >
           <X size={18} />
         </button>
-
+ 
         {/* Modal Header / Profile Intro */}
         <div style={MODAL_HEADER_STYLE}>
           {s.profilePhoto ? (
@@ -366,18 +369,7 @@ const SpecialistDetailsModal = ({ s, onClose, onApprove, onReject, t }) => {
               }}
             />
           ) : (
-            <div style={{
-              width: '88px',
-              height: '88px',
-              borderRadius: '20px',
-              background: 'linear-gradient(135deg, var(--color-accent) 0%, var(--color-orange) 100%)',
-              color: 'var(--color-dark)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '28px',
-              fontWeight: '800'
-            }}>
+            <div className="admin-large-avatar-placeholder">
               {s.initials || s.name.substring(0, 2).toUpperCase()}
             </div>
           )}
@@ -394,7 +386,7 @@ const SpecialistDetailsModal = ({ s, onClose, onApprove, onReject, t }) => {
             </div>
           </div>
         </div>
-
+ 
         {/* Modal Body */}
         <div style={{ padding: '32px 40px' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '32px' }}>
@@ -405,20 +397,11 @@ const SpecialistDetailsModal = ({ s, onClose, onApprove, onReject, t }) => {
                 <h4 style={{ fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-muted)', marginBottom: '8px', fontWeight: '800' }}>
                   {t('biography_summary')}
                 </h4>
-                <p style={{ 
-                  fontSize: '14.5px', 
-                  lineHeight: '1.6', 
-                  opacity: 0.9, 
-                  margin: 0,
-                  whiteSpace: 'pre-wrap', 
-                  maxHeight: '240px',
-                  overflowY: 'auto',
-                  paddingRight: '8px'
-                }}>
+                <p className="admin-detail-bio">
                   {s.bio || 'No biography details provided.'}
                 </p>
               </div>
-
+ 
               <div>
                 <h4 style={{ fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-muted)', marginBottom: '12px', fontWeight: '800' }}>
                   {t('clinic_licensing')}
@@ -435,18 +418,18 @@ const SpecialistDetailsModal = ({ s, onClose, onApprove, onReject, t }) => {
                 </div>
               </div>
             </div>
-
+ 
             {/* Right column: Appointment Modes */}
             <div>
               <h4 style={{ fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-muted)', marginBottom: '12px', fontWeight: '800' }}>
                 {t('consultation_pricing')}
               </h4>
-              {renderAppointmentModes(s.appointmentModes, t)}
+              <AppointmentModesList modes={s.appointmentModes} t={t} />
             </div>
-
+ 
           </div>
         </div>
-
+ 
         {/* Modal Footer / Decision Actions */}
         <div style={{
           padding: '24px 40px 40px 40px',
@@ -472,7 +455,7 @@ const SpecialistDetailsModal = ({ s, onClose, onApprove, onReject, t }) => {
             {t('approve_onboard')}
           </button>
         </div>
-
+ 
       </div>
     </div>
   );

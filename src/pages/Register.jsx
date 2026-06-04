@@ -1,4 +1,4 @@
-import { useState, use } from 'react';
+import { useReducer, use } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { AppContext } from '../context/AppContext';
@@ -11,51 +11,67 @@ const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || (window.location.hostnam
   ? 'http://localhost:5000/api'
   : 'https://p01--smart-assist-backend--qnbs82bxhg66.code.run/api');
 
+const registerReducer = (state, action) => {
+  switch (action.type) {
+    case 'SET_FIELD':
+      return { ...state, [action.field]: action.value };
+    case 'SET_ERROR':
+      return { ...state, error: action.payload, loading: false };
+    case 'START_SUBMIT':
+      return { ...state, loading: true, error: '' };
+    case 'END_SUBMIT':
+      return { ...state, loading: false };
+    default:
+      return state;
+  }
+};
+
 const Register = () => {
   const { t } = useTranslation();
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-  const { state, loginUser } = use(AppContext);
+  const [regState, dispatch] = useReducer(registerReducer, {
+    name: '',
+    email: '',
+    password: '',
+    error: '',
+    loading: false
+  });
+  const { state: appContextState, loginUser } = use(AppContext);
   const navigate = useNavigate();
   
-  const flow = state.finalSpecialist ? 'booking' : 'account';
-  const currentStep = state.finalSpecialist ? 5 : 1;
+  const flow = appContextState.finalSpecialist ? 'booking' : 'account';
+  const currentStep = appContextState.finalSpecialist ? 5 : 1;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!name.trim()) {
-      setError(t('error_name_required'));
+    if (!regState.name.trim()) {
+      dispatch({ type: 'SET_ERROR', payload: t('error_name_required') });
       return;
     }
-    if (!email.trim()) {
-      setError(t('error_your_email'));
+    if (!regState.email.trim()) {
+      dispatch({ type: 'SET_ERROR', payload: t('error_your_email') });
       return;
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email.trim())) {
-      setError(t('error_valid_email'));
+    if (!emailRegex.test(regState.email.trim())) {
+      dispatch({ type: 'SET_ERROR', payload: t('error_valid_email') });
       return;
     }
-    if (!password.trim()) {
-      setError(t('error_password_required'));
+    if (!regState.password.trim()) {
+      dispatch({ type: 'SET_ERROR', payload: t('error_password_required') });
       return;
     }
-    if (password.length < 6) {
-      setError(t('error_password_short'));
+    if (regState.password.length < 6) {
+      dispatch({ type: 'SET_ERROR', payload: t('error_password_short') });
       return;
     }
 
-    setLoading(true);
-    setError('');
+    dispatch({ type: 'START_SUBMIT' });
 
     try {
       const res = await fetch(`${BACKEND_URL}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password, role: 'user' })
+        body: JSON.stringify({ name: regState.name, email: regState.email, password: regState.password, role: 'user' })
       });
 
       const json = await res.json();
@@ -63,12 +79,10 @@ const Register = () => {
         loginUser(json.user, json.token);
         navigate('/dashboard');
       } else {
-        setError(translateError(json.message || 'Registration failed.'));
+        dispatch({ type: 'SET_ERROR', payload: translateError(json.message || 'Registration failed.') });
       }
     } catch {
-      setError(translateError('Connection failed. Please try again.'));
-    } finally {
-      setLoading(false);
+      dispatch({ type: 'SET_ERROR', payload: translateError('Connection failed. Please try again.') });
     }
   };
 
@@ -98,8 +112,8 @@ const Register = () => {
               type="text"
               className="input-field"
               placeholder="John Doe"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              value={regState.name}
+              onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'name', value: e.target.value })}
               required
             />
           </div>
@@ -114,8 +128,8 @@ const Register = () => {
               type="email"
               className="input-field"
               placeholder="john@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={regState.email}
+              onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'email', value: e.target.value })}
               required
             />
           </div>
@@ -130,20 +144,20 @@ const Register = () => {
               type="password"
               className="input-field"
               placeholder="•••••••• (Min. 6 characters)"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={regState.password}
+              onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'password', value: e.target.value })}
               required
             />
           </div>
 
-          {error && (
+          {regState.error && (
             <div className="error-alert-banner">
-              {error}
+              {regState.error}
             </div>
           )}
 
-          <button type="submit" className="btn-primary w-full" disabled={loading} style={{ padding: '14px 28px' }}>
-            {loading ? t('creating_account') : t('register')}
+          <button type="submit" className="btn-primary w-full" disabled={regState.loading} style={{ padding: '14px 28px' }}>
+            {regState.loading ? t('creating_account') : t('register')}
           </button>
         </form>
 

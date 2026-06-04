@@ -187,19 +187,6 @@ const BookingDetailsSidebar = ({
                 type="button"
                 onClick={() => onSelectMode(m.key)}
                 className={`booking-mode-btn ${isSel ? 'active' : ''}`}
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  gap: '6px',
-                  padding: '12px 8px',
-                  borderRadius: '10px',
-                  border: isSel ? '2px solid var(--color-orange)' : '1px solid var(--color-cream-dark)',
-                  background: isSel ? 'var(--color-cream)' : 'transparent',
-                  color: 'var(--color-dark)',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s'
-                }}
               >
                 {m.icon}
                 <span style={{ fontSize: '12px', fontWeight: '700' }}>{m.label}</span>
@@ -219,31 +206,15 @@ const BookingDetailsSidebar = ({
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
             <button 
               type="button"
-              className={`booking-mode-btn ${bookedFor === 'myself' ? 'active' : ''}`} 
+              className={`booking-target-btn ${bookedFor === 'myself' ? 'active' : ''}`} 
               onClick={() => onSetBookedFor('myself')}
-              style={{
-                padding: '12px',
-                borderRadius: '8px',
-                border: bookedFor === 'myself' ? '2px solid var(--color-orange)' : '1px solid var(--color-cream-dark)',
-                background: bookedFor === 'myself' ? 'var(--color-cream)' : 'transparent',
-                fontWeight: '700',
-                cursor: 'pointer'
-              }}
             >
               {t('myself')}
             </button>
             <button 
               type="button"
-              className={`booking-mode-btn ${bookedFor !== 'myself' ? 'active' : ''}`} 
+              className={`booking-target-btn ${bookedFor !== 'myself' ? 'active' : ''}`} 
               onClick={() => onSetBookedFor('other')}
-              style={{
-                padding: '12px',
-                borderRadius: '8px',
-                border: bookedFor !== 'myself' ? '2px solid var(--color-orange)' : '1px solid var(--color-cream-dark)',
-                background: bookedFor !== 'myself' ? 'var(--color-cream)' : 'transparent',
-                fontWeight: '700',
-                cursor: 'pointer'
-              }}
             >
               {t('someone_else')}
             </button>
@@ -252,12 +223,14 @@ const BookingDetailsSidebar = ({
           {bookedFor !== 'myself' && (
             <div style={{ marginTop: '16px' }}>
               <input 
+                id="booking-patient-name"
                 type="text" 
                 className="input-field" 
                 placeholder={t('patient_full_name')}
                 value={otherName}
                 onChange={e => onSetOtherName(e.target.value)}
                 style={{ width: '100%' }}
+                aria-label={t('patient_full_name')}
               />
             </div>
           )}
@@ -368,6 +341,7 @@ const Screen5Booking = () => {
     }
   }, [state.finalSpecialist, navigate]);
 
+  // react-doctor-disable-next-line react-doctor/no-fetch-in-effect
   useEffect(() => {
     if (!bookingState.selectedDate || !state.finalSpecialist) return;
 

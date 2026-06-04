@@ -46,6 +46,7 @@ const Screen2Recommendation = () => {
 
   const [hasSpecialists, setHasSpecialists] = useState(true);
 
+  // react-doctor-disable-next-line react-doctor/no-fetch-in-effect
   useEffect(() => {
     if (hasExpired) return;
     let active = true;

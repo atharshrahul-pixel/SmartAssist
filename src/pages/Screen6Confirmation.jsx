@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { AppContext } from '../context/AppContext';
 import Stepper from '../components/Stepper';
 import { Check, Download, RefreshCcw, Share2, Calendar, Clock, User, ShieldCheck } from 'lucide-react';
-import { renderSafeTitle } from '../utils/titleRenderer';
+import { SafeTitle } from '../utils/titleRenderer';
 
 const Screen6Confirmation = () => {
   const { t } = useTranslation();
@@ -55,18 +55,12 @@ const Screen6Confirmation = () => {
         <div className="conf-grid">
           {/* Left Column: Hero & Next Steps */}
           <div className="conf-hero">
-            <div style={{
-              width: '64px', height: '64px',
-              borderRadius: '20px', background: '#ECFDF5',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              marginBottom: '32px',
-              border: '2px solid #10B981'
-            }}>
+            <div className="conf-success-icon">
               <Check size={32} color="#059669" strokeWidth={3} />
             </div>
 
             <h1 style={{ fontSize: '64px', lineHeight: '1', marginBottom: '24px', maxWidth: '500px' }}>
-              {renderSafeTitle(t('all_set'))}
+              <SafeTitle text={t('all_set')} />
             </h1>
             <p style={{ fontSize: '20px', color: 'var(--color-dark)', opacity: 0.8, maxWidth: '480px', marginBottom: '48px', lineHeight: '1.5' }}>
               {t('appointment_success_desc')}
@@ -78,7 +72,7 @@ const Screen6Confirmation = () => {
               </h3>
               
               <div className="next-step-card">
-                <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(224, 88, 48, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <div className="next-step-icon">
                   <Calendar size={16} color="var(--color-orange)" />
                 </div>
                 <div>
@@ -88,7 +82,7 @@ const Screen6Confirmation = () => {
               </div>
 
               <div className="next-step-card">
-                <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(224, 88, 48, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <div className="next-step-icon">
                   <ShieldCheck size={16} color="var(--color-orange)" />
                 </div>
                 <div>
@@ -117,12 +111,7 @@ const Screen6Confirmation = () => {
 
               <div className="ticket-body">
                 <div style={{ display: 'flex', gap: '24px', marginBottom: '32px' }}>
-                  <div style={{
-                    width: '64px', height: '64px',
-                    borderRadius: '16px', background: 'var(--color-cream)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: '20px', fontWeight: '800', color: 'var(--color-dark)'
-                  }}>
+                  <div className="conf-avatar">
                     {state.finalSpecialist.initials}
                   </div>
                   <div>

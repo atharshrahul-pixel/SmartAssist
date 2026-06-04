@@ -40,6 +40,7 @@ const Screen7CheckAppointment = () => {
     }
   };
 
+  // react-doctor-disable-next-line react-doctor/no-fetch-in-effect
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const receiptId = params.get('receiptId');

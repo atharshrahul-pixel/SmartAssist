@@ -135,11 +135,13 @@ const SupportChatWidget = () => {
               value={input}
               onChange={e => setInput(e.target.value)}
               className="support-widget-input"
+              aria-label={t('ask_question')}
             />
             <button
               type="submit"
               className="support-widget-send-btn"
               disabled={!input.trim()}
+              aria-label={t('send', { defaultValue: 'Send' })}
             >
               <Send size={16} />
             </button>
