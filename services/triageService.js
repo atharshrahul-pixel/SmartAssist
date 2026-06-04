@@ -75,7 +75,7 @@ const detectIdealCategory = (messages, assignedCategory) => {
   if (text.includes('skin') || text.includes('dermatology') || text.includes('rash') || text.includes('eczema')) {
     return 'Dermatologist';
   }
-  if (text.includes('diet') || text.includes('nutrition') || text.includes('weight loss')) {
+  if (text.includes('diet') || text.includes('nutrition')) {
     return 'Dietitian';
   }
   if (text.includes('foot') || text.includes('heel') || text.includes('plantar') || text.includes('flat feet') || text.includes('podiatrist')) {
@@ -315,7 +315,8 @@ CRITICAL MAPPING RULE:
 If the symptoms are NOT urgent, but the patient needs a specialist that is NOT directly available on our platform (e.g., Orthopedist, Cardiologist, Dermatologist, Podiatrist, Neurologist, etc.), you MUST dynamically determine the most appropriate alternative from the supported categories listed above based on the following clinical relevance guidelines:
 - Musculoskeletal, joint, bone, and physical mobility needs (like Orthopedics, Chiropractic, sprains) must map to Physiotherapist.
 - Foot, ankle, heel, flat feet, and plantar pain or conditions (like Podiatry) must map to Physiotherapist (with "idealCategory" as "Podiatrist").
-- Weight management, nutrition, fitness, and diet needs (like Dietitians) must map to Gym Trainer.
+- General fitness, exercise, workouts, weight gain, and exercise-based weight loss concerns have "Gym Trainer" as both the idealCategory and specialistCategory.
+- Clinical nutrition, diet planning, and medical diet needs (like Dietitians) must map to Gym Trainer (with "idealCategory" as "Dietitian").
 - Cosmetic, hair, scalp, and beauty needs (like minor skin/hair care) must map to Salon Specialist.
 - Systemic medical issues, infections, fevers, and internal medicine concerns must map to the closest logical base specialist (or suggest seeing a physician in the explanation).
 Do not use unsupported categories. Explain your reasoning and alternative mapping gracefully in the text.
