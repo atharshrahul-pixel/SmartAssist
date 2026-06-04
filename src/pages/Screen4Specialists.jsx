@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { AppContext } from '../context/AppContext';
 import Stepper from '../components/Stepper';
 import HelpTooltip from '../components/HelpTooltip';
-import { Star, Clock, ChevronRight, Search, Filter } from 'lucide-react';
+import { Star, ChevronRight, Search } from 'lucide-react';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || (window.location.hostname === 'localhost'
   ? 'http://localhost:5000/api'

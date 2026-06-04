@@ -36,16 +36,6 @@ const ALERT_BOX_STYLE = {
   borderRadius: '8px'
 };
 
-const adminModesStyle = (enabled) => ({
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  padding: '12px 16px',
-  borderRadius: 'var(--r-md)',
-  background: enabled ? 'rgba(237, 184, 32, 0.06)' : 'rgba(0, 0, 0, 0.02)',
-  border: enabled ? '1px solid rgba(237, 184, 32, 0.15)' : '1px solid rgba(0, 0, 0, 0.05)',
-  opacity: enabled ? 1 : 0.5
-});
 
 const getInitialBookingState = (state) => {
   const initialBookedFor = state.appointmentFor
@@ -89,48 +79,6 @@ function bookingReducer(state, action) {
   }
 }
 
-const renderAppointmentModes = (modes, t) => {
-  if (!modes) return <p style={{ opacity: 0.5, margin: 0, fontSize: '13.5px' }}>{t('no_modes_configured')}</p>;
-  
-  const modeKeys = ['inPerson', 'video', 'chat'];
-  const modeLabels = {
-    inPerson: t('in_person_visit'),
-    video: t('video_consult'),
-    chat: t('chat_session')
-  };
-  
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-      {modeKeys.map(key => {
-        const m = modes[key];
-        const enabled = m && m.enabled;
-        return (
-          <div key={key} style={adminModesStyle(enabled)}>
-            <div>
-              <div style={{ fontWeight: '700', fontSize: '14px', color: enabled ? 'var(--color-dark)' : 'var(--color-muted)' }}>
-                {modeLabels[key]}
-              </div>
-              {enabled && (
-                <div style={{ fontSize: '12px', opacity: 0.6, marginTop: '2px' }}>
-                  {m.duration || 'N/A'}
-                </div>
-              )}
-            </div>
-            <div>
-              {enabled ? (
-                <span style={{ fontWeight: '800', color: 'var(--color-orange)', fontSize: '15px' }}>
-                  ${m.price}
-                </span>
-              ) : (
-                <span style={{ fontSize: '12px', opacity: 0.6 }}>Disabled</span>
-              )}
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
-};
 
 const CalendarGrid = ({ calendarCells, todayDate, selectedDate, onSelectDay, getFormattedDateString }) => {
   return (
@@ -167,7 +115,6 @@ const CalendarGrid = ({ calendarCells, todayDate, selectedDate, onSelectDay, get
 
 const BookingDetailsSidebar = ({
   state,
-  user,
   loading,
   selectedDate,
   selectedTime,
@@ -499,7 +446,7 @@ const Screen5Booking = () => {
       } else {
         dispatch({ type: 'SET_ERROR', payload: translateError(data.message || t('error_booking_failed')) });
       }
-    } catch (err) {
+    } catch {
       dispatch({ type: 'SET_ERROR', payload: translateError(t('error_connect_booking')) });
     } finally {
       dispatch({ type: 'SET_LOADING', payload: false });
@@ -536,7 +483,7 @@ const Screen5Booking = () => {
       } else {
         dispatch({ type: 'SET_ERROR', payload: translateError(data.message || t('error_waitlist_failed')) });
       }
-    } catch (err) {
+    } catch {
       dispatch({ type: 'SET_ERROR', payload: translateError(t('error_connect_waitlist')) });
     } finally {
       dispatch({ type: 'SET_LOADING', payload: false });

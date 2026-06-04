@@ -114,7 +114,7 @@ const SpecialistRegister = () => {
           errorMsg: translateError(json.message || 'Registration failed.')
         }));
       }
-    } catch (err) {
+    } catch {
       setUiState(prev => ({
         ...prev,
         loading: false,

@@ -65,7 +65,7 @@ const Register = () => {
       } else {
         setError(translateError(json.message || 'Registration failed.'));
       }
-    } catch (err) {
+    } catch {
       setError(translateError('Connection failed. Please try again.'));
     } finally {
       setLoading(false);

@@ -107,8 +107,10 @@ const Dashboard = () => {
     if (!token || !user) {
       navigate('/login');
     } else {
-      fetchBookings();
-      fetchProfile();
+      (async () => {
+        await fetchBookings();
+        await fetchProfile();
+      })();
     }
   }, [token, user, navigate, fetchBookings, fetchProfile]);
 

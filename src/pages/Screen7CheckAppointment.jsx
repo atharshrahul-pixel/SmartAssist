@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Stepper from '../components/Stepper';
 import HelpTooltip from '../components/HelpTooltip';
-import { Search, Calendar, Clock, User, Mail } from 'lucide-react';
+import { Calendar, Clock } from 'lucide-react';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || (window.location.hostname === 'localhost'
   ? 'http://localhost:5000/api'

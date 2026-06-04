@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Screen1Input from './pages/Screen1Input';
@@ -46,34 +46,34 @@ function App() {
   });
   const [token, setToken] = useState(() => localStorage.getItem('token:v1') || '');
 
-  const updateState = (updates) => {
+  const updateState = useCallback((updates) => {
     setState(prev => ({ ...prev, ...updates }));
-  };
+  }, []);
 
-  const addBooking = (booking) => {
+  const addBooking = useCallback((booking) => {
     setBookings(prev => [...prev, booking]);
-  };
+  }, []);
 
-  const loginUser = (userData, userToken) => {
+  const loginUser = useCallback((userData, userToken) => {
     setUser(userData);
     setToken(userToken);
     localStorage.setItem('user:v1', JSON.stringify(userData));
     localStorage.setItem('token:v1', userToken);
     // sync simple name/email fields
     updateState({ name: userData.name, email: userData.email });
-  };
+  }, [updateState]);
 
-  const logoutUser = () => {
+  const logoutUser = useCallback(() => {
     setUser(null);
     setToken('');
     localStorage.removeItem('user:v1');
     localStorage.removeItem('token:v1');
-  };
+  }, []);
 
-  const refreshUser = (updatedUser) => {
+  const refreshUser = useCallback((updatedUser) => {
     setUser(updatedUser);
     localStorage.setItem('user:v1', JSON.stringify(updatedUser));
-  };
+  }, []);
 
   const contextValue = useMemo(() => ({
     state,

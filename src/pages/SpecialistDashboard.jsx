@@ -150,7 +150,9 @@ const SpecialistDashboard = () => {
     if (!token) {
       navigate('/login');
     } else {
-      fetchProfile();
+      (async () => {
+        await fetchProfile();
+      })();
     }
   }, [token, navigate, fetchProfile]);
 
@@ -288,6 +290,15 @@ const SpecialistDashboard = () => {
     );
   }
 
+  if (errorMsg && !specialist) {
+    return (
+      <div className="container text-center" style={{ paddingTop: '100px' }}>
+        <h3 style={{ color: '#ef4444' }}>{errorMsg}</h3>
+        <button type="button" onClick={fetchProfile} className="btn-primary" style={{ marginTop: '20px' }}>Retry</button>
+      </div>
+    );
+  }
+
   // Pending Review View
   if (specialist && specialist.status === 'pending') {
     return (
@@ -371,6 +382,10 @@ const SpecialistDashboard = () => {
 
             <form onSubmit={handleReapply}>
               <h3 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '16px', textTransform: 'uppercase' }}>{t('update_reapply')}</h3>
+              
+              {errorMsg && (
+                <div style={{ color: '#ef4444', marginBottom: '16px', fontWeight: '600' }}>{errorMsg}</div>
+              )}
               
               <div className="mb-md">
                 <label htmlFor="reapply-name" className="form-label">{t('full_name_label')}</label>
@@ -596,9 +611,10 @@ const SpecialistDashboard = () => {
                           type="button"
                           onClick={() => fetchPrevisitSummary(b._id)} 
                           className="btn-secondary"
+                          disabled={summaryLoading}
                           style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px' }}
                         >
-                          <Eye size={14} /> {t('view_previsit_summary')}
+                          <Eye size={14} /> {summaryLoading ? `${t('loading')}...` : t('view_previsit_summary')}
                         </button>
                       </div>
                     ))
@@ -719,6 +735,10 @@ const SpecialistDashboard = () => {
             {activeTab === 'profile' && (
               <form onSubmit={handleUpdateProfile} className="card-light" style={{ padding: '32px' }}>
                 <h2 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '24px' }}>{t('professional_profile_details')}</h2>
+
+                {errorMsg && (
+                  <div style={{ color: '#ef4444', marginBottom: '16px', fontWeight: '600' }}>{errorMsg}</div>
+                )}
 
                 <div className="mb-md">
                   <label htmlFor="profile-clinic" className="form-label">{t('clinic_name_label')}</label>
