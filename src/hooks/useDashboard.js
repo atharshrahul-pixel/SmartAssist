@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useReducer } from 'react';
+import { useEffect, useCallback, useReducer, useRef } from 'react';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || (window.location.hostname === 'localhost'
   ? 'http://localhost:5000/api'
@@ -66,6 +66,11 @@ const dashboardReducer = (state, action) => {
 };
 
 export const useDashboard = ({ user, token, logoutUser, refreshUser, navigate, t }) => {
+  const tokenRef = useRef(token);
+  useEffect(() => {
+    tokenRef.current = token;
+  }, [token]);
+
   const [dbState, dispatch] = useReducer(dashboardReducer, {
     activeTab: 'appointments',
     bookings: [],
@@ -87,13 +92,15 @@ export const useDashboard = ({ user, token, logoutUser, refreshUser, navigate, t
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const json = await res.json();
-      if (json.success) {
+      if (json.success && tokenRef.current === token) {
         dispatch({ type: 'SET_BOOKINGS', payload: json.bookings });
       }
     } catch (err) {
       console.error(err);
     } finally {
-      dispatch({ type: 'SET_LOADED', payload: true });
+      if (tokenRef.current === token) {
+        dispatch({ type: 'SET_LOADED', payload: true });
+      }
     }
   }, [token]);
 
@@ -103,7 +110,7 @@ export const useDashboard = ({ user, token, logoutUser, refreshUser, navigate, t
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const json = await res.json();
-      if (json.success) {
+      if (json.success && tokenRef.current === token) {
         refreshUser(json.user);
       }
     } catch (err) {
