@@ -3,12 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { AppContext } from '../context/AppContext';
 import Stepper from '../components/Stepper';
-import { LogOut, Calendar, Users, Bell } from 'lucide-react';
 
 import AppointmentsTab from '../components/dashboard/AppointmentsTab';
 import FamilyTab from '../components/dashboard/FamilyTab';
 import WaitlistsTab from '../components/dashboard/WaitlistsTab';
 import RatingModal from '../components/dashboard/RatingModal';
+import UserHeader from '../components/dashboard/UserHeader';
+import SidebarTabs from '../components/dashboard/SidebarTabs';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || (window.location.hostname === 'localhost'
   ? 'http://localhost:5000/api'
@@ -271,49 +272,17 @@ const Dashboard = () => {
       <div className="container" style={{ paddingTop: '20px', flex: 1 }}>
       
       {/* Header bar */}
-      <div className="card-light dashboard-header-bar">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <div className="dashboard-avatar">
-            {user.name.substring(0,2).toUpperCase()}
-          </div>
-          <div>
-            <h1 style={{ fontSize: '24px', fontWeight: '700' }}>{t('hello')}, {user.name}</h1>
-            <p style={{ opacity: 0.6, fontSize: '14px' }}>{t('health_portal_welcome')}</p>
-          </div>
-        </div>
-        <button type="button" onClick={handleLogout} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px' }}>
-          <LogOut size={16} /> {t('logout')}
-        </button>
-      </div>
+      <UserHeader user={user} handleLogout={handleLogout} t={t} />
 
       {/* Grid Layout */}
       <div style={{ display: 'grid', gridTemplateColumns: '260px 18fr', gap: '32px' }}>
         {/* Sidebar tabs */}
-        <div>
-          <div className="card-light" style={{ padding: '12px' }}>
-            <button 
-              type="button"
-              onClick={() => dispatch({ type: 'SET_ACTIVE_TAB', payload: 'appointments' })} 
-              className={`dashboard-tab-btn ${dbState.activeTab === 'appointments' ? 'active' : ''}`}
-            >
-              <Calendar size={18} /> {t('appointments')}
-            </button>
-            <button 
-              type="button"
-              onClick={() => dispatch({ type: 'SET_ACTIVE_TAB', payload: 'family' })} 
-              className={`dashboard-tab-btn ${dbState.activeTab === 'family' ? 'active' : ''}`}
-            >
-              <Users size={18} /> {t('family_profiles', { defaultValue: 'Family Profiles' })}
-            </button>
-            <button 
-              type="button"
-              onClick={() => dispatch({ type: 'SET_ACTIVE_TAB', payload: 'waitlists' })} 
-              className={`dashboard-tab-btn ${dbState.activeTab === 'waitlists' ? 'active' : ''}`}
-            >
-              <Bell size={18} /> {t('waitlist')} ({user.waitlistAppointments ? user.waitlistAppointments.length : 0})
-            </button>
-          </div>
-        </div>
+        <SidebarTabs 
+          activeTab={dbState.activeTab} 
+          waitlistCount={user.waitlistAppointments ? user.waitlistAppointments.length : 0} 
+          setActiveTab={tab => dispatch({ type: 'SET_ACTIVE_TAB', payload: tab })} 
+          t={t} 
+        />
 
         {/* Content area */}
         <div>

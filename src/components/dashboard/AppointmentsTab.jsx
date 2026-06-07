@@ -45,8 +45,8 @@ const AppointmentsTab = ({ bookings, hasLoaded, onRateSpecialist, onCancelBookin
                   <button 
                     type="button"
                     onClick={() => onCancelBooking(b._id)} 
-                    className="btn-secondary" 
-                    style={{ padding: '8px 16px', color: '#b91c1c', border: '1px solid #fee2e2', borderRadius: '6px', fontSize: '13px', cursor: 'pointer' }}
+                    className="btn-danger" 
+                    style={{ padding: '8px 16px', fontSize: '12px' }}
                   >
                     {t('cancel_appointment')}
                   </button>
@@ -55,7 +55,7 @@ const AppointmentsTab = ({ bookings, hasLoaded, onRateSpecialist, onCancelBookin
                   type="button"
                   onClick={() => onDeleteBooking(b._id)} 
                   className="btn-secondary" 
-                  style={{ padding: '8px 16px', color: '#4b5563', border: '1px solid #e5e7eb', borderRadius: '6px', fontSize: '13px', cursor: 'pointer' }}
+                  style={{ padding: '8px 16px', fontSize: '12px' }}
                 >
                   {t('delete_appointment')}
                 </button>
