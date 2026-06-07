@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Calendar, Clock, Star } from 'lucide-react';
 
 const EMPTY_IDS = [];
@@ -15,6 +16,15 @@ const AppointmentsTab = ({
   onBookNow, 
   t 
 }) => {
+  const [currentTime, setCurrentTime] = useState(() => new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 10000);
+    return () => clearInterval(timer);
+  }, []);
+
   return (
     <div>
       <h2 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '20px' }}>{t('your_appointments')}</h2>
@@ -31,7 +41,7 @@ const AppointmentsTab = ({
             const isCancelling = cancellingIds.includes(b._id);
             const isDeleting = deletingIds.includes(b._id);
             const isUndoing = undoingIds.includes(b._id);
-            const isUndoable = b.status === 'cancelled' && b.cancelledAt && (new Date() - new Date(b.cancelledAt)) < 10 * 60 * 1000;
+            const isUndoable = b.status === 'cancelled' && b.cancelledAt && currentTime && (currentTime - new Date(b.cancelledAt)) < 10 * 60 * 1000;
             const cardClass = `card-light ${b.status === 'cancelled' ? 'booking-card-cancelled' : ''} ${isCancelling ? 'booking-card-cancelling' : ''} ${isDeleting ? 'booking-card-deleting' : ''}`;
             
             return (
