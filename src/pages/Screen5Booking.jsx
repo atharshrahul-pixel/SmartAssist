@@ -118,6 +118,7 @@ const CalendarGrid = ({ calendarCells, todayDate, selectedDate, onSelectDay, get
 
 const BookingDetailsSidebar = ({
   state,
+  user,
   loading,
   selectedDate,
   selectedTime,
@@ -222,16 +223,60 @@ const BookingDetailsSidebar = ({
 
           {bookedFor !== 'myself' && (
             <div style={{ marginTop: '16px' }}>
-              <input 
-                id="booking-patient-name"
-                type="text" 
-                className="input-field" 
-                placeholder={t('patient_full_name')}
-                value={otherName}
-                onChange={e => onSetOtherName(e.target.value)}
-                style={{ width: '100%' }}
-                aria-label={t('patient_full_name')}
-              />
+              {user && user.familyProfiles && user.familyProfiles.length > 0 ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                    {user.familyProfiles.map(member => {
+                      const isSelected = bookedFor === member.name;
+                      return (
+                        <button
+                          key={member._id}
+                          type="button"
+                          className={`booking-target-btn ${isSelected ? 'active' : ''}`}
+                          style={{ padding: '8px 16px', fontSize: '13px', minWidth: 'auto', flex: '1 1 auto' }}
+                          onClick={() => {
+                            onSetBookedFor(member.name);
+                            onSetOtherName('');
+                          }}
+                        >
+                          {member.name} ({t(`rel_${member.relationship.toLowerCase()}`, { defaultValue: member.relationship })})
+                        </button>
+                      );
+                    })}
+                    <button
+                      type="button"
+                      className={`booking-target-btn ${bookedFor === 'other' ? 'active' : ''}`}
+                      style={{ padding: '8px 16px', fontSize: '13px', minWidth: 'auto', flex: '1 1 auto' }}
+                      onClick={() => onSetBookedFor('other')}
+                    >
+                      {t('someone_else')} / New
+                    </button>
+                  </div>
+                  {bookedFor === 'other' && (
+                    <input 
+                      id="booking-patient-name"
+                      type="text" 
+                      className="input-field" 
+                      placeholder={t('patient_name_placeholder', { defaultValue: "Enter patient's full name" })}
+                      value={otherName}
+                      onChange={e => onSetOtherName(e.target.value)}
+                      style={{ width: '100%' }}
+                      aria-label="Patient Name"
+                    />
+                  )}
+                </div>
+              ) : (
+                <input 
+                  id="booking-patient-name"
+                  type="text" 
+                  className="input-field" 
+                  placeholder={t('patient_name_placeholder', { defaultValue: "Enter patient's full name" })}
+                  value={otherName}
+                  onChange={e => onSetOtherName(e.target.value)}
+                  style={{ width: '100%' }}
+                  aria-label="Patient Name"
+                />
+              )}
             </div>
           )}
         </div>

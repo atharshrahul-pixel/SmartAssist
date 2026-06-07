@@ -43,6 +43,10 @@ const dashboardReducer = (state, action) => {
       return { ...state, cancellingIds: [...(state.cancellingIds || []), action.payload] };
     case 'STOP_CANCELLING':
       return { ...state, cancellingIds: (state.cancellingIds || []).filter(id => id !== action.payload) };
+    case 'START_DELETING':
+      return { ...state, deletingIds: [...(state.deletingIds || []), action.payload] };
+    case 'STOP_DELETING':
+      return { ...state, deletingIds: (state.deletingIds || []).filter(id => id !== action.payload) };
     default:
       return state;
   }
@@ -63,7 +67,8 @@ const Dashboard = () => {
     familyFields: { name: '', relationship: 'Child' },
     otherRelationship: '',
     familyLoading: false,
-    cancellingIds: []
+    cancellingIds: [],
+    deletingIds: []
   });
 
   const fetchBookings = useCallback(async () => {
@@ -249,6 +254,8 @@ const Dashboard = () => {
 
   const handleDeleteBooking = async (bookingId) => {
     if (!window.confirm(t('confirm_delete_appointment'))) return;
+    dispatch({ type: 'START_DELETING', payload: bookingId });
+    await new Promise(resolve => setTimeout(resolve, 600));
     try {
       const res = await fetch(`${BACKEND_URL}/bookings/${bookingId}`, {
         method: 'DELETE',
@@ -264,6 +271,8 @@ const Dashboard = () => {
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      dispatch({ type: 'STOP_DELETING', payload: bookingId });
     }
   };
 
@@ -302,6 +311,7 @@ const Dashboard = () => {
               onCancelBooking={handleCancelBooking}
               onDeleteBooking={handleDeleteBooking}
               cancellingIds={dbState.cancellingIds || []}
+              deletingIds={dbState.deletingIds || []}
               onBookNow={() => navigate('/')}
               t={t}
             />

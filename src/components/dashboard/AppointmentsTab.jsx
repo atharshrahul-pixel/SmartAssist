@@ -1,8 +1,9 @@
 import { Calendar, Clock, Star } from 'lucide-react';
 
 const EMPTY_CANCELLING_IDS = [];
+const EMPTY_DELETING_IDS = [];
 
-const AppointmentsTab = ({ bookings, hasLoaded, onRateSpecialist, onCancelBooking, onDeleteBooking, cancellingIds = EMPTY_CANCELLING_IDS, onBookNow, t }) => {
+const AppointmentsTab = ({ bookings, hasLoaded, onRateSpecialist, onCancelBooking, onDeleteBooking, cancellingIds = EMPTY_CANCELLING_IDS, deletingIds = EMPTY_DELETING_IDS, onBookNow, t }) => {
   return (
     <div>
       <h2 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '20px' }}>{t('your_appointments')}</h2>
@@ -17,10 +18,11 @@ const AppointmentsTab = ({ bookings, hasLoaded, onRateSpecialist, onCancelBookin
         <div style={{ display: 'grid', gap: '16px' }}>
           {bookings.map(b => {
             const isCancelling = cancellingIds.includes(b._id);
-            const cardClass = `card-light ${b.status === 'cancelled' ? 'booking-card-cancelled' : ''} ${isCancelling ? 'booking-card-cancelling' : ''}`;
+            const isDeleting = deletingIds.includes(b._id);
+            const cardClass = `card-light ${b.status === 'cancelled' ? 'booking-card-cancelled' : ''} ${isCancelling ? 'booking-card-cancelling' : ''} ${isDeleting ? 'booking-card-deleting' : ''}`;
             
             return (
-              <div key={b.receiptId} className={cardClass} style={{ padding: '20px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+              <div key={b.receiptId} className={cardClass} style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
                     <h3 style={{ fontSize: '18px', fontWeight: '700' }}>{b.specialistName}</h3>
@@ -38,7 +40,7 @@ const AppointmentsTab = ({ bookings, hasLoaded, onRateSpecialist, onCancelBookin
                   <p style={{ fontSize: '13px', opacity: 0.6 }}>{t('patient_label')}: <strong>{b.bookedFor || b.userName}</strong> ({t('receipt_id')}: {b.receiptId})</p>
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', borderTop: '1px solid #f3f4f6', paddingTop: '12px' }}>
                   <button 
                     type="button"
                     onClick={() => onRateSpecialist({ id: b.specialistId, name: b.specialistName })} 
@@ -52,7 +54,7 @@ const AppointmentsTab = ({ bookings, hasLoaded, onRateSpecialist, onCancelBookin
                       type="button"
                       onClick={() => onCancelBooking(b._id)} 
                       className="btn-danger" 
-                      disabled={isCancelling}
+                      disabled={isCancelling || isDeleting}
                       style={{ padding: '8px 16px', fontSize: '12px' }}
                     >
                       {isCancelling ? t('cancelling') : t('cancel_appointment')}
@@ -60,11 +62,12 @@ const AppointmentsTab = ({ bookings, hasLoaded, onRateSpecialist, onCancelBookin
                   )}
                   <button 
                     type="button"
+                    disabled={isCancelling || isDeleting}
                     onClick={() => onDeleteBooking(b._id)} 
                     className="btn-secondary" 
                     style={{ padding: '8px 16px', fontSize: '12px' }}
                   >
-                    {t('delete_appointment')}
+                    {isDeleting ? t('deleting', { defaultValue: 'Deleting...' }) : t('delete_appointment')}
                   </button>
                 </div>
               </div>

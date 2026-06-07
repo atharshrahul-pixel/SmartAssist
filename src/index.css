@@ -2053,6 +2053,17 @@ a {
   border-left: 4px solid var(--color-orange, #e05830);
 }
 
+@keyframes shrinkFade {
+  0% { opacity: 1; transform: scale(1); max-height: 200px; padding: 20px 24px; margin-bottom: 16px; }
+  100% { opacity: 0; transform: scale(0.9); max-height: 0; padding: 0; margin-bottom: 0; overflow: hidden; border: none; }
+}
+
+.booking-card-deleting {
+  animation: shrinkFade 0.6s ease-out forwards !important;
+  pointer-events: none;
+}
+
+
 
 
 
