@@ -279,5 +279,7 @@
   "tooltip_rejection": "Provide any additional details or context to help us improve the recommendation engine.",
   "rejection_placeholder": "Describe why the recommendation was not right for you...",
   "continue_to_specialists": "Continue to Specialists",
-  "select_date": "Select Date"
+  "select_date": "Select Date",
+  "select_time": "Select Time",
+  "confirm_booking_arrow": "Confirm Booking"
 }
