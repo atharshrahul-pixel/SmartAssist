@@ -248,6 +248,7 @@
   "change_btn": "Change",
   "appointment_mode_label": "Consultation Mode",
   "tooltip_mode": "Choose how you want to consult with your specialist: In-Person, Video Call, or Chat.",
+  "tooltip_time": "Select an available time slot for your consultation.",
   "in_person": "In-Person",
   "video_call": "Video Call",
   "chat_consult": "Chat Consult",
