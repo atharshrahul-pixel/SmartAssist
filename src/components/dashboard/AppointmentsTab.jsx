@@ -1,6 +1,8 @@
 import { Calendar, Clock, Star } from 'lucide-react';
 
-const AppointmentsTab = ({ bookings, hasLoaded, onRateSpecialist, onCancelBooking, onDeleteBooking, cancellingIds = [], onBookNow, t }) => {
+const EMPTY_CANCELLING_IDS = [];
+
+const AppointmentsTab = ({ bookings, hasLoaded, onRateSpecialist, onCancelBooking, onDeleteBooking, cancellingIds = EMPTY_CANCELLING_IDS, onBookNow, t }) => {
   return (
     <div>
       <h2 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '20px' }}>{t('your_appointments')}</h2>
