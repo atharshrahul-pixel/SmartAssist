@@ -2036,6 +2036,24 @@ a {
   animation: pulse 1.5s infinite alternate !important;
 }
 
+@keyframes fadeScaleOut {
+  0% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(0.98); background: #fef2f2; }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.booking-card-cancelling {
+  animation: fadeScaleOut 1.2s ease-in-out infinite !important;
+  pointer-events: none;
+}
+
+.booking-card-cancelled {
+  opacity: 0.65;
+  transition: all 0.5s ease;
+  border-left: 4px solid var(--color-orange, #e05830);
+}
+
+
 
 
 

@@ -184,5 +184,6 @@
   "cancel_appointment": "अपॉइंटमेंट रद्द करें",
   "delete_appointment": "अपॉइंटमेंट हटाएं",
   "confirm_cancel_appointment": "क्या आप वाकई इस अपॉइंटमेंट को रद्द करना चाहते हैं?",
-  "confirm_delete_appointment": "क्या आप वाकई इस अपॉइंटमेंट को हटाना चाहते हैं?"
+  "confirm_delete_appointment": "क्या आप वाकई इस अपॉइंटमेंट को हटाना चाहते हैं?",
+  "cancelling": "रद्द किया जा रहा है..."
 }

@@ -39,6 +39,10 @@ const dashboardReducer = (state, action) => {
       return { ...state, otherRelationship: action.payload };
     case 'SET_FAMILY_LOADING':
       return { ...state, familyLoading: action.payload };
+    case 'START_CANCELLING':
+      return { ...state, cancellingIds: [...(state.cancellingIds || []), action.payload] };
+    case 'STOP_CANCELLING':
+      return { ...state, cancellingIds: (state.cancellingIds || []).filter(id => id !== action.payload) };
     default:
       return state;
   }
@@ -58,7 +62,8 @@ const Dashboard = () => {
     ratingLoading: false,
     familyFields: { name: '', relationship: 'Child' },
     otherRelationship: '',
-    familyLoading: false
+    familyLoading: false,
+    cancellingIds: []
   });
 
   const fetchBookings = useCallback(async () => {
@@ -220,6 +225,7 @@ const Dashboard = () => {
 
   const handleCancelBooking = async (bookingId) => {
     if (!window.confirm(t('confirm_cancel_appointment'))) return;
+    dispatch({ type: 'START_CANCELLING', payload: bookingId });
     try {
       const res = await fetch(`${BACKEND_URL}/bookings/${bookingId}/cancel`, {
         method: 'POST',
@@ -236,6 +242,8 @@ const Dashboard = () => {
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      dispatch({ type: 'STOP_CANCELLING', payload: bookingId });
     }
   };
 
@@ -293,6 +301,7 @@ const Dashboard = () => {
               onRateSpecialist={val => dispatch({ type: 'OPEN_RATING', payload: val })}
               onCancelBooking={handleCancelBooking}
               onDeleteBooking={handleDeleteBooking}
+              cancellingIds={dbState.cancellingIds || []}
               onBookNow={() => navigate('/')}
               t={t}
             />

@@ -193,5 +193,6 @@
   "cancel_appointment": "అపాయింట్‌మెంట్ రద్దు చేయండి",
   "delete_appointment": "అపాయింట్‌మెంట్ తొలగించండి",
   "confirm_cancel_appointment": "మీరు ఈ అపాయింట్‌మెంట్‌ను రద్దు చేయాలనుకుంటున్నారా?",
-  "confirm_delete_appointment": "మీరు ఈ అపాయింట్‌మెంట్‌ను తొలగించాలనుకుంటున్నారా?"
+  "confirm_delete_appointment": "మీరు ఈ అపాయింట్‌మెంట్‌ను తొలగించాలనుకుంటున్నారా?",
+  "cancelling": "రద్దు చేయబడుతోంది..."
 }
