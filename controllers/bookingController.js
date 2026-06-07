@@ -299,6 +299,49 @@ const getBookingReceiptPDF = async (req, res) => {
   }
 };
 
+const cancelAppointment = async (req, res) => {
+  try {
+    const { bookingId } = req.params;
+    const Booking = require('../models/Booking');
+    const booking = await Booking.findById(bookingId);
+    if (!booking) {
+      return res.status(404).json({ success: false, message: 'Booking not found' });
+    }
+
+    if (booking.userId !== req.user._id.toString()) {
+      return res.status(403).json({ success: false, message: 'Unauthorized' });
+    }
+
+    booking.status = 'cancelled';
+    await booking.save();
+
+    res.status(200).json({ success: true, message: 'Appointment cancelled successfully', booking });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+const deleteAppointment = async (req, res) => {
+  try {
+    const { bookingId } = req.params;
+    const Booking = require('../models/Booking');
+    const booking = await Booking.findById(bookingId);
+    if (!booking) {
+      return res.status(404).json({ success: false, message: 'Booking not found' });
+    }
+
+    if (booking.userId !== req.user._id.toString()) {
+      return res.status(403).json({ success: false, message: 'Unauthorized' });
+    }
+
+    await Booking.findByIdAndDelete(bookingId);
+
+    res.status(200).json({ success: true, message: 'Appointment deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 module.exports = {
   bookAppointment,
   getUserBookings,
@@ -308,5 +351,7 @@ module.exports = {
   getRecoveryTimeline,
   getRebookSuggestion,
   rebookAppointmentDirect,
-  getBookingReceiptPDF
+  getBookingReceiptPDF,
+  cancelAppointment,
+  deleteAppointment
 };

@@ -9,7 +9,9 @@ const {
   getRecoveryTimeline,
   getRebookSuggestion,
   rebookAppointmentDirect,
-  getBookingReceiptPDF
+  getBookingReceiptPDF,
+  cancelAppointment,
+  deleteAppointment
 } = require('../controllers/bookingController');
 
 const authMiddleware = require('../middleware/authMiddleware');
@@ -66,6 +68,18 @@ router.post(
 router.get(
   '/:receiptId/pdf',
   asyncHandler(getBookingReceiptPDF)
+);
+
+router.post(
+  '/:bookingId/cancel',
+  authMiddleware,
+  asyncHandler(cancelAppointment)
+);
+
+router.delete(
+  '/:bookingId',
+  authMiddleware,
+  asyncHandler(deleteAppointment)
 );
 
 module.exports = router;
