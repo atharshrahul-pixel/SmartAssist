@@ -36,6 +36,10 @@ const dashboardReducer = (state, action) => {
       return { ...state, deletingIds: [...(state.deletingIds || []), action.payload] };
     case 'STOP_DELETING':
       return { ...state, deletingIds: (state.deletingIds || []).filter(id => id !== action.payload) };
+    case 'START_UNDOING':
+      return { ...state, undoingIds: [...(state.undoingIds || []), action.payload] };
+    case 'STOP_UNDOING':
+      return { ...state, undoingIds: (state.undoingIds || []).filter(id => id !== action.payload) };
     default:
       return state;
   }
@@ -53,7 +57,8 @@ export const useDashboard = ({ user, token, logoutUser, refreshUser, navigate, t
     otherRelationship: '',
     familyLoading: false,
     cancellingIds: [],
-    deletingIds: []
+    deletingIds: [],
+    undoingIds: []
   });
 
   const fetchBookings = useCallback(async () => {
@@ -204,7 +209,7 @@ export const useDashboard = ({ user, token, logoutUser, refreshUser, navigate, t
       if (json.success) {
         alert('Thank you for rating!');
         dispatch({ type: 'CLOSE_RATING' });
-        fetchBookings();
+        await fetchBookings();
       }
     } catch (err) {
       console.error(err);
@@ -226,7 +231,7 @@ export const useDashboard = ({ user, token, logoutUser, refreshUser, navigate, t
       });
       const json = await res.json();
       if (json.success) {
-        fetchBookings();
+        await fetchBookings();
       } else {
         alert(json.message);
       }
@@ -250,7 +255,7 @@ export const useDashboard = ({ user, token, logoutUser, refreshUser, navigate, t
       });
       const json = await res.json();
       if (json.success) {
-        fetchBookings();
+        await fetchBookings();
       } else {
         alert(json.message);
       }
@@ -258,6 +263,29 @@ export const useDashboard = ({ user, token, logoutUser, refreshUser, navigate, t
       console.error(err);
     } finally {
       dispatch({ type: 'STOP_DELETING', payload: bookingId });
+    }
+  };
+
+  const handleUndoCancelBooking = async (bookingId) => {
+    dispatch({ type: 'START_UNDOING', payload: bookingId });
+    try {
+      const res = await fetch(`${BACKEND_URL}/bookings/${bookingId}/undo-cancel`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      const json = await res.json();
+      if (json.success) {
+        await fetchBookings();
+      } else {
+        alert(json.message);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      dispatch({ type: 'STOP_UNDOING', payload: bookingId });
     }
   };
 
@@ -274,6 +302,7 @@ export const useDashboard = ({ user, token, logoutUser, refreshUser, navigate, t
     handleClaimAndBook,
     handleSubmitRating,
     handleCancelBooking,
+    handleUndoCancelBooking,
     handleDeleteBooking,
     handleLogout,
     fetchProfile

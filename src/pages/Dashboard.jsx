@@ -25,6 +25,7 @@ const Dashboard = () => {
     handleClaimAndBook,
     handleSubmitRating,
     handleCancelBooking,
+    handleUndoCancelBooking,
     handleDeleteBooking,
     handleLogout,
     fetchProfile
@@ -58,9 +59,11 @@ const Dashboard = () => {
               hasLoaded={dbState.hasLoaded}
               onRateSpecialist={val => dispatch({ type: 'OPEN_RATING', payload: val })}
               onCancelBooking={handleCancelBooking}
+              onUndoCancelBooking={handleUndoCancelBooking}
               onDeleteBooking={handleDeleteBooking}
               cancellingIds={dbState.cancellingIds || []}
               deletingIds={dbState.deletingIds || []}
+              undoingIds={dbState.undoingIds || []}
               onBookNow={() => navigate('/')}
               t={t}
             />

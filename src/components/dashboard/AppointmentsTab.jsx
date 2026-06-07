@@ -1,9 +1,20 @@
 import { Calendar, Clock, Star } from 'lucide-react';
 
-const EMPTY_CANCELLING_IDS = [];
-const EMPTY_DELETING_IDS = [];
+const EMPTY_IDS = [];
 
-const AppointmentsTab = ({ bookings, hasLoaded, onRateSpecialist, onCancelBooking, onDeleteBooking, cancellingIds = EMPTY_CANCELLING_IDS, deletingIds = EMPTY_DELETING_IDS, onBookNow, t }) => {
+const AppointmentsTab = ({ 
+  bookings, 
+  hasLoaded, 
+  onRateSpecialist, 
+  onCancelBooking, 
+  onUndoCancelBooking,
+  onDeleteBooking, 
+  cancellingIds = EMPTY_IDS, 
+  deletingIds = EMPTY_IDS, 
+  undoingIds = EMPTY_IDS,
+  onBookNow, 
+  t 
+}) => {
   return (
     <div>
       <h2 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '20px' }}>{t('your_appointments')}</h2>
@@ -19,6 +30,8 @@ const AppointmentsTab = ({ bookings, hasLoaded, onRateSpecialist, onCancelBookin
           {bookings.map(b => {
             const isCancelling = cancellingIds.includes(b._id);
             const isDeleting = deletingIds.includes(b._id);
+            const isUndoing = undoingIds.includes(b._id);
+            const isUndoable = b.status === 'cancelled' && b.cancelledAt && (new Date() - new Date(b.cancelledAt)) < 10 * 60 * 1000;
             const cardClass = `card-light ${b.status === 'cancelled' ? 'booking-card-cancelled' : ''} ${isCancelling ? 'booking-card-cancelling' : ''} ${isDeleting ? 'booking-card-deleting' : ''}`;
             
             return (
@@ -54,15 +67,26 @@ const AppointmentsTab = ({ bookings, hasLoaded, onRateSpecialist, onCancelBookin
                       type="button"
                       onClick={() => onCancelBooking(b._id)} 
                       className="btn-danger" 
-                      disabled={isCancelling || isDeleting}
+                      disabled={isCancelling || isDeleting || isUndoing}
                       style={{ padding: '8px 16px', fontSize: '12px' }}
                     >
                       {isCancelling ? t('cancelling') : t('cancel_appointment')}
                     </button>
                   )}
+                  {isUndoable && (
+                    <button 
+                      type="button"
+                      onClick={() => onUndoCancelBooking(b._id)} 
+                      className="btn-primary" 
+                      disabled={isCancelling || isDeleting || isUndoing}
+                      style={{ padding: '8px 16px', fontSize: '12px' }}
+                    >
+                      {isUndoing ? t('undoing', { defaultValue: 'Undoing...' }) : t('undo_cancel', { defaultValue: 'Undo Cancel' })}
+                    </button>
+                  )}
                   <button 
                     type="button"
-                    disabled={isCancelling || isDeleting}
+                    disabled={isCancelling || isDeleting || isUndoing}
                     onClick={() => onDeleteBooking(b._id)} 
                     className="btn-secondary" 
                     style={{ padding: '8px 16px', fontSize: '12px' }}
