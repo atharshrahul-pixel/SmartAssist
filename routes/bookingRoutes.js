@@ -8,7 +8,8 @@ const {
   getPendingFeedback,
   getRecoveryTimeline,
   getRebookSuggestion,
-  rebookAppointmentDirect
+  rebookAppointmentDirect,
+  getBookingReceiptPDF
 } = require('../controllers/bookingController');
 
 const authMiddleware = require('../middleware/authMiddleware');
@@ -60,6 +61,11 @@ router.post(
   '/:receiptId/feedback',
   authMiddleware,
   asyncHandler(submitFeedback)
+);
+
+router.get(
+  '/:receiptId/pdf',
+  asyncHandler(getBookingReceiptPDF)
 );
 
 module.exports = router;

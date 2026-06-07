@@ -279,6 +279,26 @@ const rebookAppointmentDirect = async (req, res) => {
   }
 };
 
+const getBookingReceiptPDF = async (req, res) => {
+  try {
+    const { receiptId } = req.params;
+    const Booking = require('../models/Booking');
+    const booking = await Booking.findOne({ receiptId });
+    if (!booking) {
+      return res.status(404).json({ success: false, message: 'Booking not found' });
+    }
+
+    const { generateBookingReceiptPDF } = require('../services/pdfService');
+    const pdfBuffer = await generateBookingReceiptPDF(booking);
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename=receipt-${booking.receiptId}.pdf`);
+    res.send(pdfBuffer);
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 module.exports = {
   bookAppointment,
   getUserBookings,
@@ -287,5 +307,6 @@ module.exports = {
   getPendingFeedback,
   getRecoveryTimeline,
   getRebookSuggestion,
-  rebookAppointmentDirect
+  rebookAppointmentDirect,
+  getBookingReceiptPDF
 };

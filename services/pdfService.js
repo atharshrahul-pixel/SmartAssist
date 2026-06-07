@@ -81,6 +81,66 @@ const generatePreVisitSummaryPDF = (booking, userProfile = null) => {
   });
 };
 
+const generateBookingReceiptPDF = (booking) => {
+  return new Promise((resolve, reject) => {
+    try {
+      const doc = new PDFDocument({ margin: 50 });
+      const chunks = [];
+      
+      doc.on('data', chunk => chunks.push(chunk));
+      doc.on('end', () => resolve(Buffer.concat(chunks)));
+      doc.on('error', err => reject(err));
+      
+      doc.fontSize(22).fillColor('#1a1a1a').text('SmartAssist Appointment Receipt', { align: 'center' });
+      doc.moveDown(0.3);
+      doc.fontSize(10).fillColor('#666666').text(`Receipt ID: ${booking.receiptId}`, { align: 'center' });
+      doc.text(`Generated on: ${new Date().toLocaleString()}`, { align: 'center' });
+      doc.moveDown(1.5);
+      
+      doc.strokeColor('#e2e8f0').lineWidth(1.5).moveTo(50, doc.y).lineTo(562, doc.y).stroke();
+      doc.moveDown(1.5);
+      
+      doc.fontSize(14).fillColor('#e05830').text('Appointment Details', { underline: true });
+      doc.moveDown(0.6);
+      
+      doc.fontSize(11).fillColor('#2d3748');
+      
+      const labelX = 60;
+      const valueX = 220;
+      
+      const drawRow = (label, value) => {
+        const currentY = doc.y;
+        doc.text(label, labelX, currentY);
+        doc.text(value, valueX, currentY);
+        doc.moveDown(0.5);
+      };
+      
+      drawRow('Patient Name:', booking.bookedFor || booking.userName);
+      drawRow('Specialist Name:', booking.specialistName);
+      drawRow('Specialist Category:', booking.specialistCategory);
+      drawRow('Appointment Date:', booking.bookingDate);
+      drawRow('Appointment Time:', booking.bookingTime);
+      drawRow('Consultation Mode:', `${booking.appointmentMode} (${booking.duration || '30'} mins)`);
+      
+      const feeText = booking.price !== undefined ? `INR ${booking.price}` : 'Free / Included';
+      drawRow('Consultation Fee:', feeText);
+      
+      doc.moveDown(1.5);
+      doc.strokeColor('#e2e8f0').lineWidth(1).moveTo(50, doc.y).lineTo(562, doc.y).stroke();
+      doc.moveDown(1.5);
+      
+      doc.fontSize(12).fillColor('#1a1a1a').text('Show this ticket at the reception upon arrival.', { align: 'center' });
+      doc.moveDown(1);
+      doc.fontSize(9).fillColor('#718096').text('Thank you for booking with SmartAssist. Please arrive 10 minutes prior to your scheduled time.', { align: 'center' });
+      
+      doc.end();
+    } catch (err) {
+      reject(err);
+    }
+  });
+};
+
 module.exports = {
-  generatePreVisitSummaryPDF
+  generatePreVisitSummaryPDF,
+  generateBookingReceiptPDF
 };
