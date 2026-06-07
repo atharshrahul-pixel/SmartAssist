@@ -22,7 +22,7 @@ const Screen3Rejection = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!reason || (reason === 'Other' && !other.trim())) return;
+    if (!reason || (reason === t('reason_other') && !other.trim())) return;
     
     updateState({ rejectionReason: reason, rejectionReasonOther: other });
     navigate('/specialists');

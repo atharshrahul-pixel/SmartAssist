@@ -265,5 +265,18 @@
   "faq_about_waitlists": "About Waitlists",
   "faq_consultation_modes": "Consultation Modes",
   "faq_contact_support": "Contact Support",
-  "error_invalid_secret": "Invalid secret key. Access denied."
+  "error_invalid_secret": "Invalid secret key. Access denied.",
+  "back_to_recommendation": "Back to Recommendation",
+  "help_us_improve": "Help Us Improve",
+  "why_not_right_match": "Why is this not the right",
+  "match": "match?",
+  "feedback_desc": "Please tell us why this specialist recommendation wasn't a good fit. Your feedback helps improve our triage system.",
+  "reason_wrong_rec": "The recommended specialist category seems incorrect",
+  "reason_diff_issue": "My health issue is different from what was analyzed",
+  "reason_prefer_another": "I prefer to see a different type of specialist",
+  "reason_other": "Other reason",
+  "tell_us_more": "Tell us more about it",
+  "tooltip_rejection": "Provide any additional details or context to help us improve the recommendation engine.",
+  "rejection_placeholder": "Describe why the recommendation was not right for you...",
+  "continue_to_specialists": "Continue to Specialists"
 }
