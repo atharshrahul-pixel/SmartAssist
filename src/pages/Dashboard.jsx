@@ -62,7 +62,7 @@ const Dashboard = () => {
 
   const fetchBookings = useCallback(async () => {
     try {
-      const res = await fetch(`${BACKEND_URL}/bookings/my-bookings`, {
+      const res = await fetch(`${BACKEND_URL}/bookings/user`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const json = await res.json();
