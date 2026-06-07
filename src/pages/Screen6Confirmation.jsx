@@ -140,7 +140,7 @@ const Screen6Confirmation = () => {
                   </div>
                   <div>
                     <h3 style={{ fontSize: '20px', fontWeight: '800', marginBottom: '4px' }}>{state.finalSpecialist.name}</h3>
-                    <span className="pill-tag" style={{ fontSize: '12px' }}>{t(`category_${state.finalSpecialist.category}`, { defaultValue: state.finalSpecialist.category })}</span>
+                    <span className="pill-tag" style={{ fontSize: '12px' }}>{t(`category_${state.finalSpecialist.category || state.finalSpecialist.specialization}`, { defaultValue: state.finalSpecialist.category || state.finalSpecialist.specialization })}</span>
                   </div>
                 </div>
 

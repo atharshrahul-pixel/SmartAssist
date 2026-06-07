@@ -147,7 +147,7 @@ const BookingDetailsSidebar = ({
           </div>
           <div>
             <div style={{ color: 'var(--color-white)', fontSize: '16px', fontWeight: '700' }}>{state.finalSpecialist.name}</div>
-            <div style={{ color: 'var(--color-accent)', fontSize: '12px', fontWeight: '700', textTransform: 'uppercase' }}>{state.finalSpecialist.category}</div>
+            <div style={{ color: 'var(--color-accent)', fontSize: '12px', fontWeight: '700', textTransform: 'uppercase' }}>{t(`category_${state.finalSpecialist.category || state.finalSpecialist.specialization}`, { defaultValue: state.finalSpecialist.category || state.finalSpecialist.specialization })}</div>
           </div>
           <button 
             type="button"
