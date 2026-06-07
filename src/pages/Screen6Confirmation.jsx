@@ -153,7 +153,7 @@ const Screen6Confirmation = () => {
               <div className="ticket-divider"></div>
 
               <div className="ticket-body" style={{ background: '#FAFAF9', textAlign: 'center' }}>
-                <p style={{ fontSize: '13px', color: 'var(--color-muted)', marginBottom: '16px' }}>
+                <p style={{ fontSize: '13px', color: '#000000', fontWeight: 'bold', marginBottom: '16px' }}>
                   {t('show_receipt_desc')}
                 </p>
                 <div style={{ display: 'flex', justifyContent: 'center', gap: '12px' }}>
