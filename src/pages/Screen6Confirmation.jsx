@@ -6,6 +6,10 @@ import Stepper from '../components/Stepper';
 import { Check, Download, RefreshCcw, Share2, Calendar, Clock, User, ShieldCheck } from 'lucide-react';
 import { SafeTitle } from '../utils/titleRenderer';
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || (window.location.hostname === 'localhost'
+  ? 'http://localhost:5000/api'
+  : 'https://p01--smart-assist-backend--qnbs82bxhg66.code.run/api');
+
 const Screen6Confirmation = () => {
   const { t } = useTranslation();
   const { state, updateState, addBooking } = use(AppContext);
@@ -28,6 +32,26 @@ const Screen6Confirmation = () => {
     }
 
   }, [state.bookingId, state.bookedDate, state.bookedTime, state.finalSpecialist, navigate, addBooking]);
+
+  const handleSavePDF = async () => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/bookings/${state.bookingId}/pdf`);
+      if (!response.ok) {
+        throw new Error('Failed to generate PDF');
+      }
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `receipt-${state.bookingId}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+    } catch (error) {
+      console.error('Error downloading PDF:', error);
+      alert('Could not download PDF. Please try again.');
+    }
+  };
 
   const handleBookAnother = () => {
     updateState({
@@ -160,7 +184,7 @@ const Screen6Confirmation = () => {
                   <button type="button" className="btn-secondary" style={{ padding: '8px 16px', fontSize: '12px', gap: '8px' }}>
                     <Share2 size={14} /> {t('share')}
                   </button>
-                  <button type="button" className="btn-secondary" style={{ padding: '8px 16px', fontSize: '12px', gap: '8px' }}>
+                  <button type="button" onClick={handleSavePDF} className="btn-secondary" style={{ padding: '8px 16px', fontSize: '12px', gap: '8px' }}>
                     <Download size={14} /> {t('save_pdf')}
                   </button>
                 </div>
