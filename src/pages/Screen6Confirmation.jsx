@@ -1,4 +1,4 @@
-import { useEffect, use, useRef } from 'react';
+import { useEffect, use, useRef, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { AppContext } from '../context/AppContext';
@@ -15,6 +15,7 @@ const Screen6Confirmation = () => {
   const { state, updateState, addBooking } = use(AppContext);
   const navigate = useNavigate();
   const bookingAddedRef = useRef(false);
+  const [pdfLoading, setPdfLoading] = useState(false);
 
   useEffect(() => {
     if (!state.bookingId || !state.bookedDate) {
@@ -34,6 +35,8 @@ const Screen6Confirmation = () => {
   }, [state.bookingId, state.bookedDate, state.bookedTime, state.finalSpecialist, navigate, addBooking]);
 
   const handleSavePDF = async () => {
+    if (pdfLoading) return;
+    setPdfLoading(true);
     try {
       const response = await fetch(`${BACKEND_URL}/bookings/${state.bookingId}/pdf`);
       if (!response.ok) {
@@ -50,6 +53,8 @@ const Screen6Confirmation = () => {
     } catch (error) {
       console.error('Error downloading PDF:', error);
       alert('Could not download PDF. Please try again.');
+    } finally {
+      setPdfLoading(false);
     }
   };
 
@@ -184,8 +189,15 @@ const Screen6Confirmation = () => {
                   <button type="button" className="btn-secondary" style={{ padding: '8px 16px', fontSize: '12px', gap: '8px' }}>
                     <Share2 size={14} /> {t('share')}
                   </button>
-                  <button type="button" onClick={handleSavePDF} className="btn-secondary" style={{ padding: '8px 16px', fontSize: '12px', gap: '8px' }}>
-                    <Download size={14} /> {t('save_pdf')}
+                  <button 
+                    type="button" 
+                    onClick={handleSavePDF} 
+                    className="btn-secondary" 
+                    disabled={pdfLoading}
+                    style={{ padding: '8px 16px', fontSize: '12px', gap: '8px', opacity: pdfLoading ? 0.7 : 1 }}
+                  >
+                    <Download size={14} className={pdfLoading ? "animate-spin" : ""} /> 
+                    {pdfLoading ? t('processing', { defaultValue: 'Processing...' }) : t('save_pdf')}
                   </button>
                 </div>
               </div>
