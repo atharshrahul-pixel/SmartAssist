@@ -40,6 +40,26 @@ const dashboardReducer = (state, action) => {
       return { ...state, undoingIds: [...(state.undoingIds || []), action.payload] };
     case 'STOP_UNDOING':
       return { ...state, undoingIds: (state.undoingIds || []).filter(id => id !== action.payload) };
+    case 'REMOVE_BOOKING_OPTIMISTIC':
+      return { ...state, bookings: state.bookings.filter(b => b._id !== action.payload) };
+    case 'CANCEL_BOOKING_OPTIMISTIC':
+      return {
+        ...state,
+        bookings: state.bookings.map(b => 
+          b._id === action.payload 
+            ? { ...b, status: 'cancelled', cancelledAt: new Date().toISOString() } 
+            : b
+        )
+      };
+    case 'UNDO_CANCEL_BOOKING_OPTIMISTIC':
+      return {
+        ...state,
+        bookings: state.bookings.map(b => 
+          b._id === action.payload 
+            ? { ...b, status: 'confirmed', cancelledAt: undefined } 
+            : b
+        )
+      };
     default:
       return state;
   }
@@ -221,6 +241,7 @@ export const useDashboard = ({ user, token, logoutUser, refreshUser, navigate, t
   const handleCancelBooking = async (bookingId) => {
     if (!window.confirm(t('confirm_cancel_appointment'))) return;
     dispatch({ type: 'START_CANCELLING', payload: bookingId });
+    dispatch({ type: 'CANCEL_BOOKING_OPTIMISTIC', payload: bookingId });
     try {
       const res = await fetch(`${BACKEND_URL}/bookings/${bookingId}/cancel`, {
         method: 'POST',
@@ -230,13 +251,13 @@ export const useDashboard = ({ user, token, logoutUser, refreshUser, navigate, t
         }
       });
       const json = await res.json();
-      if (json.success) {
-        await fetchBookings();
-      } else {
+      if (!json.success) {
         alert(json.message);
+        await fetchBookings();
       }
     } catch (err) {
       console.error(err);
+      await fetchBookings();
     } finally {
       dispatch({ type: 'STOP_CANCELLING', payload: bookingId });
     }
@@ -246,6 +267,7 @@ export const useDashboard = ({ user, token, logoutUser, refreshUser, navigate, t
     if (!window.confirm(t('confirm_delete_appointment'))) return;
     dispatch({ type: 'START_DELETING', payload: bookingId });
     await new Promise(resolve => setTimeout(resolve, 600));
+    dispatch({ type: 'REMOVE_BOOKING_OPTIMISTIC', payload: bookingId });
     try {
       const res = await fetch(`${BACKEND_URL}/bookings/${bookingId}`, {
         method: 'DELETE',
@@ -254,13 +276,13 @@ export const useDashboard = ({ user, token, logoutUser, refreshUser, navigate, t
         }
       });
       const json = await res.json();
-      if (json.success) {
-        await fetchBookings();
-      } else {
+      if (!json.success) {
         alert(json.message);
+        await fetchBookings();
       }
     } catch (err) {
       console.error(err);
+      await fetchBookings();
     } finally {
       dispatch({ type: 'STOP_DELETING', payload: bookingId });
     }
@@ -268,6 +290,7 @@ export const useDashboard = ({ user, token, logoutUser, refreshUser, navigate, t
 
   const handleUndoCancelBooking = async (bookingId) => {
     dispatch({ type: 'START_UNDOING', payload: bookingId });
+    dispatch({ type: 'UNDO_CANCEL_BOOKING_OPTIMISTIC', payload: bookingId });
     try {
       const res = await fetch(`${BACKEND_URL}/bookings/${bookingId}/undo-cancel`, {
         method: 'POST',
@@ -277,13 +300,13 @@ export const useDashboard = ({ user, token, logoutUser, refreshUser, navigate, t
         }
       });
       const json = await res.json();
-      if (json.success) {
-        await fetchBookings();
-      } else {
+      if (!json.success) {
         alert(json.message);
+        await fetchBookings();
       }
     } catch (err) {
       console.error(err);
+      await fetchBookings();
     } finally {
       dispatch({ type: 'STOP_UNDOING', payload: bookingId });
     }
