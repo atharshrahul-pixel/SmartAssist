@@ -305,5 +305,10 @@
   "abbr_month_8": "Sep",
   "abbr_month_9": "Oct",
   "abbr_month_10": "Nov",
-  "abbr_month_11": "Dec"
+  "abbr_month_11": "Dec",
+  "cancelled": "Cancelled",
+  "cancel_appointment": "Cancel Appointment",
+  "delete_appointment": "Delete Appointment",
+  "confirm_cancel_appointment": "Are you sure you want to cancel this appointment?",
+  "confirm_delete_appointment": "Are you sure you want to delete this appointment?"
 }

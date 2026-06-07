@@ -137,5 +137,10 @@
   "abbr_month_8": "ಸೆಪ್ಟೆ",
   "abbr_month_9": "ಅಕ್ಟೋ",
   "abbr_month_10": "ನವೆ",
-  "abbr_month_11": "ಡಿಸೆ"
+  "abbr_month_11": "ಡಿಸೆ",
+  "cancelled": "ರದ್ದುಗೊಳಿಸಲಾಗಿದೆ",
+  "cancel_appointment": "ಅಪಾಯಿಂಟ್ಮೆಂಟ್ ರದ್ದುಮಾಡಿ",
+  "delete_appointment": "ಅಪಾಯಿಂಟ್ಮೆಂಟ್ ತೆಗೆದುಹಾಕಿ",
+  "confirm_cancel_appointment": "ಈ ಅಪಾಯಿಂಟ್ಮೆಂಟ್ ಅನ್ನು ರದ್ದುಗೊಳಿಸಲು ನೀವು ಖಚಿತವಾಗಿ ಬಯಸುವಿರಾ?",
+  "confirm_delete_appointment": "ಈ ಅಪಾಯಿಂಟ್ಮೆಂಟ್ ಅನ್ನು ಅಳಿಸಲು ನೀವು ಖಚಿತವಾಗಿ ಬಯಸುವಿರಾ?"
 }

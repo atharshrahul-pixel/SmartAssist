@@ -188,5 +188,10 @@
   "abbr_month_8": "సెప్టె",
   "abbr_month_9": "అక్టో",
   "abbr_month_10": "నవం",
-  "abbr_month_11": "డిసెం"
+  "abbr_month_11": "డిసెం",
+  "cancelled": "రద్దు చేయబడింది",
+  "cancel_appointment": "అపాయింట్‌మెంట్ రద్దు చేయండి",
+  "delete_appointment": "అపాయింట్‌మెంట్ తొలగించండి",
+  "confirm_cancel_appointment": "మీరు ఈ అపాయింట్‌మెంట్‌ను రద్దు చేయాలనుకుంటున్నారా?",
+  "confirm_delete_appointment": "మీరు ఈ అపాయింట్‌మెంట్‌ను తొలగించాలనుకుంటున్నారా?"
 }

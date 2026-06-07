@@ -179,5 +179,10 @@
   "abbr_month_8": "सित॰",
   "abbr_month_9": "अक्टू॰",
   "abbr_month_10": "नव॰",
-  "abbr_month_11": "दिस॰"
+  "abbr_month_11": "दिस॰",
+  "cancelled": "रद्द कर दिया गया",
+  "cancel_appointment": "अपॉइंटमेंट रद्द करें",
+  "delete_appointment": "अपॉइंटमेंट हटाएं",
+  "confirm_cancel_appointment": "क्या आप वाकई इस अपॉइंटमेंट को रद्द करना चाहते हैं?",
+  "confirm_delete_appointment": "क्या आप वाकई इस अपॉइंटमेंट को हटाना चाहते हैं?"
 }

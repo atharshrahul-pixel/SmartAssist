@@ -179,5 +179,10 @@
   "abbr_month_8": "செப்",
   "abbr_month_9": "அக்",
   "abbr_month_10": "நவ",
-  "abbr_month_11": "டிச"
+  "abbr_month_11": "டிச",
+  "cancelled": "ரத்து செய்யப்பட்டது",
+  "cancel_appointment": "முன்பதிவை ரத்து செய்",
+  "delete_appointment": "முன்பதிவை நீக்கு",
+  "confirm_cancel_appointment": "இந்த முன்பதிவை ரத்து செய்ய நீங்கள் உறுதியாக இருக்கிறீர்களா?",
+  "confirm_delete_appointment": "இந்த முன்பதிவை நீக்க நீங்கள் உறுதியாக இருக்கிறீர்களா?"
 }

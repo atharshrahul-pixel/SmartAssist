@@ -217,6 +217,47 @@ const Dashboard = () => {
     }
   };
 
+  const handleCancelBooking = async (bookingId) => {
+    if (!window.confirm(t('confirm_cancel_appointment'))) return;
+    try {
+      const res = await fetch(`${BACKEND_URL}/bookings/${bookingId}/cancel`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      const json = await res.json();
+      if (json.success) {
+        fetchBookings();
+      } else {
+        alert(json.message);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleDeleteBooking = async (bookingId) => {
+    if (!window.confirm(t('confirm_delete_appointment'))) return;
+    try {
+      const res = await fetch(`${BACKEND_URL}/bookings/${bookingId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      const json = await res.json();
+      if (json.success) {
+        fetchBookings();
+      } else {
+        alert(json.message);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const handleLogout = () => {
     logoutUser();
     navigate('/');
@@ -281,6 +322,8 @@ const Dashboard = () => {
               bookings={dbState.bookings}
               hasLoaded={dbState.hasLoaded}
               onRateSpecialist={val => dispatch({ type: 'OPEN_RATING', payload: val })}
+              onCancelBooking={handleCancelBooking}
+              onDeleteBooking={handleDeleteBooking}
               onBookNow={() => navigate('/')}
               t={t}
             />
