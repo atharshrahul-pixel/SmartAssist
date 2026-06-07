@@ -40,6 +40,14 @@ const Register = () => {
   
   const flow = appContextState.finalSpecialist ? 'booking' : 'account';
   const currentStep = appContextState.finalSpecialist ? 5 : 1;
+  const customStepNames = [
+    t('step_1_name'),
+    t('step_2_name'),
+    t('step_3_name'),
+    t('step_4_name'),
+    t('create_account'),
+    t('step_6_name')
+  ];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -88,7 +96,7 @@ const Register = () => {
 
   return (
     <div className="page-transition" style={{ display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
-      <Stepper currentStep={currentStep} flow={flow} />
+      <Stepper currentStep={currentStep} flow={flow} stepNamesOverride={flow === 'booking' ? customStepNames : null} />
       <div className="container" style={{ maxWidth: '480px', paddingTop: '40px', flex: 1 }}>
         <div className="card-light" style={{ padding: '40px' }}>
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>

@@ -21,7 +21,15 @@ const Login = () => {
   const navigate = useNavigate();
   
   const flow = state.finalSpecialist ? 'booking' : 'account';
-  const currentStep = state.finalSpecialist ? 5 : 1;
+  const currentStep = state.finalSpecialist ? 5 : 2;
+  const customStepNames = [
+    t('step_1_name'),
+    t('step_2_name'),
+    t('step_3_name'),
+    t('step_4_name'),
+    t('login_register'),
+    t('step_6_name')
+  ];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -72,7 +80,7 @@ const Login = () => {
 
   return (
     <div className="page-transition" style={{ display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
-      <Stepper currentStep={currentStep} flow={flow} />
+      <Stepper currentStep={currentStep} flow={flow} stepNamesOverride={flow === 'booking' ? customStepNames : null} />
       <div className="container" style={{ maxWidth: '480px', paddingTop: '40px', flex: 1 }}>
       <div className="card-light" style={{ padding: '40px' }}>
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>

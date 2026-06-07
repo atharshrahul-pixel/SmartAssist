@@ -1,10 +1,10 @@
 import { Check } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-const Stepper = ({ currentStep, flow = 'booking' }) => {
+const Stepper = ({ currentStep, flow = 'booking', stepNamesOverride }) => {
   const { t } = useTranslation();
   let steps = [1, 2, 3, 4, 5, 6];
-  let stepNames = [
+  let stepNames = stepNamesOverride || [
     t('step_1_name'),
     t('step_2_name'),
     t('step_3_name'),
@@ -15,14 +15,7 @@ const Stepper = ({ currentStep, flow = 'booking' }) => {
   let title = t('step_title', { current: currentStep, total: 6, name: stepNames[currentStep - 1] });
 
   if (flow === 'account') {
-    steps = [1, 2];
-    stepNames = [
-      t('step_1_account'),
-      t('step_2_account')
-    ];
-    title = currentStep > 2 
-      ? t('account_complete_title')
-      : t('step_title', { current: currentStep, total: 2, name: stepNames[currentStep - 1] });
+    return null;
   } else if (flow === 'lookup') {
     steps = [1, 2];
     stepNames = [
