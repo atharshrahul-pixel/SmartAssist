@@ -313,9 +313,43 @@ const cancelAppointment = async (req, res) => {
     }
 
     booking.status = 'cancelled';
+    booking.cancelledAt = new Date();
     await booking.save();
 
     res.status(200).json({ success: true, message: 'Appointment cancelled successfully', booking });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+const undoCancelAppointment = async (req, res) => {
+  try {
+    const { bookingId } = req.params;
+    const Booking = require('../models/Booking');
+    const booking = await Booking.findById(bookingId);
+    if (!booking) {
+      return res.status(404).json({ success: false, message: 'Booking not found' });
+    }
+
+    if (booking.userId !== req.user._id.toString()) {
+      return res.status(403).json({ success: false, message: 'Unauthorized' });
+    }
+
+    if (booking.status !== 'cancelled') {
+      return res.status(400).json({ success: false, message: 'Appointment is not cancelled' });
+    }
+
+    const cancelledAtTime = booking.cancelledAt || booking.updatedAt;
+    const diff = new Date() - new Date(cancelledAtTime);
+    if (diff > 10 * 60 * 1000) {
+      return res.status(400).json({ success: false, message: 'Undo window of 10 minutes has expired' });
+    }
+
+    booking.status = 'confirmed';
+    booking.cancelledAt = undefined;
+    await booking.save();
+
+    res.status(200).json({ success: true, message: 'Cancellation undone successfully', booking });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -353,5 +387,6 @@ module.exports = {
   rebookAppointmentDirect,
   getBookingReceiptPDF,
   cancelAppointment,
+  undoCancelAppointment,
   deleteAppointment
 };

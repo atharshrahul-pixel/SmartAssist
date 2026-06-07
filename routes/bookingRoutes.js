@@ -11,6 +11,7 @@ const {
   rebookAppointmentDirect,
   getBookingReceiptPDF,
   cancelAppointment,
+  undoCancelAppointment,
   deleteAppointment
 } = require('../controllers/bookingController');
 
@@ -74,6 +75,12 @@ router.post(
   '/:bookingId/cancel',
   authMiddleware,
   asyncHandler(cancelAppointment)
+);
+
+router.post(
+  '/:bookingId/undo-cancel',
+  authMiddleware,
+  asyncHandler(undoCancelAppointment)
 );
 
 router.delete(
