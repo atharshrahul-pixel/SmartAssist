@@ -12,27 +12,69 @@ const getSpecialists = async ({ category, lat, lng, radius }) => {
     isExternal: false
   }));
 
-  if (lat && lng && category) {
+  if (lat && lng) {
     try {
-      const placesSpecs = await placesService.getSpecialistsFromPlaces(
-        parseFloat(lat), 
-        parseFloat(lng), 
-        category, 
-        radius ? parseInt(radius) : 5000
-      );
-      
       const merged = [...localSpecs];
-      for (const p of placesSpecs) {
-        const isDupe = localSpecs.some(local => 
-          (local.place_id && p.place_id && local.place_id === p.place_id) ||
-          (local.placeId && p.place_id && local.placeId === p.place_id) ||
-          (local.phone && p.phone && local.phone === p.phone)
+      
+      if (category && category !== 'All') {
+        const placesSpecs = await placesService.getSpecialistsFromPlaces(
+          parseFloat(lat), 
+          parseFloat(lng), 
+          category, 
+          radius ? parseInt(radius) : 5000
         );
-        if (!isDupe) {
-          merged.push({
-            id: `external_${p.place_id}`,
-            ...p
-          });
+        
+        for (const p of placesSpecs) {
+          const isDupe = localSpecs.some(local => 
+            (local.place_id && p.place_id && local.place_id === p.place_id) ||
+            (local.placeId && p.place_id && local.placeId === p.place_id) ||
+            (local.phone && p.phone && local.phone === p.phone)
+          );
+          if (!isDupe) {
+            merged.push({
+              id: `external_${p.place_id}`,
+              ...p
+            });
+          }
+        }
+      } else {
+        const categories = [
+          'Dentist',
+          'Physiotherapist',
+          'Gym Trainer',
+          'Salon Specialist',
+          'Cardiologist',
+          'Dermatologist',
+          'General Practitioner'
+        ];
+        
+        const promises = categories.map(cat => 
+          placesService.getSpecialistsFromPlaces(
+            parseFloat(lat), 
+            parseFloat(lng), 
+            cat, 
+            radius ? parseInt(radius) : 5000
+          ).catch(err => {
+            console.error(`Error fetching category ${cat} in list:`, err.message);
+            return [];
+          })
+        );
+        
+        const allPlacesSpecs = await Promise.all(promises);
+        const flatPlacesSpecs = allPlacesSpecs.flat();
+        
+        for (const p of flatPlacesSpecs) {
+          const isDupe = merged.some(local => 
+            (local.place_id && p.place_id && local.place_id === p.place_id) ||
+            (local.placeId && p.place_id && local.placeId === p.place_id) ||
+            (local.phone && p.phone && local.phone === p.phone)
+          );
+          if (!isDupe) {
+            merged.push({
+              id: `external_${p.place_id}`,
+              ...p
+            });
+          }
         }
       }
       return merged;
