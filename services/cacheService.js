@@ -11,11 +11,15 @@ let cacheMisses = 0;
 
 if (process.env.REDIS_URL) {
   try {
-    redisClient = new Redis(process.env.REDIS_URL, {
+    const redisOptions = {
       maxRetriesPerRequest: 1,
       connectTimeout: 3000,
       reconnectOnError: () => true
-    });
+    };
+    if (process.env.REDIS_PASSWORD) {
+      redisOptions.password = process.env.REDIS_PASSWORD;
+    }
+    redisClient = new Redis(process.env.REDIS_URL, redisOptions);
 
     redisClient.on('error', (err) => {
       console.warn('Redis client error, falling back to local memory cache:', err.message);
