@@ -6,11 +6,13 @@ const {
 } = require("../services/specialistService");
 
 const listSpecialists = async (req, res) => {
-
   try {
-
+    const { category, lat, lng, radius } = req.query;
     const specialists = await getSpecialists({
-      category: req.query.category
+      category,
+      lat,
+      lng,
+      radius
     });
 
     res.status(200).json({
@@ -20,12 +22,10 @@ const listSpecialists = async (req, res) => {
     });
 
   } catch (error) {
-
     res.status(500).json({
       success: false,
       message: error.message
     });
-
   }
 };
 
@@ -311,6 +311,24 @@ const getPatientSummaryPDF = async (req, res) => {
   res.send(pdfBuffer);
 };
 
+const geocodeAddress = async (req, res) => {
+  try {
+    const { query } = req.body;
+    if (!query) {
+      return res.status(400).json({ success: false, message: 'Query parameter is required' });
+    }
+    const placesService = require("../services/placesService");
+    const coords = await placesService.getCoordinatesFromQuery(query);
+    if (coords) {
+      return res.status(200).json({ success: true, ...coords });
+    } else {
+      return res.status(404).json({ success: false, message: 'Could not geocode address' });
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 module.exports = {
   listSpecialists,
   addSpecialist,
@@ -324,5 +342,6 @@ module.exports = {
   getMyAppointments,
   getPatientSummary,
   getPatientSummaryPDF,
-  getMyEarnings
+  getMyEarnings,
+  geocodeAddress
 };

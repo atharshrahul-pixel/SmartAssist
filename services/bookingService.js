@@ -25,7 +25,7 @@ const createBooking = async ({ userName, userEmail, specialistId, bookingDate, b
     specialistCategory: specialist.category || specialist.specialization,
     bookingDate,
     bookingTime,
-    status: 'confirmed',
+    status: specialistId.startsWith('external_') ? 'pending' : 'confirmed',
     createdAt: new Date().toISOString(),
     rejectionReason,
     rejectionReasonOther,

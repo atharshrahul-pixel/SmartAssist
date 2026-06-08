@@ -22,9 +22,11 @@
     "express": "^4.21.2",
     "firebase": "^12.13.0",
     "firebase-admin": "^13.9.0",
+    "ioredis": "^5.11.1",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.6.2",
     "multer": "^2.1.1",
+    "node-cache": "^5.1.2",
     "node-cron": "^4.2.1",
     "pdfkit": "^0.18.0",
     "resend": "^6.12.4"
