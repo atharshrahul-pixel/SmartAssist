@@ -89,10 +89,12 @@ const Screen6Confirmation = () => {
             </div>
 
             <h1 style={{ fontSize: '64px', lineHeight: '1', marginBottom: '24px', maxWidth: '500px' }}>
-              <SafeTitle text={t('all_set')} />
+              <SafeTitle text={state.finalSpecialist.isExternal ? 'Request Sent!' : t('all_set')} />
             </h1>
             <p style={{ fontSize: '20px', color: 'var(--color-dark)', opacity: 0.8, maxWidth: '480px', marginBottom: '48px', lineHeight: '1.5' }}>
-              {t('appointment_success_desc')}
+              {state.finalSpecialist.isExternal 
+                ? 'Your appointment request has been forwarded to the clinic. They will contact you shortly to confirm.'
+                : t('appointment_success_desc')}
             </p>
 
             <div style={{ marginBottom: '32px' }}>
@@ -141,7 +143,11 @@ const Screen6Confirmation = () => {
               <div className="ticket-body">
                 <div style={{ display: 'flex', gap: '24px', marginBottom: '32px' }}>
                   <div className="conf-avatar">
-                    {state.finalSpecialist.initials}
+                    {state.finalSpecialist.profilePhoto ? (
+                      <img src={state.finalSpecialist.profilePhoto} alt={state.finalSpecialist.name} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                    ) : (
+                      state.finalSpecialist.initials || state.finalSpecialist.name.substring(0, 2).toUpperCase()
+                    )}
                   </div>
                   <div>
                     <h3 style={{ fontSize: '20px', fontWeight: '800', marginBottom: '4px' }}>{state.finalSpecialist.name}</h3>

@@ -114,6 +114,7 @@ export function useTriage(appContextState, updateState, user) {
     errorMsg: '',
     appointmentFor: appContextState.appointmentFor || 'myself',
     otherName: appContextState.otherName || '',
+    locationQuery: appContextState.locationQuery || '',
   });
 
   const [triageState, dispatch] = useReducer(triageReducer, initialTriageState);
@@ -273,7 +274,7 @@ export function useTriage(appContextState, updateState, user) {
 
   const userTurnCount = chatHistory.filter(m => m.role === 'user').length;
 
-  const handleStartTriage = (e) => {
+  const handleStartTriage = async (e) => {
     e.preventDefault();
     if (formState.appointmentFor === 'other' && !formState.otherName.trim()) {
       setFormState(prev => ({ ...prev, errorMsg: t('error_patient_name') }));
@@ -295,11 +296,38 @@ export function useTriage(appContextState, updateState, user) {
       }
     }
     setFormState(prev => ({ ...prev, errorMsg: '' }));
+    dispatch({ type: 'SET_LOADING', payload: true });
+
+    let finalLat = appContextState.lat;
+    let finalLng = appContextState.lng;
+
+    if (formState.locationQuery.trim()) {
+      try {
+        const response = await fetch(`${BACKEND_URL}/specialists/geocode`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query: formState.locationQuery.trim() })
+        });
+        const geoData = await response.json();
+        if (geoData.success) {
+          finalLat = Math.round(geoData.lat * 100) / 100;
+          finalLng = Math.round(geoData.lng * 100) / 100;
+          localStorage.setItem('user_lat', finalLat);
+          localStorage.setItem('user_lng', finalLng);
+        }
+      } catch (err) {
+        console.error('Error during geocoding:', err.message);
+      }
+    }
+
     updateState({
       name: resolvedName.trim(),
       email: resolvedEmail.trim(),
       appointmentFor: formState.appointmentFor,
-      otherName: formState.appointmentFor === 'other' ? formState.otherName.trim() : ''
+      otherName: formState.appointmentFor === 'other' ? formState.otherName.trim() : '',
+      lat: finalLat,
+      lng: finalLng,
+      locationQuery: formState.locationQuery.trim()
     });
 
     dispatch({

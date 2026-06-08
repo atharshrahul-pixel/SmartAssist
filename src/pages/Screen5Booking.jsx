@@ -143,7 +143,11 @@ const BookingDetailsSidebar = ({
       <div className="card-dark" style={{ padding: '24px', marginBottom: '24px', borderRadius: 'var(--r-lg)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px' }}>
           <div style={SPECIALIST_AVATAR_STYLE}>
-            {state.finalSpecialist.initials}
+            {state.finalSpecialist.profilePhoto ? (
+              <img src={state.finalSpecialist.profilePhoto} alt={state.finalSpecialist.name} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+            ) : (
+              state.finalSpecialist.initials || state.finalSpecialist.name.substring(0, 2).toUpperCase()
+            )}
           </div>
           <div>
             <div style={{ color: 'var(--color-white)', fontSize: '16px', fontWeight: '700' }}>{state.finalSpecialist.name}</div>
@@ -159,6 +163,15 @@ const BookingDetailsSidebar = ({
           </button>
         </div>
       </div>
+
+      {state.finalSpecialist.isExternal && (
+        <div className="alert-banner-warning alert-banner-left">
+          <AlertCircle size={18} style={{ flexShrink: 0, marginTop: '2px' }} />
+          <div>
+            <strong>Estimated Availability:</strong> This clinic is sourced externally. Your booking will send a confirmation request to them.
+          </div>
+        </div>
+      )}
 
       <div className="card-light" style={{ padding: '20px', marginBottom: '24px' }}>
         <span className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', marginBottom: '12px' }}>
@@ -283,7 +296,7 @@ const BookingDetailsSidebar = ({
 
         <div style={{ marginBottom: '24px' }}>
           <span className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', marginBottom: '12px' }}>
-            <Clock size={14} /> {t('select_time')}
+            <Clock size={14} /> {state.finalSpecialist.isExternal ? `${t('select_time')} (Estimated)` : t('select_time')}
             <HelpTooltip text={t('tooltip_time')} />
           </span>
           

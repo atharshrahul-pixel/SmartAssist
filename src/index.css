@@ -1547,6 +1547,16 @@ a {
   gap: 8px;
 }
 
+.alert-banner-left {
+  display: flex;
+  align-items: flex-start;
+  text-align: left;
+  justify-content: flex-start;
+  font-size: 13px;
+  margin-bottom: 24px;
+  border: 1px solid rgba(237, 184, 32, 0.2);
+}
+
 .alert-banner-error {
   background: rgba(239, 68, 68, 0.1);
   color: #ef4444;

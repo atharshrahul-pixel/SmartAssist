@@ -12,6 +12,8 @@ const PatientForm = ({
   setAppointmentFor,
   otherName,
   setOtherName,
+  locationQuery,
+  setLocationQuery,
   errorMsg,
   setErrorMsg,
   loading,
@@ -116,6 +118,24 @@ const PatientForm = ({
           </div>
         </>
       )}
+
+      <div className="mb-lg">
+        <label htmlFor="location-query-input" className="form-label">
+          {t('your_location_label', { defaultValue: 'Your Location (ZIP or City)' })}
+          <HelpTooltip text={t('tooltip_location', { defaultValue: 'Used to find the nearest specialists in your area.' })} />
+        </label>
+        <input
+          id="location-query-input"
+          type="text"
+          className="input-field"
+          placeholder="e.g. Chennai 600001"
+          value={locationQuery || ''}
+          onChange={(e) => {
+            setLocationQuery(e.target.value);
+            setErrorMsg('');
+          }}
+        />
+      </div>
 
       <button
         type="submit"
