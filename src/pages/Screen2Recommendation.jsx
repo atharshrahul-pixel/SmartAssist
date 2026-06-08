@@ -50,7 +50,17 @@ const Screen2Recommendation = () => {
   useEffect(() => {
     if (hasExpired) return;
     let active = true;
-    fetch(`${BACKEND_URL}/specialists`)
+
+    const queryParams = new URLSearchParams();
+    if (state.recommendedSpecialist) {
+      queryParams.append('category', state.recommendedSpecialist);
+    }
+    if (state.lat && state.lng) {
+      queryParams.append('lat', state.lat);
+      queryParams.append('lng', state.lng);
+    }
+
+    fetch(`${BACKEND_URL}/specialists?${queryParams.toString()}`)
       .then(res => res.json())
       .then(data => {
         if (!active) return;
@@ -67,7 +77,7 @@ const Screen2Recommendation = () => {
     return () => {
       active = false;
     };
-  }, [hasExpired, state.recommendedSpecialist]);
+  }, [hasExpired, state.recommendedSpecialist, state.lat, state.lng]);
 
   useEffect(() => {
     if (!hasExpired) {
