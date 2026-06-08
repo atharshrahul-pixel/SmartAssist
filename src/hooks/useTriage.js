@@ -27,6 +27,7 @@ function triageReducer(state, action) {
         triageStarted: true,
         chatHistory: action.payload.chatHistory,
         triageError: '',
+        loading: false,
       };
     case 'RESET_CHAT':
       return {
@@ -34,6 +35,7 @@ function triageReducer(state, action) {
         chatInput: '',
         triageError: '',
         chatHistory: action.payload.chatHistory,
+        loading: false,
       };
     case 'SET_CHAT_INPUT':
       return { ...state, chatInput: action.payload };
