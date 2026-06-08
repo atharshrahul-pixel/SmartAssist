@@ -103,6 +103,7 @@ const Screen1Input = () => {
                 setOtherName={(val) => setFormState(prev => ({ ...prev, otherName: val }))}
                 locationQuery={formState.locationQuery}
                 setLocationQuery={(val) => setFormState(prev => ({ ...prev, locationQuery: val }))}
+                hasLocation={!!appContextState.lat && !!appContextState.lng}
                 errorMsg={formState.errorMsg}
                 setErrorMsg={(val) => setFormState(prev => ({ ...prev, errorMsg: val }))}
                 loading={loading}
