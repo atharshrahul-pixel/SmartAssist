@@ -11,38 +11,43 @@ const specialistService = require('./services/specialistService');
 // Setup mock Google API key so the placesService runs the API path
 process.env.GOOGLE_PLACES_API_KEY = 'mock_key_123';
 
-const mockFetch = async (url) => {
+const mockFetch = async (url, options = {}) => {
   console.log(`[Mock Fetch Request]: ${url}`);
+  if (options.body) {
+    console.log(`[Mock Fetch Body]: ${options.body}`);
+  }
   
-  if (url.includes('/geocode/')) {
+  if (url.includes('/geocode/address/')) {
     return {
+      ok: true,
+      status: 200,
       json: async () => ({
-        status: 'OK',
         results: [
           {
-            geometry: {
-              location: { lat: 13.0827, lng: 80.2707 }
-            }
+            location: { latitude: 13.0827, longitude: 80.2707 }
           }
         ]
       })
     };
   }
 
-  if (url.includes('/place/nearbysearch/') || url.includes('/place/textsearch/')) {
+  if (url.includes('/places:searchNearby') || url.includes('/places:searchText')) {
+    const bodyObj = options.body ? JSON.parse(options.body) : {};
+    
     // Check if it's the second page request
-    if (url.includes('pagetoken=')) {
+    if (bodyObj.pageToken) {
       return {
+        ok: true,
+        status: 200,
         json: async () => ({
-          status: 'OK',
-          results: [
+          places: [
             {
-              place_id: 'mock_place_page2_1',
-              name: 'Dr. Page Two Specialist',
-              business_status: 'OPERATIONAL',
+              id: 'mock_place_page2_1',
+              displayName: { text: 'Dr. Page Two Specialist' },
+              businessStatus: 'OPERATIONAL',
               rating: 4.2,
-              user_ratings_total: 12,
-              vicinity: 'Chennai Central, Chennai'
+              userRatingCount: 12,
+              shortFormattedAddress: 'Chennai Central, Chennai'
             }
           ]
         })
@@ -51,25 +56,26 @@ const mockFetch = async (url) => {
 
     // First page request
     return {
+      ok: true,
+      status: 200,
       json: async () => ({
-        status: 'OK',
-        next_page_token: 'mock_token_xyz',
-        results: [
+        nextPageToken: 'mock_token_xyz',
+        places: [
           {
-            place_id: 'mock_place_1',
-            name: 'Dr. Chennai Dental Clinic',
-            business_status: 'OPERATIONAL',
+            id: 'mock_place_1',
+            displayName: { text: 'Dr. Chennai Dental Clinic' },
+            businessStatus: 'OPERATIONAL',
             rating: 4.8,
-            user_ratings_total: 45,
-            vicinity: 'Mylapore, Chennai'
+            userRatingCount: 45,
+            shortFormattedAddress: 'Mylapore, Chennai'
           },
           {
-            place_id: 'mock_place_2',
-            name: 'Dr. Poorly Rated Clinic',
-            business_status: 'OPERATIONAL',
+            id: 'mock_place_2',
+            displayName: { text: 'Dr. Poorly Rated Clinic' },
+            businessStatus: 'OPERATIONAL',
             rating: 2.2, // Will be filtered out
-            user_ratings_total: 2,
-            vicinity: 'Adyar, Chennai'
+            userRatingCount: 2,
+            shortFormattedAddress: 'Adyar, Chennai'
           }
         ]
       })
@@ -77,7 +83,9 @@ const mockFetch = async (url) => {
   }
 
   return {
-    json: async () => ({ status: 'ZERO_RESULTS' })
+    ok: true,
+    status: 200,
+    json: async () => ({})
   };
 };
 

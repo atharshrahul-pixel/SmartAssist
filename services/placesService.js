@@ -13,7 +13,7 @@ const CATEGORY_MAP = {
 };
 
 /**
- * Normalizes geocode query and fetches/caches coordinates from Google Geocoding API
+ * Normalizes geocode query and fetches/caches coordinates from Google Geocoding API (v4beta)
  */
 const getCoordinatesFromQuery = async (query) => {
   if (!query) return null;
@@ -31,18 +31,18 @@ const getCoordinatesFromQuery = async (query) => {
   }
 
   try {
-    const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(query)}&key=${getApiKey()}`;
+    const url = `https://geocode.googleapis.com/v4beta/geocode/address/${encodeURIComponent(query)}?key=${getApiKey()}`;
     const res = await fetch(url);
     const json = await res.json();
 
-    if (json.status === 'OK' && json.results && json.results.length > 0) {
-      const { lat, lng } = json.results[0].geometry.location;
-      const coords = { lat, lng };
+    if (json.results && json.results.length > 0) {
+      const { latitude, longitude } = json.results[0].location;
+      const coords = { lat: latitude, lng: longitude };
       // Cache for 7 days
       await cacheService.set(cacheKey, coords, 604800);
       return coords;
     } else {
-      console.warn(`Geocoding API status error: ${json.status}`, json.error_message || '');
+      console.warn(`Geocoding API status error: ${json.status || 'No Results'}`, json.error_message || '');
     }
   } catch (err) {
     console.error('Geocoding API request failed:', err.message);
@@ -51,7 +51,7 @@ const getCoordinatesFromQuery = async (query) => {
 };
 
 /**
- * Calls Google Places API to search for places nearby
+ * Calls Google Places API (New) to search for places nearby
  */
 const queryGooglePlaces = async (lat, lng, category, radius, isEscalated = false) => {
   const config = CATEGORY_MAP[category];
@@ -65,45 +65,76 @@ const queryGooglePlaces = async (lat, lng, category, radius, isEscalated = false
     return { results: [], fromQuotaError: false };
   }
 
-  let url = '';
-  if (config.mode === 'NearbySearch') {
-    url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=${radius}&type=${config.type}&key=${getApiKey()}`;
-  } else {
-    // TextSearch for specific medical specialties
-    const queryStr = `${config.query} near ${lat},${lng}`;
-    url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(queryStr)}&location=${lat},${lng}&radius=${radius}&key=${getApiKey()}`;
-  }
+  const url = config.mode === 'NearbySearch'
+    ? 'https://places.googleapis.com/v1/places:searchNearby'
+    : 'https://places.googleapis.com/v1/places:searchText';
+
+  const body = config.mode === 'NearbySearch'
+    ? {
+        includedTypes: [config.type],
+        maxResultCount: 20,
+        locationRestriction: {
+          circle: {
+            center: { latitude: lat, longitude: lng },
+            radius: parseFloat(radius)
+          }
+        }
+      }
+    : {
+        textQuery: `${config.query} near ${lat},${lng}`,
+        maxResultCount: 20,
+        locationRestriction: {
+          circle: {
+            center: { latitude: lat, longitude: lng },
+            radius: parseFloat(radius)
+          }
+        }
+      };
+
+  const options = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Goog-Api-Key': getApiKey(),
+      'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.shortFormattedAddress,places.types,places.photos,places.businessStatus'
+    },
+    body: JSON.stringify(body)
+  };
 
   try {
-    const res = await fetch(url);
-    const page1 = await res.json();
+    const res = await fetch(url, options);
+    const data = await res.json();
 
-    if (page1.status === 'OVER_QUERY_LIMIT') {
+    if (res.status === 429 || (data.error && data.error.status === 'RESOURCE_EXHAUSTED')) {
       console.warn('Google Places API key query limit reached.');
       return { results: [], fromQuotaError: true };
     }
 
-    if (page1.status !== 'OK' && page1.status !== 'ZERO_RESULTS') {
-      console.warn(`Places API error status: ${page1.status}`, page1.error_message || '');
+    if (!res.ok) {
+      console.warn(`Places API error: ${res.status}`, data.error ? data.error.message : '');
       return { results: [], fromQuotaError: false };
     }
 
-    let allResults = page1.results || [];
-
-    // Pagination: fetch up to 2 pages eagerly with a mandatory 2-second delay
-    if (page1.next_page_token) {
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      const page2Url = `${url}&pagetoken=${page1.next_page_token}`;
-      const res2 = await fetch(page2Url);
-      const page2 = await res2.json();
-      if (page2.status === 'OK' && page2.results) {
-        allResults = [...allResults, ...page2.results];
-      } else {
-        console.warn(`Places pagination error status: ${page2.status}`, page2.error_message || '');
+    const places = data.places || [];
+    const legacyFormattedResults = places.map(p => {
+      let photosArray = [];
+      if (p.photos && p.photos.length > 0) {
+        photosArray = [{ photo_reference: p.photos[0].name }];
       }
-    }
 
-    return { results: allResults, fromQuotaError: false };
+      return {
+        place_id: p.id,
+        name: p.displayName ? p.displayName.text : 'Specialist Clinic',
+        business_status: p.businessStatus || 'OPERATIONAL',
+        rating: p.rating || 3.5,
+        user_ratings_total: p.userRatingCount || 0,
+        vicinity: p.shortFormattedAddress || p.formattedAddress || '',
+        formatted_address: p.formattedAddress || '',
+        photos: photosArray
+      };
+    });
+
+    return { results: legacyFormattedResults, fromQuotaError: false };
   } catch (err) {
     console.error('Google Places request failed:', err.message);
     return { results: [], fromQuotaError: false };
@@ -179,7 +210,12 @@ const getSpecialistsFromPlaces = async (lat, lng, category, radius = 5000) => {
 
   // Map Google results to SA Specialist format
   const mappedResults = rated.map(p => {
-    // Generate mock slots & info
+    const photoUrl = p.photos && p.photos.length > 0
+      ? (p.photos[0].photo_reference.startsWith('places/')
+        ? `https://places.googleapis.com/v1/${p.photos[0].photo_reference}/media?maxWidthPx=400&key=${getApiKey()}`
+        : `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${p.photos[0].photo_reference}&key=${getApiKey()}`)
+      : null;
+
     return {
       place_id: p.place_id,
       name: p.name,
@@ -190,7 +226,7 @@ const getSpecialistsFromPlaces = async (lat, lng, category, radius = 5000) => {
       bio: p.vicinity || p.formatted_address || 'Specialist clinic in your area.',
       clinicName: p.name,
       address: p.vicinity || p.formatted_address || '',
-      profilePhoto: p.photos && p.photos.length > 0 ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${p.photos[0].photo_reference}&key=${getApiKey()}` : null,
+      profilePhoto: photoUrl,
       appointmentModes: {
         inPerson: { enabled: true, price: 100, duration: '30 mins', slots: ['09:00 AM', '10:00 AM', '11:00 AM', '02:00 PM', '03:00 PM', '04:00 PM'] },
         video: { enabled: true, price: 60, duration: '20 mins', slots: ['09:30 AM', '10:30 AM', '11:30 AM', '02:30 PM', '03:30 PM', '04:30 PM'] },
