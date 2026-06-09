@@ -145,32 +145,13 @@ const PatientForm = ({
           <button
             type="button"
             className="btn-secondary"
-            onClick={onDetectLocation}
+            onClick={hasLocation ? onClearLocation : onDetectLocation}
             disabled={detectingLocation}
             style={{ padding: '0 16px', fontSize: '14px', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           >
             {detectingLocation ? t('detecting', { defaultValue: 'Detecting...' }) : (hasLocation ? t('detected_check', { defaultValue: '✓ GPS Active' }) : t('detect_btn', { defaultValue: 'Use GPS' }))}
           </button>
         </div>
-        {hasLocation && (
-          <div style={{ marginTop: '6px', textAlign: 'right' }}>
-            <button
-              type="button"
-              onClick={onClearLocation}
-              style={{
-                background: 'none',
-                border: 'none',
-                color: 'var(--color-accent)',
-                cursor: 'pointer',
-                fontSize: '12px',
-                textDecoration: 'underline',
-                padding: 0
-              }}
-            >
-              {t('enter_manually_btn', { defaultValue: 'Enter Pin Code Manually' })}
-            </button>
-          </div>
-        )}
       </div>
 
       <button

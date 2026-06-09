@@ -78,11 +78,11 @@ const Screen1Input = () => {
             if (geoData.success && geoData.pincode) {
               setFormState(prev => ({ ...prev, locationQuery: geoData.pincode }));
             } else {
-              setFormState(prev => ({ ...prev, locationQuery: 'GPS Active' }));
+              setFormState(prev => ({ ...prev, locationQuery: `${roundedLat}, ${roundedLng}` }));
             }
           } catch (err) {
             console.error('Error during reverse geocoding:', err.message);
-            setFormState(prev => ({ ...prev, locationQuery: 'GPS Active' }));
+            setFormState(prev => ({ ...prev, locationQuery: `${roundedLat}, ${roundedLng}` }));
           }
           setDetectingLocation(false);
         },
@@ -105,10 +105,10 @@ const Screen1Input = () => {
               if (geoData.success && geoData.pincode) {
                 setFormState(prev => ({ ...prev, locationQuery: geoData.pincode }));
               } else {
-                setFormState(prev => ({ ...prev, locationQuery: 'GPS Active' }));
+                setFormState(prev => ({ ...prev, locationQuery: `${latVal}, ${lngVal}` }));
               }
             } catch (err) {
-              setFormState(prev => ({ ...prev, locationQuery: 'GPS Active' }));
+              setFormState(prev => ({ ...prev, locationQuery: `${latVal}, ${lngVal}` }));
             }
           }
           setDetectingLocation(false);
