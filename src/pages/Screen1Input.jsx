@@ -68,6 +68,7 @@ const Screen1Input = () => {
           localStorage.setItem('user_lat', roundedLat);
           localStorage.setItem('user_lng', roundedLng);
 
+          let pincodeResolved = '';
           try {
             const response = await fetch(`${BACKEND_URL}/specialists/reverse-geocode`, {
               method: 'POST',
@@ -76,13 +77,30 @@ const Screen1Input = () => {
             });
             const geoData = await response.json();
             if (geoData.success && geoData.pincode) {
-              setFormState(prev => ({ ...prev, locationQuery: geoData.pincode }));
-            } else {
-              setFormState(prev => ({ ...prev, locationQuery: `${roundedLat}, ${roundedLng}` }));
+              pincodeResolved = geoData.pincode;
             }
           } catch (err) {
-            console.error('Error during reverse geocoding:', err.message);
-            setFormState(prev => ({ ...prev, locationQuery: `${roundedLat}, ${roundedLng}` }));
+            console.error('Backend reverse geocoding failed:', err.message);
+          }
+
+          if (!pincodeResolved) {
+            try {
+              const nomRes = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${roundedLat}&lon=${roundedLng}&format=json`, {
+                headers: { 'Accept-Language': 'en' }
+              });
+              const nomData = await nomRes.json();
+              if (nomData && nomData.address && nomData.address.postcode) {
+                pincodeResolved = nomData.address.postcode;
+              }
+            } catch (err) {
+              console.error('Nominatim reverse geocoding failed:', err.message);
+            }
+          }
+
+          if (pincodeResolved) {
+            setFormState(prev => ({ ...prev, locationQuery: pincodeResolved }));
+          } else {
+            setFormState(prev => ({ ...prev, locationQuery: '' }));
           }
           setDetectingLocation(false);
         },
@@ -95,6 +113,7 @@ const Screen1Input = () => {
             const lngVal = parseFloat(lastLng);
             updateState({ lat: latVal, lng: lngVal });
 
+            let pincodeResolved = '';
             try {
               const response = await fetch(`${BACKEND_URL}/specialists/reverse-geocode`, {
                 method: 'POST',
@@ -103,12 +122,30 @@ const Screen1Input = () => {
               });
               const geoData = await response.json();
               if (geoData.success && geoData.pincode) {
-                setFormState(prev => ({ ...prev, locationQuery: geoData.pincode }));
-              } else {
-                setFormState(prev => ({ ...prev, locationQuery: `${latVal}, ${lngVal}` }));
+                pincodeResolved = geoData.pincode;
               }
             } catch (err) {
-              setFormState(prev => ({ ...prev, locationQuery: `${latVal}, ${lngVal}` }));
+              console.error('Backend reverse geocoding failed:', err.message);
+            }
+
+            if (!pincodeResolved) {
+              try {
+                const nomRes = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latVal}&lon=${lngVal}&format=json`, {
+                  headers: { 'Accept-Language': 'en' }
+                });
+                const nomData = await nomRes.json();
+                if (nomData && nomData.address && nomData.address.postcode) {
+                  pincodeResolved = nomData.address.postcode;
+                }
+              } catch (err) {
+                console.error('Nominatim reverse geocoding failed:', err.message);
+              }
+            }
+
+            if (pincodeResolved) {
+              setFormState(prev => ({ ...prev, locationQuery: pincodeResolved }));
+            } else {
+              setFormState(prev => ({ ...prev, locationQuery: '' }));
             }
           }
           setDetectingLocation(false);

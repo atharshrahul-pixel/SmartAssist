@@ -149,7 +149,7 @@ const PatientForm = ({
             disabled={detectingLocation}
             style={{ padding: '0 16px', fontSize: '14px', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           >
-            {detectingLocation ? t('detecting', { defaultValue: 'Detecting...' }) : (hasLocation ? t('detected_check', { defaultValue: '✓ GPS Active' }) : t('detect_btn', { defaultValue: 'Use GPS' }))}
+            {detectingLocation ? t('detecting', { defaultValue: 'Detecting...' }) : (hasLocation ? t('deactivate_gps', { defaultValue: 'Deactivate GPS' }) : t('detect_btn', { defaultValue: 'Use GPS' }))}
           </button>
         </div>
       </div>
