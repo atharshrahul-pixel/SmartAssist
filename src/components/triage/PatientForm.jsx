@@ -16,6 +16,7 @@ const PatientForm = ({
   setLocationQuery,
   hasLocation,
   onDetectLocation,
+  onClearLocation,
   detectingLocation,
   errorMsg,
   setErrorMsg,
@@ -138,7 +139,8 @@ const PatientForm = ({
               setLocationQuery(e.target.value);
               setErrorMsg('');
             }}
-            style={{ flex: 1 }}
+            readOnly={hasLocation}
+            style={{ flex: 1, backgroundColor: hasLocation ? 'rgba(255, 255, 255, 0.05)' : '', cursor: hasLocation ? 'not-allowed' : 'text' }}
           />
           <button
             type="button"
@@ -150,6 +152,25 @@ const PatientForm = ({
             {detectingLocation ? t('detecting', { defaultValue: 'Detecting...' }) : (hasLocation ? t('detected_check', { defaultValue: '✓ GPS Active' }) : t('detect_btn', { defaultValue: 'Use GPS' }))}
           </button>
         </div>
+        {hasLocation && (
+          <div style={{ marginTop: '6px', textAlign: 'right' }}>
+            <button
+              type="button"
+              onClick={onClearLocation}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'var(--color-accent)',
+                cursor: 'pointer',
+                fontSize: '12px',
+                textDecoration: 'underline',
+                padding: 0
+              }}
+            >
+              {t('enter_manually_btn', { defaultValue: 'Enter Pin Code Manually' })}
+            </button>
+          </div>
+        )}
       </div>
 
       <button

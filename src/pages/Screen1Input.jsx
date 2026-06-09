@@ -52,25 +52,64 @@ const Screen1Input = () => {
 
   const [detectingLocation, setDetectingLocation] = useState(false);
 
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || (window.location.hostname === 'localhost'
+    ? 'http://localhost:5000/api'
+    : 'https://p01--smart-assist-backend--qnbs82bxhg66.code.run/api');
+
   const handleDetectLocation = () => {
     if (navigator.geolocation) {
       setDetectingLocation(true);
       navigator.geolocation.getCurrentPosition(
-        (position) => {
+        async (position) => {
           const { latitude, longitude } = position.coords;
           const roundedLat = Math.round(latitude * 100) / 100;
           const roundedLng = Math.round(longitude * 100) / 100;
           updateState({ lat: roundedLat, lng: roundedLng });
           localStorage.setItem('user_lat', roundedLat);
           localStorage.setItem('user_lng', roundedLng);
+
+          try {
+            const response = await fetch(`${BACKEND_URL}/specialists/reverse-geocode`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ lat: roundedLat, lng: roundedLng })
+            });
+            const geoData = await response.json();
+            if (geoData.success && geoData.pincode) {
+              setFormState(prev => ({ ...prev, locationQuery: geoData.pincode }));
+            } else {
+              setFormState(prev => ({ ...prev, locationQuery: 'GPS Active' }));
+            }
+          } catch (err) {
+            console.error('Error during reverse geocoding:', err.message);
+            setFormState(prev => ({ ...prev, locationQuery: 'GPS Active' }));
+          }
           setDetectingLocation(false);
         },
-        (error) => {
+        async (error) => {
           console.warn('Geolocation permission denied or unavailable. Trying last known location.');
           const lastLat = localStorage.getItem('user_lat');
           const lastLng = localStorage.getItem('user_lng');
           if (lastLat && lastLng) {
-            updateState({ lat: parseFloat(lastLat), lng: parseFloat(lastLng) });
+            const latVal = parseFloat(lastLat);
+            const lngVal = parseFloat(lastLng);
+            updateState({ lat: latVal, lng: lngVal });
+
+            try {
+              const response = await fetch(`${BACKEND_URL}/specialists/reverse-geocode`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ lat: latVal, lng: lngVal })
+              });
+              const geoData = await response.json();
+              if (geoData.success && geoData.pincode) {
+                setFormState(prev => ({ ...prev, locationQuery: geoData.pincode }));
+              } else {
+                setFormState(prev => ({ ...prev, locationQuery: 'GPS Active' }));
+              }
+            } catch (err) {
+              setFormState(prev => ({ ...prev, locationQuery: 'GPS Active' }));
+            }
           }
           setDetectingLocation(false);
         },
@@ -81,6 +120,11 @@ const Screen1Input = () => {
         }
       );
     }
+  };
+
+  const handleClearLocation = () => {
+    updateState({ lat: null, lng: null });
+    setFormState(prev => ({ ...prev, locationQuery: '' }));
   };
 
   return (
@@ -107,6 +151,7 @@ const Screen1Input = () => {
                 setLocationQuery={(val) => setFormState(prev => ({ ...prev, locationQuery: val }))}
                 hasLocation={!!appContextState.lat && !!appContextState.lng}
                 onDetectLocation={handleDetectLocation}
+                onClearLocation={handleClearLocation}
                 detectingLocation={detectingLocation}
                 errorMsg={formState.errorMsg}
                 setErrorMsg={(val) => setFormState(prev => ({ ...prev, errorMsg: val }))}

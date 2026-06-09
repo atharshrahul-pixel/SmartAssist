@@ -306,7 +306,7 @@ export function useTriage(appContextState, updateState, user) {
     let finalLat = appContextState.lat;
     let finalLng = appContextState.lng;
 
-    if (formState.locationQuery.trim()) {
+    if ((!finalLat || !finalLng) && formState.locationQuery.trim()) {
       try {
         const response = await fetch(`${BACKEND_URL}/specialists/geocode`, {
           method: 'POST',
