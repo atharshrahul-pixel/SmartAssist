@@ -2,6 +2,7 @@
   --color-dark: #1C1008;
   --color-accent: #EDB820;
   --color-orange: #E05830;
+  --color-orange-dark: #C2410C;
   --color-cream: #EDE5D0;
   --color-cream-dark: #D4C9B0;
   --color-white: #FFFFFF;
@@ -778,7 +779,7 @@ a {
 
 .footer-copy {
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.7);
   margin-top: var(--sp-lg);
   padding-top: var(--sp-lg);
   border-top: 1px solid rgba(255, 255, 255, 0.05);
@@ -895,7 +896,7 @@ a {
   display: inline-block;
   opacity: 0;
   transform: translateY(100%);
-  color: var(--color-orange);
+  color: var(--color-orange-dark);
   white-space: nowrap;
   font-family: 'Playfair Display', serif;
   font-style: italic;
@@ -1249,13 +1250,13 @@ a {
 .support-fab {
   height: 52px;
   border-radius: var(--r-pill);
-  background: var(--color-orange, #E05830);
+  background: var(--color-orange-dark, #C2410C);
   color: white;
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 0 24px;
-  box-shadow: 0 8px 24px rgba(224, 88, 48, 0.25);
+  box-shadow: 0 8px 24px rgba(194, 65, 12, 0.25);
   border: none;
   cursor: pointer;
   outline: none;

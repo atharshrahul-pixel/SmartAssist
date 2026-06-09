@@ -91,7 +91,7 @@ function App() {
     <AppContext.Provider value={contextValue}>
       <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', position: 'relative' }}>
         <Navbar />
-        <div style={{ flex: 1 }}>
+        <main id="main-content" style={{ flex: 1 }}>
           <Routes>
             <Route path="/" element={<Screen1Input />} />
             <Route path="/recommendation" element={<Screen2Recommendation />} />
@@ -110,7 +110,7 @@ function App() {
             <Route path="/specialist/dashboard" element={<SpecialistDashboard />} />
             <Route path="/dashboard" element={<Dashboard />} />
           </Routes>
-        </div>
+        </main>
 
         {/* Global Floating Help Chat Widget */}
         <SupportChatWidget />

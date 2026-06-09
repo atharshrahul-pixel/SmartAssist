@@ -49,7 +49,7 @@ const Stepper = ({ currentStep, flow = 'booking', stepNamesOverride }) => {
           );
         })}
       </div>
-      <div style={{ fontSize: '13px', fontWeight: '800', color: 'var(--color-orange)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+      <div style={{ fontSize: '13px', fontWeight: '800', color: 'var(--color-orange-dark)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
         {flow === 'booking' && currentStep > 6 ? (
           <span style={{ color: '#10B981' }}>{title}</span>
         ) : (
