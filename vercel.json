@@ -1,4 +1,15 @@
 {
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://maps.googleapis.com https://places.googleapis.com; connect-src 'self' https://*.vercel.app https://*.code.run http://localhost:5000; frame-ancestors 'none'; form-action 'self';"
+        }
+      ]
+    }
+  ],
   "rewrites": [
     {
       "source": "/(.*)",
