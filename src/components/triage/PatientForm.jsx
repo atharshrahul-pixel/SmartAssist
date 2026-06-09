@@ -15,6 +15,8 @@ const PatientForm = ({
   locationQuery,
   setLocationQuery,
   hasLocation,
+  onDetectLocation,
+  detectingLocation,
   errorMsg,
   setErrorMsg,
   loading,
@@ -120,25 +122,35 @@ const PatientForm = ({
         </>
       )}
 
-      {!hasLocation && (
-        <div className="mb-lg">
-          <label htmlFor="location-query-input" className="form-label">
-            {t('your_location_label', { defaultValue: 'Your Location (ZIP or City)' })}
-            <HelpTooltip text={t('tooltip_location', { defaultValue: 'Used to find the nearest specialists in your area.' })} />
-          </label>
+      <div className="mb-lg">
+        <label htmlFor="location-query-input" className="form-label">
+          {t('your_location_label', { defaultValue: 'Your Location (ZIP or City)' })}
+          <HelpTooltip text={t('tooltip_location', { defaultValue: 'Used to find the nearest specialists in your area.' })} />
+        </label>
+        <div style={{ display: 'flex', gap: '8px' }}>
           <input
             id="location-query-input"
             type="text"
             className="input-field"
-            placeholder="e.g. Chennai 600001"
+            placeholder={hasLocation ? t('location_detected', { defaultValue: 'GPS location active' }) : "e.g. Chennai 600001"}
             value={locationQuery || ''}
             onChange={(e) => {
               setLocationQuery(e.target.value);
               setErrorMsg('');
             }}
+            style={{ flex: 1 }}
           />
+          <button
+            type="button"
+            className="btn-secondary"
+            onClick={onDetectLocation}
+            disabled={detectingLocation}
+            style={{ padding: '0 16px', fontSize: '14px', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          >
+            {detectingLocation ? t('detecting', { defaultValue: 'Detecting...' }) : (hasLocation ? t('detected_check', { defaultValue: '✓ GPS Active' }) : t('detect_btn', { defaultValue: 'Use GPS' }))}
+          </button>
         </div>
-      )}
+      </div>
 
       <button
         type="submit"

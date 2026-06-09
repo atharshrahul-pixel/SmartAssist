@@ -50,36 +50,38 @@ const Screen1Input = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Geolocation effect
-  useEffect(() => {
-    if (!appContextState.lat || !appContextState.lng) {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            const { latitude, longitude } = position.coords;
-            const roundedLat = Math.round(latitude * 100) / 100;
-            const roundedLng = Math.round(longitude * 100) / 100;
-            updateState({ lat: roundedLat, lng: roundedLng });
-            localStorage.setItem('user_lat', roundedLat);
-            localStorage.setItem('user_lng', roundedLng);
-          },
-          () => {
-            console.warn('Geolocation permission denied or unavailable. Trying last known location.');
-            const lastLat = localStorage.getItem('user_lat');
-            const lastLng = localStorage.getItem('user_lng');
-            if (lastLat && lastLng) {
-              updateState({ lat: parseFloat(lastLat), lng: parseFloat(lastLng) });
-            }
-          },
-          {
-            enableHighAccuracy: true,
-            timeout: 8000,
-            maximumAge: 60000
+  const [detectingLocation, setDetectingLocation] = useState(false);
+
+  const handleDetectLocation = () => {
+    if (navigator.geolocation) {
+      setDetectingLocation(true);
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          const roundedLat = Math.round(latitude * 100) / 100;
+          const roundedLng = Math.round(longitude * 100) / 100;
+          updateState({ lat: roundedLat, lng: roundedLng });
+          localStorage.setItem('user_lat', roundedLat);
+          localStorage.setItem('user_lng', roundedLng);
+          setDetectingLocation(false);
+        },
+        (error) => {
+          console.warn('Geolocation permission denied or unavailable. Trying last known location.');
+          const lastLat = localStorage.getItem('user_lat');
+          const lastLng = localStorage.getItem('user_lng');
+          if (lastLat && lastLng) {
+            updateState({ lat: parseFloat(lastLat), lng: parseFloat(lastLng) });
           }
-        );
-      }
+          setDetectingLocation(false);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 8000,
+          maximumAge: 60000
+        }
+      );
     }
-  }, [appContextState.lat, appContextState.lng, updateState]);
+  };
 
   return (
     <div className="page-transition" style={{ display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
@@ -104,6 +106,8 @@ const Screen1Input = () => {
                 locationQuery={formState.locationQuery}
                 setLocationQuery={(val) => setFormState(prev => ({ ...prev, locationQuery: val }))}
                 hasLocation={!!appContextState.lat && !!appContextState.lng}
+                onDetectLocation={handleDetectLocation}
+                detectingLocation={detectingLocation}
                 errorMsg={formState.errorMsg}
                 setErrorMsg={(val) => setFormState(prev => ({ ...prev, errorMsg: val }))}
                 loading={loading}
