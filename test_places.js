@@ -16,6 +16,31 @@ const mockFetch = async (url, options = {}) => {
   if (options.body) {
     console.log(`[Mock Fetch Body]: ${options.body}`);
   }
+
+  if (url.includes('api.groq.com') || url.includes('generativelanguage.googleapis.com') || url.includes('api.openai.com')) {
+    return {
+      ok: true,
+      status: 200,
+      json: async () => ({
+        choices: [
+          {
+            message: {
+              content: '1'
+            }
+          }
+        ],
+        candidates: [
+          {
+            content: {
+              parts: [
+                { text: '1' }
+              ]
+            }
+          }
+        ]
+      })
+    };
+  }
   
   if (url.includes('/geocode/address/')) {
     return {
@@ -47,7 +72,8 @@ const mockFetch = async (url, options = {}) => {
               businessStatus: 'OPERATIONAL',
               rating: 4.2,
               userRatingCount: 12,
-              shortFormattedAddress: 'Chennai Central, Chennai'
+              shortFormattedAddress: 'Chennai Central, Chennai',
+              types: ['dentist', 'health', 'establishment']
             }
           ]
         })
@@ -67,15 +93,26 @@ const mockFetch = async (url, options = {}) => {
             businessStatus: 'OPERATIONAL',
             rating: 4.8,
             userRatingCount: 45,
-            shortFormattedAddress: 'Mylapore, Chennai'
+            shortFormattedAddress: 'Mylapore, Chennai',
+            types: ['dentist', 'health', 'establishment']
           },
           {
             id: 'mock_place_2',
             displayName: { text: 'Dr. Poorly Rated Clinic' },
             businessStatus: 'OPERATIONAL',
-            rating: 2.2, // Will be filtered out
+            rating: 2.2, // Will be filtered out by rating
             userRatingCount: 2,
-            shortFormattedAddress: 'Adyar, Chennai'
+            shortFormattedAddress: 'Adyar, Chennai',
+            types: ['dentist', 'health', 'establishment']
+          },
+          {
+            id: 'mock_place_3',
+            displayName: { text: 'The Railway Officers\' Club' },
+            businessStatus: 'OPERATIONAL',
+            rating: 4.3,
+            userRatingCount: 577,
+            shortFormattedAddress: 'Nungambakkam, Chennai',
+            types: ['bar', 'social_club', 'establishment']
           }
         ]
       })
@@ -98,6 +135,13 @@ const test = async () => {
   // Connect to DB
   console.log('Connecting to database...');
   await connectDb();
+
+  // Clear cache keys for test
+  console.log('Clearing test cache keys...');
+  const cacheService = require('./services/cacheService');
+  await cacheService.del('geocode:chennai_600001');
+  await cacheService.del('places:data:Dentist:13.08:80.27:5000');
+  await cacheService.del('places:fresh:Dentist:13.08:80.27:5000');
   
   // 1. Test Geocoding query & caching
   const query = 'Chennai 600001';

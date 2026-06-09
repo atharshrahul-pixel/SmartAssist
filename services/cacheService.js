@@ -105,9 +105,21 @@ const getStats = () => {
   };
 };
 
+const del = async (key) => {
+  if (!useLocalOnly && redisClient && redisClient.status === 'ready') {
+    try {
+      await redisClient.del(key);
+    } catch (err) {
+      console.warn(`Redis del failed for key ${key}:`, err.message);
+    }
+  }
+  localCache.del(key);
+};
+
 module.exports = {
   get,
   set,
+  del,
   increment,
   getStats
 };

@@ -1,4 +1,5 @@
 const cacheService = require('./cacheService');
+const { callLLM } = require('./aiService');
 
 const getApiKey = () => process.env.GOOGLE_PLACES_API_KEY || '';
 
@@ -130,7 +131,8 @@ const queryGooglePlaces = async (lat, lng, category, radius, isEscalated = false
         user_ratings_total: p.userRatingCount || 0,
         vicinity: p.shortFormattedAddress || p.formattedAddress || '',
         formatted_address: p.formattedAddress || '',
-        photos: photosArray
+        photos: photosArray,
+        types: p.types || []
       };
     });
 
@@ -138,6 +140,40 @@ const queryGooglePlaces = async (lat, lng, category, radius, isEscalated = false
   } catch (err) {
     console.error('Google Places request failed:', err.message);
     return { results: [], fromQuotaError: false };
+  }
+};
+
+/**
+ * Dynamic LLM relevance filter to discard mismatched places
+ */
+const filterRelevantPlaces = async (places, category) => {
+  if (!places || places.length === 0) return [];
+
+  const placeList = places
+    .map((p, i) => `${i + 1}. "${p.name}" (types: ${(p.types || []).join(', ')})`)
+    .join('\n');
+
+  const prompt = `You are a filter for a medical booking platform.
+Category: "${category}"
+Places:
+${placeList}
+
+Return ONLY the numbers of places genuinely relevant as a ${category} provider.
+Reply with comma-separated numbers only. Example: 1,3,5`;
+
+  try {
+    const response = await callLLM(prompt, 64);
+    if (!response || !response.trim()) {
+      return places;
+    }
+    const validIndices = response
+      .split(',')
+      .map(n => parseInt(n.trim()) - 1)
+      .filter(i => !isNaN(i) && i >= 0 && i < places.length);
+    return validIndices.map(i => places[i]).filter(Boolean);
+  } catch (err) {
+    console.error('LLM relevance filtering failed, returning unfiltered places:', err.message);
+    return places;
   }
 };
 
@@ -207,6 +243,9 @@ const getSpecialistsFromPlaces = async (lat, lng, category, radius = 5000) => {
     rated = filtered.filter(p => p.rating && p.rating >= 2.5);
     warningBadge = true;
   }
+
+  // Dynamic LLM Relevance Filtering
+  rated = await filterRelevantPlaces(rated, category);
 
   // Map Google results to SA Specialist format
   const mappedResults = rated.map(p => {

@@ -8,10 +8,10 @@ const TRANSIENT_STATUS_CODES = new Set([408, 429, 500, 502, 503, 504]);
 
 const wait = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds));
 
-const buildGeminiGenerationConfig = () => {
+const buildGeminiGenerationConfig = (maxTokens) => {
   const config = {
     temperature: 0,
-    maxOutputTokens: 32,
+    maxOutputTokens: maxTokens || 32,
   };
 
   // SmartAssist only needs a tiny classification response, so avoid spending
@@ -66,7 +66,7 @@ const fetchWithRetry = async (url, options = {}) => {
   throw lastError;
 };
 
-const askGemini = async (prompt) => {
+const askGemini = async (prompt, maxTokens) => {
   if (!env.geminiApiKey) {
     throw new Error('Gemini API key is missing');
   }
@@ -84,7 +84,7 @@ const askGemini = async (prompt) => {
           parts: [{ text: prompt }],
         },
       ],
-      generationConfig: buildGeminiGenerationConfig(),
+      generationConfig: buildGeminiGenerationConfig(maxTokens),
     }),
   });
 
@@ -96,7 +96,7 @@ const askGemini = async (prompt) => {
   return data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
 };
 
-const askOpenAi = async (prompt) => {
+const askOpenAi = async (prompt, maxTokens = 10) => {
   if (!env.openAiApiKey) {
     throw new Error('OpenAI API key is missing');
   }
@@ -110,7 +110,7 @@ const askOpenAi = async (prompt) => {
     body: JSON.stringify({
       model: env.openAiModel,
       temperature: 0,
-      max_tokens: 10,
+      max_tokens: maxTokens,
       messages: [
         {
           role: 'user',
@@ -128,7 +128,7 @@ const askOpenAi = async (prompt) => {
   return data?.choices?.[0]?.message?.content || '';
 };
 
-const askGroq = async (prompt) => {
+const askGroq = async (prompt, maxTokens = 10) => {
   if (!env.groqApiKey) {
     throw new Error('Groq API key is missing');
   }
@@ -142,7 +142,7 @@ const askGroq = async (prompt) => {
     body: JSON.stringify({
       model: env.groqModel,
       temperature: 0,
-      max_tokens: 10,
+      max_tokens: maxTokens,
       messages: [
         {
           role: 'user',
@@ -158,6 +158,20 @@ const askGroq = async (prompt) => {
 
   const data = await response.json();
   return data?.choices?.[0]?.message?.content || '';
+};
+
+const callLLM = async (prompt, maxTokens) => {
+  const provider = (env.aiProvider || '').toLowerCase();
+  if (!provider) {
+    throw new Error('AI provider is not configured');
+  }
+  if (provider === 'openai') {
+    return await askOpenAi(prompt, maxTokens);
+  } else if (provider === 'groq') {
+    return await askGroq(prompt, maxTokens);
+  } else {
+    return await askGemini(prompt, maxTokens);
+  }
 };
 
 const getAiRecommendation = async ({ problemDescription }) => {
@@ -390,4 +404,5 @@ module.exports = {
   fetchWithRetry,
   fetchWithTimeout,
   transcribeAudioLocal: transcribeAudioResilient,
+  callLLM,
 };
