@@ -16,7 +16,8 @@ const {
   getPatientSummary,
   getPatientSummaryPDF,
   getMyEarnings,
-  geocodeAddress
+  geocodeAddress,
+  reverseGeocode
 } = require("../controllers/specialistController");
 
 const authMiddleware = require("../middleware/authMiddleware");
@@ -25,6 +26,7 @@ const asyncHandler = require("../utils/asyncHandler");
 
 router.get("/", listSpecialists);
 router.post("/geocode", asyncHandler(geocodeAddress));
+router.post("/reverse-geocode", asyncHandler(reverseGeocode));
 router.patch("/:id", editSpecialist);
 router.delete("/:id", deleteSpecialistById);
 router.post("/", addSpecialist);

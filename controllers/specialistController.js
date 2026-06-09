@@ -329,6 +329,24 @@ const geocodeAddress = async (req, res) => {
   }
 };
 
+const reverseGeocode = async (req, res) => {
+  try {
+    const { lat, lng } = req.body;
+    if (!lat || !lng) {
+      return res.status(400).json({ success: false, message: 'lat and lng parameters are required' });
+    }
+    const placesService = require("../services/placesService");
+    const pincode = await placesService.getPincodeFromCoordinates(lat, lng);
+    if (pincode) {
+      return res.status(200).json({ success: true, pincode });
+    } else {
+      return res.status(404).json({ success: false, message: 'Could not resolve pincode for coordinates' });
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 module.exports = {
   listSpecialists,
   addSpecialist,
@@ -343,5 +361,6 @@ module.exports = {
   getPatientSummary,
   getPatientSummaryPDF,
   getMyEarnings,
-  geocodeAddress
+  geocodeAddress,
+  reverseGeocode
 };

@@ -287,7 +287,43 @@ const getSpecialistsFromPlaces = async (lat, lng, category, radius = 5000) => {
   return mappedResults;
 };
 
+const getPincodeFromCoordinates = async (lat, lng) => {
+  if (!lat || !lng) return null;
+  const cacheKey = `reverse_geocode:${lat}:${lng}`;
+  const cached = await cacheService.get(cacheKey);
+  if (cached) {
+    return cached;
+  }
+
+  if (!getApiKey()) {
+    console.warn('Google Places API key is missing. Reverse geocoding failed.');
+    return null;
+  }
+
+  try {
+    const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${getApiKey()}`;
+    const res = await fetch(url);
+    const json = await res.json();
+
+    if (json.results && json.results.length > 0) {
+      for (const result of json.results) {
+        for (const component of result.address_components) {
+          if (component.types.includes('postal_code')) {
+            const postalCode = component.long_name;
+            await cacheService.set(cacheKey, postalCode, 604800);
+            return postalCode;
+          }
+        }
+      }
+    }
+  } catch (err) {
+    console.error('Reverse geocoding request failed:', err.message);
+  }
+  return null;
+};
+
 module.exports = {
   getCoordinatesFromQuery,
-  getSpecialistsFromPlaces
+  getSpecialistsFromPlaces,
+  getPincodeFromCoordinates
 };
