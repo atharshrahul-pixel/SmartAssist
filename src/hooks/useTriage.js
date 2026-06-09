@@ -270,7 +270,10 @@ export function useTriage(appContextState, updateState, user) {
 
   useEffect(() => {
     if (chatBottomRef.current) {
-      chatBottomRef.current.scrollIntoView({ behavior: 'smooth' });
+      const handle = requestAnimationFrame(() => {
+        chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+      });
+      return () => cancelAnimationFrame(handle);
     }
   }, [chatHistory, loading]);
 

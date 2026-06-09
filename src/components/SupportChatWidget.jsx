@@ -24,7 +24,10 @@ const SupportChatWidget = () => {
 
   useEffect(() => {
     if (chatEndRef.current) {
-      chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
+      const handle = requestAnimationFrame(() => {
+        chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      });
+      return () => cancelAnimationFrame(handle);
     }
   }, [messages, isTyping]);
 
