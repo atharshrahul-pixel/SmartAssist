@@ -19,6 +19,7 @@ import SpecialistRegister from './pages/SpecialistRegister';
 import SpecialistDashboard from './pages/SpecialistDashboard';
 import SupportChatWidget from './components/SupportChatWidget';
 import { AppContext } from './context/AppContext';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 
 function App() {
   const [state, setState] = useState({
@@ -114,6 +115,7 @@ function App() {
 
         {/* Global Floating Help Chat Widget */}
         <SupportChatWidget />
+        <SpeedInsights />
       </div>
     </AppContext.Provider>
   );
