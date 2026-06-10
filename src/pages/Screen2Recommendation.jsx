@@ -65,9 +65,13 @@ const Screen2Recommendation = () => {
       .then(data => {
         if (!active) return;
         if (data.success && state.recommendedSpecialist) {
-          const matching = data.specialists.filter(s => 
-            (s.category || s.specialization || '').toLowerCase() === state.recommendedSpecialist.toLowerCase()
-          );
+          const matching = data.specialists.filter(s => {
+            const specCat = (s.category || s.specialization || '').toLowerCase().trim();
+            const recCat = state.recommendedSpecialist.toLowerCase().trim();
+            const normSpec = (specCat === 'gym trainer' || specCat === 'gym') ? 'gym' : specCat;
+            const normRec = (recCat === 'gym trainer' || recCat === 'gym') ? 'gym' : recCat;
+            return normSpec === normRec;
+          });
           setHasSpecialists(matching.length > 0);
         }
       })
