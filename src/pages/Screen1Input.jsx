@@ -93,7 +93,7 @@ const Screen1Input = () => {
       };
       resolveStoredPincode();
     }
-  }, [appContextState.lat, appContextState.lng, BACKEND_URL]);
+  }, [appContextState.lat, appContextState.lng, BACKEND_URL, formState.locationQuery]);
 
   const [detectingLocation, setDetectingLocation] = useState(false);
 
