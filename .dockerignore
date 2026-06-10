@@ -1,0 +1,8 @@
+node_modules
+.git
+.env
+*.log
+venv
+__pycache__
+.dockerignore
+README.md

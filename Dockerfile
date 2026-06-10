@@ -1,41 +1,35 @@
-# Use Node.js LTS
 FROM node:20-slim
 
-# Install system dependencies
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    apt-get update && apt-get install -y \
+    apt-get update && apt-get install -y --no-install-recommends \
     python3 \
     python3-pip \
     python3-venv \
     ffmpeg \
-    libgomp1
+    libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
 
-# Create and change to the app directory
 WORKDIR /usr/src/app
-
-# Change ownership of WORKDIR to node user
 RUN chown -R node:node /usr/src/app
-
-# Switch to non-root user
 USER node
 
-# Copy package files and install dependencies
+# Dependencies — cached layer, only re-runs if package*.json changes
 COPY --chown=node:node package*.json ./
 RUN --mount=type=cache,target=/home/node/.npm,uid=1000,gid=1000 \
-    npm install --production
+    npm ci --omit=dev --no-audit --no-fund
 
-# Create python virtual environment and install openai-whisper
+# Python venv + Whisper install + model pre-download (cached unless this layer changes)
 RUN --mount=type=cache,target=/home/node/.cache/pip,uid=1000,gid=1000 \
     python3 -m venv venv && \
-    ./venv/bin/pip install openai-whisper
+    ./venv/bin/pip install --upgrade pip wheel setuptools && \
+    ./venv/bin/pip install openai-whisper && \
+    ./venv/bin/python3 -c "import whisper; whisper.load_model('base')"
 
-# Copy the rest of the application code
+# App code — last so code changes don't bust dependency cache
 COPY --chown=node:node . .
 
-# Set PORT to 7860 to match HF Spaces default
 ENV PORT=7860
 EXPOSE 7860
 
-# Start the server
-CMD [ "node", "server.js" ]
+CMD ["node", "server.js"]
