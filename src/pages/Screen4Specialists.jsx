@@ -55,16 +55,7 @@ const Screen4Specialists = () => {
     }
     let active = true;
 
-    const queryParams = new URLSearchParams();
-    if (filter && filter !== 'All') {
-      queryParams.append('category', filter);
-    }
-    if (state.lat && state.lng) {
-      queryParams.append('lat', state.lat);
-      queryParams.append('lng', state.lng);
-    }
-
-    fetch(`${BACKEND_URL}/specialists?${queryParams.toString()}`)
+    fetch(`${BACKEND_URL}/specialists`)
       .then(res => res.json())
       .then(data => {
         if (!active) return;
@@ -79,7 +70,7 @@ const Screen4Specialists = () => {
     return () => {
       active = false;
     };
-  }, [state.accepted, navigate, filter, state.lat, state.lng]);
+  }, [state.accepted, navigate]);
 
   const filteredData = useMemo(() => {
     return specialistsData.filter(s => {
@@ -199,7 +190,6 @@ const Screen4Specialists = () => {
                       type="button"
                       className={`filter-option ${filter === cat ? 'active' : ''}`}
                       onClick={() => {
-                        setIsLoading(true);
                         setFilter(cat);
                       }}
                       style={{ border: 'none', background: 'transparent', textAlign: 'left', cursor: 'pointer', width: '100%' }}
