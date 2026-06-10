@@ -394,6 +394,27 @@ a {
 
 .listing-main {
   flex: 1;
+  max-height: calc(100vh - 280px);
+  min-height: 400px;
+  overflow-y: auto;
+  padding-right: var(--sp-md);
+}
+
+.listing-main::-webkit-scrollbar {
+  width: 6px;
+}
+
+.listing-main::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.listing-main::-webkit-scrollbar-thumb {
+  background: var(--color-cream-dark);
+  border-radius: var(--r-sm);
+}
+
+.listing-main::-webkit-scrollbar-thumb:hover {
+  background: var(--color-muted);
 }
 
 .filter-group {
@@ -495,6 +516,11 @@ a {
     width: 100%;
     position: static;
     margin-bottom: var(--sp-xl);
+  }
+  .listing-main {
+    max-height: none;
+    overflow-y: visible;
+    padding-right: 0;
   }
 }
 

@@ -1,4 +1,4 @@
-import { useState, use, useMemo, useEffect } from 'react';
+import { useState, use, useMemo, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { AppContext } from '../context/AppContext';
@@ -31,6 +31,7 @@ const Screen4Specialists = () => {
   const navigate = useNavigate();
   const [specialistsData, setSpecialistsData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const mainContentRef = useRef(null);
   
   const initialFilter = useMemo(() => {
     return resolveRecommendationCategory(state.recommendedSpecialist);
@@ -59,7 +60,10 @@ const Screen4Specialists = () => {
     if (activePanel) {
       window.scrollTo(0, 0);
     }
-  }, [activePanel, isLoading]);
+    if (mainContentRef.current) {
+      mainContentRef.current.scrollTop = 0;
+    }
+  }, [activePanel, isLoading, filter]);
 
   // react-doctor-disable-next-line react-doctor/no-fetch-in-effect
   useEffect(() => {
@@ -234,7 +238,7 @@ const Screen4Specialists = () => {
                 </div>
               </aside>
 
-              <main className="listing-main">
+              <main className="listing-main" ref={mainContentRef}>
                 {isLoading ? (
                   <div className="card-light text-center" style={{ padding: '64px' }}>
                     <h3>{t('loading_specialists')}</h3>
