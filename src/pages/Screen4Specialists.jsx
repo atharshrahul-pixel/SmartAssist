@@ -62,7 +62,13 @@ const Screen4Specialists = () => {
     }
     let active = true;
 
-    fetch(`${BACKEND_URL}/specialists`)
+    const queryParams = new URLSearchParams();
+    if (state.lat && state.lng) {
+      queryParams.append('lat', state.lat);
+      queryParams.append('lng', state.lng);
+    }
+
+    fetch(`${BACKEND_URL}/specialists?${queryParams.toString()}`)
       .then(res => res.json())
       .then(data => {
         if (!active) return;
@@ -77,7 +83,7 @@ const Screen4Specialists = () => {
     return () => {
       active = false;
     };
-  }, [state.accepted, navigate]);
+  }, [state.accepted, navigate, state.lat, state.lng]);
 
   const filteredData = useMemo(() => {
     return specialistsData.filter(s => {
@@ -238,7 +244,7 @@ const Screen4Specialists = () => {
                             <span className="experience-tag">{specialist.experience}</span>
                             {panelType === 'nearyou' && (
                               <span className="distance-tag">
-                                📍 {((index + 1) * 0.4 + 1.1).toFixed(1)} km away
+                                📍 {specialist.distance ? `${specialist.distance.toFixed(1)} km away` : `${((index + 1) * 0.4 + 1.1).toFixed(1)} km away`}
                               </span>
                             )}
                           </div>
