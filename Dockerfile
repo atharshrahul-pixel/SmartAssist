@@ -17,7 +17,7 @@ USER node
 # Dependencies — cached layer, only re-runs if package*.json changes
 COPY --chown=node:node package*.json ./
 RUN --mount=type=cache,target=/home/node/.npm,uid=1000,gid=1000 \
-    npm ci --omit=dev --no-audit --no-fund
+    npm install --production --no-audit --no-fund
 
 # Python venv + Whisper install + model pre-download (cached unless this layer changes)
 RUN --mount=type=cache,target=/home/node/.cache/pip,uid=1000,gid=1000 \
