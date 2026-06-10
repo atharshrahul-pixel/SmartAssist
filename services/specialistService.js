@@ -56,11 +56,9 @@ const getSpecialists = async ({ category, lat, lng, radius }) => {
         const categories = [
           'Dentist',
           'Physiotherapist',
-          'Gym Trainer',
-          'Salon Specialist',
-          'Cardiologist',
-          'Dermatologist',
-          'General Practitioner'
+          'Gym',
+          'General practitioner',
+          'Therapist'
         ];
         
         const promises = categories.map(cat => 

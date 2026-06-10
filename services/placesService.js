@@ -6,11 +6,12 @@ const getApiKey = () => process.env.GOOGLE_PLACES_API_KEY || '';
 const CATEGORY_MAP = {
   'Dentist': { mode: 'NearbySearch', type: 'dentist' },
   'Physiotherapist': { mode: 'NearbySearch', type: 'physiotherapist' },
+  'Gym': { mode: 'NearbySearch', type: 'gym' },
   'Gym Trainer': { mode: 'NearbySearch', type: 'gym' },
-  'Salon Specialist': { mode: 'NearbySearch', type: 'beauty_salon' },
-  'Cardiologist': { mode: 'TextSearch', query: 'cardiologist' },
-  'Dermatologist': { mode: 'TextSearch', query: 'dermatologist' },
-  'General Practitioner': { mode: 'TextSearch', query: 'doctor' }
+  'General practitioner': { mode: 'TextSearch', query: 'doctor' },
+  'General Practitioner': { mode: 'TextSearch', query: 'doctor' },
+  'Therapist': { mode: 'TextSearch', query: 'therapist' },
+  'Salon Specialist': { mode: 'NearbySearch', type: 'beauty_salon' }
 };
 
 /**
