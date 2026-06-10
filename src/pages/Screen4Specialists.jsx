@@ -41,6 +41,13 @@ const Screen4Specialists = () => {
   const [activePanel, setActivePanel] = useState(null); // 'website' | 'nearyou' | null
   const [panelType, setPanelType] = useState(null); // 'website' | 'nearyou' | null
 
+  const displayedCategories = useMemo(() => {
+    if (panelType === 'nearyou' && state.recommendedSpecialist && state.recommendedSpecialist !== 'All') {
+      return [resolveRecommendationCategory(state.recommendedSpecialist)];
+    }
+    return CATEGORIES;
+  }, [panelType, state.recommendedSpecialist]);
+
   useEffect(() => {
     if (state.recommendedSpecialist) {
       setFilter(resolveRecommendationCategory(state.recommendedSpecialist));
@@ -114,6 +121,7 @@ const Screen4Specialists = () => {
                 className="discovery-menu-card"
                 onClick={() => {
                   setPanelType('website');
+                  setFilter(resolveRecommendationCategory(state.recommendedSpecialist));
                   setActivePanel('website');
                 }}
               >
@@ -131,6 +139,7 @@ const Screen4Specialists = () => {
                 className="discovery-menu-card"
                 onClick={() => {
                   setPanelType('nearyou');
+                  setFilter(resolveRecommendationCategory(state.recommendedSpecialist));
                   setActivePanel('nearyou');
                 }}
               >
@@ -184,7 +193,7 @@ const Screen4Specialists = () => {
                     {t('categories')}
                     <HelpTooltip text={t('specialization_tooltip')} />
                   </span>
-                  {CATEGORIES.map(cat => (
+                  {displayedCategories.map(cat => (
                     <button 
                       key={cat} 
                       type="button"
