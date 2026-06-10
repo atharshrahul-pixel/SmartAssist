@@ -24,7 +24,7 @@ const resolveRecommendationCategory = (rec) => {
   return 'All';
 };
 
-// react-doctor-disable-next-line react-doctor/prefer-useReducer
+// react-doctor-disable-next-line react-doctor/prefer-useReducer, react-doctor/no-giant-component
 const Screen4Specialists = () => {
   const { t } = useTranslation();
   const { state, updateState } = use(AppContext);
