@@ -388,7 +388,7 @@ a {
   width: 240px;
   flex-shrink: 0;
   position: sticky;
-  top: 280px; /* Adjusted to sit below the sticky header height */
+  top: 140px; /* Adjusted to sit below the sticky header height */
   align-self: flex-start;
 }
 

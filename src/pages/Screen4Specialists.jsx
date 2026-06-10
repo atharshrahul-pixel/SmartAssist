@@ -92,6 +92,10 @@ const Screen4Specialists = () => {
       if (panelType === 'website' && s.isExternal) {
         return false;
       }
+      // If panel is 'nearyou', show only external/nearby specialists (isExternal)
+      if (panelType === 'nearyou' && !s.isExternal) {
+        return false;
+      }
       const categoryMatch = s.category || s.specialization;
       const matchesFilter = filter === 'All' || categoryMatch === filter;
       const matchesSearch = s.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -216,8 +220,8 @@ const Screen4Specialists = () => {
                       {cat === 'All' ? t('all') : t(`category_${cat}`, { defaultValue: cat })}
                       <span style={{ fontSize: '12px', opacity: 0.5 }}>
                         {cat === 'All' 
-                          ? specialistsData.filter(s => panelType === 'website' ? !s.isExternal : true).length 
-                          : specialistsData.filter(s => (s.category || s.specialization) === cat && (panelType === 'website' ? !s.isExternal : true)).length}
+                          ? specialistsData.filter(s => panelType === 'website' ? !s.isExternal : s.isExternal).length 
+                          : specialistsData.filter(s => (s.category || s.specialization) === cat && (panelType === 'website' ? !s.isExternal : s.isExternal)).length}
                       </span>
                     </button>
                   ))}
