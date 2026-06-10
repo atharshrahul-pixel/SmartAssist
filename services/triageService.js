@@ -12,13 +12,17 @@ const FALLBACK_QUESTIONS = {
     'Does it hurt to move the joint?',
     'Did you injure it recently?'
   ],
-  'Gym Trainer': [
+  Gym: [
     'Are you looking to lose weight or build strength?',
     'Any physical limitations?'
   ],
-  'Salon Specialist': [
-    'Is this for hair, skin, or general grooming?',
-    'Any skin sensitivity?'
+  'General practitioner': [
+    'Do you have a fever or cold?',
+    'How long have you felt sick?'
+  ],
+  Therapist: [
+    'Are you experiencing stress or anxiety?',
+    'How long has this been affecting you?'
   ]
 };
 
@@ -148,10 +152,12 @@ const getFallbackResponse = (category, userMsgs) => {
         text = 'Based on your answers, we recommend a Physiotherapist to assess and guide you.';
       } else if (category === 'Dentist') {
         text = 'Based on your answers, we recommend a Dentist for your dental symptoms.';
-      } else if (category === 'Gym Trainer') {
+      } else if (category === 'Gym') {
         text = 'Based on your answers, we recommend a Gym Trainer to design your fitness plan.';
-      } else if (category === 'Salon Specialist') {
-        text = 'Based on your answers, we recommend a Salon Specialist to assist you.';
+      } else if (category === 'General practitioner') {
+        text = 'Based on your answers, we recommend a General practitioner for clinical care.';
+      } else if (category === 'Therapist') {
+        text = 'Based on your answers, we recommend a Therapist for mental health support.';
       }
     }
     
@@ -264,8 +270,9 @@ const getTriageResponse = async ({ name, messages, forceFallback = false }) => {
   const baseCategories = [
     'Dentist',
     'Physiotherapist',
-    'Gym Trainer',
-    'Salon Specialist',
+    'Gym',
+    'General practitioner',
+    'Therapist',
     'Emergency Services'
   ];
   const allAvailableCategories = Array.from(new Set([...baseCategories, ...dbCategories]));
@@ -286,8 +293,9 @@ const getTriageResponse = async ({ name, messages, forceFallback = false }) => {
   const baseDescriptions = {
     'Dentist': 'for teeth, gums, jaw pain, cavities, or general oral health issues.',
     'Physiotherapist': 'for joint pain, muscle pain, posture, physical injuries, back/knee/neck pain.',
-    'Gym Trainer': 'for fitness, exercise, weight loss/gain, strength, and workout plans.',
-    'Salon Specialist': 'for skin care, hair styling, nails, cosmetics, and general grooming/beauty.',
+    'Gym': 'for fitness, exercise, weight loss/gain, strength, and workout plans.',
+    'General practitioner': 'for common illnesses, fevers, primary clinical care, and general health diagnostics.',
+    'Therapist': 'for mental health support, anxiety, stress, counseling, and emotional well-being.',
     'Emergency Services': 'for serious or life-threatening symptoms requiring immediate emergency care.'
   };
 
@@ -315,10 +323,10 @@ CRITICAL MAPPING RULE:
 If the symptoms are NOT urgent, but the patient needs a specialist that is NOT directly available on our platform (e.g., Orthopedist, Cardiologist, Dermatologist, Podiatrist, Neurologist, etc.), you MUST dynamically determine the most appropriate alternative from the supported categories listed above based on the following clinical relevance guidelines:
 - Musculoskeletal, joint, bone, and physical mobility needs (like Orthopedics, Chiropractic, sprains) must map to Physiotherapist.
 - Foot, ankle, heel, flat feet, and plantar pain or conditions (like Podiatry) must map to Physiotherapist (with "idealCategory" as "Podiatrist").
-- General fitness, exercise, workouts, weight gain, and exercise-based weight loss concerns have "Gym Trainer" as both the idealCategory and specialistCategory.
-- Clinical nutrition, diet planning, and medical diet needs (like Dietitians) must map to Gym Trainer (with "idealCategory" as "Dietitian").
-- Cosmetic, hair, scalp, and beauty needs (like minor skin/hair care) must map to Salon Specialist.
-- Systemic medical issues, infections, fevers, and internal medicine concerns must map to the closest logical base specialist (or suggest seeing a physician in the explanation).
+- General fitness, exercise, workouts, weight gain, and exercise-based weight loss concerns have "Gym" as both the idealCategory and specialistCategory.
+- Clinical nutrition, diet planning, and medical diet needs (like Dietitians) must map to Gym (with "idealCategory" as "Dietitian").
+- Systemic medical issues, infections, fevers, and internal medicine concerns must map to General practitioner.
+- Mental health, stress, anxiety, depression, and counseling concerns must map to Therapist.
 Do not use unsupported categories. Explain your reasoning and alternative mapping gracefully in the text.
 
 URGENCY ASSESSMENT RULE:
