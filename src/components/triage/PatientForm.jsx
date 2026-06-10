@@ -157,7 +157,7 @@ const PatientForm = ({
       <button
         type="submit"
         className="btn-primary w-full"
-        disabled={loading}
+        disabled={loading || !(locationQuery || '').trim()}
         style={{ padding: '16px' }}
       >
         {t('start_triage')} →

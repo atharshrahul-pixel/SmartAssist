@@ -300,6 +300,10 @@ export function useTriage(appContextState, updateState, user) {
         return;
       }
     }
+    if (!formState.locationQuery.trim()) {
+      setFormState(prev => ({ ...prev, errorMsg: t('error_location_required', { defaultValue: 'Location is required' }) }));
+      return;
+    }
     setFormState(prev => ({ ...prev, errorMsg: '' }));
     dispatch({ type: 'SET_LOADING', payload: true });
 
