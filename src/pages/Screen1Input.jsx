@@ -50,11 +50,52 @@ const Screen1Input = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const [detectingLocation, setDetectingLocation] = useState(false);
-
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || (window.location.hostname === 'localhost'
     ? 'http://localhost:5000/api'
     : 'https://p01--smart-assist-backend--qnbs82bxhg66.code.run/api');
+
+  // Stored location auto-resolver
+  useEffect(() => {
+    if (appContextState.lat && appContextState.lng && !formState.locationQuery) {
+      const resolveStoredPincode = async () => {
+        let pincodeResolved = '';
+        try {
+          const response = await fetch(`${BACKEND_URL}/specialists/reverse-geocode`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ lat: appContextState.lat, lng: appContextState.lng })
+          });
+          const geoData = await response.json();
+          if (geoData.success && geoData.pincode) {
+            pincodeResolved = geoData.pincode;
+          }
+        } catch (err) {
+          console.error('Backend stored reverse geocoding failed:', err.message);
+        }
+
+        if (!pincodeResolved) {
+          try {
+            const nomRes = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${appContextState.lat}&lon=${appContextState.lng}&format=json`, {
+              headers: { 'Accept-Language': 'en' }
+            });
+            const nomData = await nomRes.json();
+            if (nomData && nomData.address && nomData.address.postcode) {
+              pincodeResolved = nomData.address.postcode;
+            }
+          } catch (err) {
+            console.error('Nominatim stored reverse geocoding failed:', err.message);
+          }
+        }
+
+        if (pincodeResolved) {
+          setFormState(prev => ({ ...prev, locationQuery: pincodeResolved }));
+        }
+      };
+      resolveStoredPincode();
+    }
+  }, [appContextState.lat, appContextState.lng, BACKEND_URL]);
+
+  const [detectingLocation, setDetectingLocation] = useState(false);
 
   const handleDetectLocation = () => {
     if (navigator.geolocation) {
