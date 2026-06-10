@@ -22,9 +22,7 @@ RUN --mount=type=cache,target=/home/node/.npm,uid=1000,gid=1000 \
 # Python venv + Whisper install + model pre-download (cached unless this layer changes)
 RUN --mount=type=cache,target=/home/node/.cache/pip,uid=1000,gid=1000 \
     python3 -m venv venv && \
-    ./venv/bin/pip install --upgrade pip wheel setuptools && \
-    ./venv/bin/pip install openai-whisper && \
-    ./venv/bin/python3 -c "import whisper; whisper.load_model('base')"
+    ./venv/bin/pip install openai-whisper
 
 # App code — last so code changes don't bust dependency cache
 COPY --chown=node:node . .
