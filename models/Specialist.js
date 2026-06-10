@@ -14,6 +14,7 @@ const specialistSchema = new mongoose.Schema({
   status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
   rejectionReason: { type: String },
   clinicName: { type: String },
+  address: { type: String },
   profilePhoto: { type: String },
   appointmentModes: {
     inPerson: {

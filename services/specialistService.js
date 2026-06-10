@@ -2,7 +2,22 @@ const Specialist = require('../models/Specialist');
 const placesService = require('./placesService');
 
 const getSpecialists = async ({ category, lat, lng, radius }) => {
-  const query = category ? { specialization: category } : {};
+  let queryCategory = category;
+  if (category) {
+    const norm = category.toLowerCase().trim();
+    if (norm === 'gym trainer' || norm === 'gym') {
+      queryCategory = 'Gym';
+    } else if (norm === 'general practitioner') {
+      queryCategory = 'General practitioner';
+    } else if (norm === 'dentist') {
+      queryCategory = 'Dentist';
+    } else if (norm === 'physiotherapist') {
+      queryCategory = 'Physiotherapist';
+    } else if (norm === 'therapist') {
+      queryCategory = 'Therapist';
+    }
+  }
+  const query = (queryCategory && queryCategory !== 'All') ? { specialization: queryCategory } : {};
   query.status = { $nin: ['pending', 'rejected'] };
   
   const localDocs = await Specialist.find(query).lean();
