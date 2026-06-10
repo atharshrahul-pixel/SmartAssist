@@ -85,7 +85,7 @@ const PatientForm = ({
         <>
           <div className="mb-lg">
             <label htmlFor="your-name-input" className="form-label">
-              {t('your_name')}
+              {t('your_name')} <span style={{ color: 'red' }}>*</span>
               <HelpTooltip text={t('tooltip_your_name')} />
             </label>
             <input
@@ -104,7 +104,7 @@ const PatientForm = ({
 
           <div className="mb-lg">
             <label htmlFor="your-email-input" className="form-label">
-              {t('email_address')}
+              {t('email_address')} <span style={{ color: 'red' }}>*</span>
               <HelpTooltip text={t('tooltip_email')} />
             </label>
             <input
@@ -125,7 +125,7 @@ const PatientForm = ({
 
       <div className="mb-lg">
         <label htmlFor="location-query-input" className="form-label">
-          {t('your_location_label', { defaultValue: 'Your Location (ZIP or City)' })}
+          {t('your_location_label', { defaultValue: 'Your Location (ZIP or City)' })} <span style={{ color: 'red' }}>*</span>
           <HelpTooltip text={t('tooltip_location', { defaultValue: 'Used to find the nearest specialists in your area.' })} />
         </label>
         <div style={{ display: 'flex', gap: '8px' }}>
