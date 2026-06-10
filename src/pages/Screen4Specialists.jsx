@@ -50,20 +50,7 @@ const Screen4Specialists = () => {
     return CATEGORIES;
   }, [panelType, state.recommendedSpecialist]);
 
-  useEffect(() => {
-    if (state.recommendedSpecialist) {
-      setFilter(resolveRecommendationCategory(state.recommendedSpecialist));
-    }
-  }, [state.recommendedSpecialist]);
 
-  useEffect(() => {
-    if (activePanel) {
-      window.scrollTo(0, 0);
-    }
-    if (mainContentRef.current) {
-      mainContentRef.current.scrollTop = 0;
-    }
-  }, [activePanel, isLoading, filter]);
 
   // react-doctor-disable-next-line react-doctor/no-fetch-in-effect
   useEffect(() => {
@@ -89,7 +76,13 @@ const Screen4Specialists = () => {
         if (active) console.error("Error fetching specialists:", err);
       })
       .finally(() => {
-        if (active) setIsLoading(false);
+        if (active) {
+          setIsLoading(false);
+          window.scrollTo(0, 0);
+          if (mainContentRef.current) {
+            mainContentRef.current.scrollTop = 0;
+          }
+        }
       });
     return () => {
       active = false;
@@ -124,15 +117,25 @@ const Screen4Specialists = () => {
       <Stepper currentStep={4} />
       
       <div className="container" style={{ paddingTop: '0' }}>
-        <header className="sticky-header text-center" style={{ paddingTop: '48px' }}>
-          <span className="pill-tag mb-lg">{t('choose_partner')}</span>
-          <h1 style={{ fontSize: '48px', lineHeight: '1.1', marginBottom: 'var(--sp-md)' }}>
-            <SafeTitle text={t('perfect_specialist_title')} />
-          </h1>
-          <p style={{ color: 'var(--color-dark)', opacity: 0.6, fontSize: '16px', maxWidth: '600px', margin: '0 auto' }}>
-            {t('perfect_specialist_desc')}
-          </p>
-        </header>
+        {activePanel ? (
+          <header className="sticky-header text-center" style={{ paddingTop: '16px', paddingBottom: '16px', marginBottom: '24px' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: '800', marginBottom: 0 }}>
+              {activePanel === 'nearyou' 
+                ? t('specialists_near_you', { defaultValue: 'Specialists Near You' }) 
+                : t('on_smart_assist', { defaultValue: 'On Smart Assist' })}
+            </h2>
+          </header>
+        ) : (
+          <header className="sticky-header text-center" style={{ paddingTop: '48px' }}>
+            <span className="pill-tag mb-lg">{t('choose_partner')}</span>
+            <h1 style={{ fontSize: '48px', lineHeight: '1.1', marginBottom: 'var(--sp-md)' }}>
+              <SafeTitle text={t('perfect_specialist_title')} />
+            </h1>
+            <p style={{ color: 'var(--color-dark)', opacity: 0.6, fontSize: '16px', maxWidth: '600px', margin: '0 auto' }}>
+              {t('perfect_specialist_desc')}
+            </p>
+          </header>
+        )}
 
         <div className="discovery-slide-container">
           {/* Card Selection View */}
@@ -145,6 +148,10 @@ const Screen4Specialists = () => {
                   setPanelType('website');
                   setFilter(resolveRecommendationCategory(state.recommendedSpecialist));
                   setActivePanel('website');
+                  window.scrollTo(0, 0);
+                  if (mainContentRef.current) {
+                    mainContentRef.current.scrollTop = 0;
+                  }
                 }}
               >
                 <div className="discovery-menu-card-icon">
@@ -164,6 +171,10 @@ const Screen4Specialists = () => {
                   setPanelType('nearyou');
                   setFilter(resolveRecommendationCategory(state.recommendedSpecialist));
                   setActivePanel('nearyou');
+                  window.scrollTo(0, 0);
+                  if (mainContentRef.current) {
+                    mainContentRef.current.scrollTop = 0;
+                  }
                 }}
               >
                 <div className="discovery-menu-card-icon">
@@ -224,6 +235,9 @@ const Screen4Specialists = () => {
                       className={`filter-option ${filter === cat ? 'active' : ''}`}
                       onClick={() => {
                         setFilter(cat);
+                        if (mainContentRef.current) {
+                          mainContentRef.current.scrollTop = 0;
+                        }
                       }}
                       style={{ border: 'none', background: 'transparent', textAlign: 'left', cursor: 'pointer', width: '100%' }}
                     >
@@ -302,7 +316,13 @@ const Screen4Specialists = () => {
                     <Search size={48} color="var(--color-muted)" style={{ marginBottom: '16px' }} />
                     <h3>{t('no_specialists_found')}</h3>
                     <p style={{ opacity: 0.6 }}>{t('adjust_filters')}</p>
-                    <button type="button" className="btn-ghost mt-lg" onClick={() => {setFilter('All'); setSearchQuery('');}}>
+                    <button type="button" className="btn-ghost mt-lg" onClick={() => {
+                      setFilter('All');
+                      setSearchQuery('');
+                      if (mainContentRef.current) {
+                        mainContentRef.current.scrollTop = 0;
+                      }
+                    }}>
                       {t('clear_filters')}
                     </button>
                   </div>
