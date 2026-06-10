@@ -319,6 +319,25 @@ const getPincodeFromCoordinates = async (lat, lng) => {
   } catch (err) {
     console.error('Reverse geocoding request failed:', err.message);
   }
+
+  // Fallback to Nominatim on the backend (sends custom User-Agent to avoid blocks)
+  try {
+    const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`;
+    const res = await fetch(url, {
+      headers: {
+        'User-Agent': 'SmartAssist-Health-AI/1.0',
+        'Accept-Language': 'en'
+      }
+    });
+    const json = await res.json();
+    if (json && json.address && json.address.postcode) {
+      const postalCode = json.address.postcode;
+      await cacheService.set(cacheKey, postalCode, 604800);
+      return postalCode;
+    }
+  } catch (err) {
+    console.error('Backend Nominatim reverse geocoding failed:', err.message);
+  }
   return null;
 };
 
