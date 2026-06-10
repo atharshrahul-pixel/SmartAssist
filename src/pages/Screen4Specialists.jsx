@@ -118,7 +118,7 @@ const Screen4Specialists = () => {
       
       <div className="container" style={{ paddingTop: '0' }}>
         {activePanel ? (
-          <header className="sticky-header text-center" style={{ paddingTop: '16px', paddingBottom: '16px', marginBottom: '24px' }}>
+          <header className="sticky-header text-center" style={{ paddingTop: '8px', paddingBottom: '8px', marginBottom: '12px' }}>
             <h2 style={{ fontSize: '24px', fontWeight: '800', marginBottom: 0 }}>
               {activePanel === 'nearyou' 
                 ? t('specialists_near_you', { defaultValue: 'Specialists Near You' }) 

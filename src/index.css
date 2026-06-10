@@ -394,7 +394,7 @@ a {
 
 .listing-main {
   flex: 1;
-  max-height: calc(100vh - 280px);
+  max-height: calc(100vh - 240px);
   min-height: 400px;
   overflow-y: auto;
   padding-right: var(--sp-md);
