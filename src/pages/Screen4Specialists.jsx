@@ -163,20 +163,21 @@ const Screen4Specialists = () => {
 
           {/* Slide Panel View */}
           <div className={`discovery-slide-page page-panel ${activePanel ? 'active' : ''}`}>
-            <div className="back-btn-container">
-              <button 
-                type="button" 
-                className="discovery-back-btn"
-                onClick={() => {
-                  setActivePanel(null);
-                }}
-              >
-                <ArrowLeft size={16} /> Back to Categories
-              </button>
-            </div>
-
             <div className="listing-container">
               <aside className="listing-sidebar">
+                <div className="back-btn-container" style={{ marginBottom: '24px' }}>
+                  <button 
+                    type="button" 
+                    className="discovery-back-btn"
+                    onClick={() => {
+                      setActivePanel(null);
+                    }}
+                    style={{ width: '100%', justifyContent: 'center' }}
+                  >
+                    <ArrowLeft size={16} /> Back to Categories
+                  </button>
+                </div>
+
                 <div className="filter-group">
                   <label htmlFor="specialist-search-input" className="filter-label" style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '8px' }}>
                     {t('search_specialist')}
