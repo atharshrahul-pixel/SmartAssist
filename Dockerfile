@@ -2,13 +2,14 @@
 FROM node:20-slim
 
 # Install system dependencies
-RUN apt-get update && apt-get install -y \
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    apt-get update && apt-get install -y \
     python3 \
     python3-pip \
     python3-venv \
     ffmpeg \
-    libgomp1 \
-    && rm -rf /var/lib/apt/lists/*
+    libgomp1
 
 # Create and change to the app directory
 WORKDIR /usr/src/app
@@ -21,11 +22,13 @@ USER node
 
 # Copy package files and install dependencies
 COPY --chown=node:node package*.json ./
-RUN npm install --production
+RUN --mount=type=cache,target=/home/node/.npm,uid=1000,gid=1000 \
+    npm install --production
 
 # Create python virtual environment and install openai-whisper
-RUN python3 -m venv venv && \
-    ./venv/bin/pip install --no-cache-dir openai-whisper
+RUN --mount=type=cache,target=/home/node/.cache/pip,uid=1000,gid=1000 \
+    python3 -m venv venv && \
+    ./venv/bin/pip install openai-whisper
 
 # Copy the rest of the application code
 COPY --chown=node:node . .
