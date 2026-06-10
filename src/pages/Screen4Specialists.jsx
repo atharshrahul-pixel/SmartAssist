@@ -55,6 +55,12 @@ const Screen4Specialists = () => {
     }
   }, [state.recommendedSpecialist]);
 
+  useEffect(() => {
+    if (activePanel) {
+      window.scrollTo(0, 0);
+    }
+  }, [activePanel, isLoading]);
+
   // react-doctor-disable-next-line react-doctor/no-fetch-in-effect
   useEffect(() => {
     if (state.accepted === null) {
