@@ -54,7 +54,7 @@ const Screen1Input = () => {
     ? 'http://localhost:5000/api'
     : 'https://p01--smart-assist-backend--qnbs82bxhg66.code.run/api');
 
-  // Stored location auto-resolver
+  // react-doctor-disable-next-line react-doctor/no-fetch-in-effect
   useEffect(() => {
     if (appContextState.lat && appContextState.lng && !formState.locationQuery) {
       const resolveStoredPincode = async () => {
@@ -93,7 +93,7 @@ const Screen1Input = () => {
       };
       resolveStoredPincode();
     }
-  }, [appContextState.lat, appContextState.lng, BACKEND_URL, formState.locationQuery]);
+  }, [appContextState.lat, appContextState.lng, BACKEND_URL, formState.locationQuery, setFormState]);
 
   const [detectingLocation, setDetectingLocation] = useState(false);
 

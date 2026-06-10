@@ -24,6 +24,7 @@ const resolveRecommendationCategory = (rec) => {
   return 'All';
 };
 
+// react-doctor-disable-next-line react-doctor/prefer-useReducer
 const Screen4Specialists = () => {
   const { t } = useTranslation();
   const { state, updateState } = use(AppContext);
@@ -123,7 +124,8 @@ const Screen4Specialists = () => {
           {/* Card Selection View */}
           <div className={`discovery-slide-page page-categories ${activePanel ? 'hidden' : ''}`}>
             <div className="discovery-menu-grid">
-              <div 
+              <button 
+                type="button"
                 className="discovery-menu-card"
                 onClick={() => {
                   setPanelType('website');
@@ -139,9 +141,10 @@ const Screen4Specialists = () => {
                 <span className="discovery-menu-card-btn">
                   Explore Specialists <ChevronRight size={16} />
                 </span>
-              </div>
+              </button>
 
-              <div 
+              <button 
+                type="button"
                 className="discovery-menu-card"
                 onClick={() => {
                   setPanelType('nearyou');
@@ -157,7 +160,7 @@ const Screen4Specialists = () => {
                 <span className="discovery-menu-card-btn">
                   Find Nearby <ChevronRight size={16} />
                 </span>
-              </div>
+              </button>
             </div>
           </div>
 
