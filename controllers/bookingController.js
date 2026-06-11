@@ -376,6 +376,34 @@ const deleteAppointment = async (req, res) => {
   }
 };
 
+const sendBookingConfirmationEmailController = async (req, res) => {
+  try {
+    const { receiptId } = req.params;
+    const Booking = require('../models/Booking');
+    const booking = await Booking.findOne({ receiptId });
+    if (!booking) {
+      return res.status(404).json({ success: false, message: 'Booking not found' });
+    }
+
+    const { generateBookingReceiptPDF } = require('../services/pdfService');
+    const pdfBuffer = await generateBookingReceiptPDF(booking);
+
+    const email = booking.userEmail;
+    const name = booking.userName;
+
+    if (!email) {
+      return res.status(400).json({ success: false, message: 'No email address associated with this booking' });
+    }
+
+    const { sendBookingConfirmationEmail } = require('../services/emailService');
+    const result = await sendBookingConfirmationEmail(email, name, booking, pdfBuffer);
+
+    res.status(200).json({ success: true, message: 'Confirmation email sent successfully', emailId: result?.data?.id });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 module.exports = {
   bookAppointment,
   getUserBookings,
@@ -388,5 +416,6 @@ module.exports = {
   getBookingReceiptPDF,
   cancelAppointment,
   undoCancelAppointment,
-  deleteAppointment
+  deleteAppointment,
+  sendBookingConfirmationEmailController
 };

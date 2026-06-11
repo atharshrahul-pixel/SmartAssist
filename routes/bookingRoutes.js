@@ -12,7 +12,8 @@ const {
   getBookingReceiptPDF,
   cancelAppointment,
   undoCancelAppointment,
-  deleteAppointment
+  deleteAppointment,
+  sendBookingConfirmationEmailController
 } = require('../controllers/bookingController');
 
 const authMiddleware = require('../middleware/authMiddleware');
@@ -87,6 +88,11 @@ router.delete(
   '/:bookingId',
   authMiddleware,
   asyncHandler(deleteAppointment)
+);
+
+router.post(
+  '/:receiptId/send-email',
+  asyncHandler(sendBookingConfirmationEmailController)
 );
 
 module.exports = router;

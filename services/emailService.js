@@ -193,7 +193,127 @@ const sendSpecialistRejectionEmail = async (email, name, reason) => {
   });
 };
 
+/**
+ * Sends a booking confirmation email with a PDF receipt attached.
+ */
+const sendBookingConfirmationEmail = async (email, name, booking, pdfBuffer) => {
+  const isProduction = process.env.NODE_ENV === 'production';
+  const targetRecipient = isProduction ? email : VERIFIED_TEST_EMAIL;
+
+  const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <title>Booking Confirmation</title>
+    </head>
+    <body style="margin: 0; padding: 0; background-color: #faf8f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+      <table border="0" cellpadding="0" cellspacing="0" width="100%" style="table-layout: fixed;">
+        <tr>
+          <td align="center" style="padding: 40px 0;">
+            <table border="0" cellpadding="0" cellspacing="0" width="580" style="background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid #f0edeb;">
+              <!-- Header -->
+              <tr>
+                <td style="background-color: #1a1a1a; padding: 30px; text-align: center;">
+                  <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 700; letter-spacing: 0.5px;">SmartAssist</h1>
+                </td>
+              </tr>
+              <!-- Content -->
+              <tr>
+                <td style="padding: 40px 30px;">
+                  <h2 style="color: #1a1a1a; margin-top: 0; font-size: 20px; font-weight: 700;">Booking Confirmed!</h2>
+                  <p style="color: #4a4a4a; font-size: 15px; line-height: 1.6; margin-bottom: 24px;">
+                    Hello <strong>${name || 'Valued Patient'}</strong>,
+                  </p>
+                  <p style="color: #4a4a4a; font-size: 15px; line-height: 1.6; margin-bottom: 24px;">
+                    Your appointment has been successfully booked. Please find your booking details and PDF receipt attached.
+                  </p>
+                  
+                  <!-- Details Box -->
+                  <div style="background-color: #fcfbf9; border: 1px solid #e5e0db; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
+                    <h3 style="margin-top: 0; margin-bottom: 15px; font-size: 16px; border-bottom: 1px solid #e5e0db; padding-bottom: 8px; color: #1a1a1a;">Appointment Details</h3>
+                    <table border="0" cellpadding="0" cellspacing="0" width="100%" style="font-size: 14.5px; color: #4a4a4a;">
+                      <tr>
+                        <td style="padding: 6px 0; font-weight: 600; width: 120px;">Receipt ID:</td>
+                        <td style="padding: 6px 0;">${booking.receiptId}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 6px 0; font-weight: 600;">Specialist:</td>
+                        <td style="padding: 6px 0;">${booking.specialistName || 'Verified Specialist'}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 6px 0; font-weight: 600;">Date:</td>
+                        <td style="padding: 6px 0;">${booking.bookingDate}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 6px 0; font-weight: 600;">Time:</td>
+                        <td style="padding: 6px 0;">${booking.bookingTime}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 6px 0; font-weight: 600;">Status:</td>
+                        <td style="padding: 6px 0; text-transform: capitalize;">${booking.status || 'confirmed'}</td>
+                      </tr>
+                    </table>
+                  </div>
+
+                  <p style="color: #4a4a4a; font-size: 15px; line-height: 1.6; margin-bottom: 30px;">
+                    If you need to make changes or cancel your appointment, you can do so through the SmartAssist portal.
+                  </p>
+                  
+                  <hr style="border: 0; border-top: 1px solid #f0edeb; margin-bottom: 24px;">
+                  <p style="color: #888888; font-size: 12px; line-height: 1.5; margin: 0; text-align: center;">
+                    This is an automated notification from SmartAssist Healthcare Portal. 
+                  </p>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </body>
+    </html>
+  `;
+
+  // Append a sandbox header to the HTML if we redirected the recipient
+  let finalHtml = htmlContent;
+  if (targetRecipient !== email) {
+    finalHtml = `
+      <div style="background-color: #FEF3C7; border: 1px solid #F59E0B; padding: 12px; border-radius: 6px; font-family: sans-serif; font-size: 13px; color: #92400E; margin-bottom: 20px;">
+        <strong>[Sandbox Test Mode]</strong> This email was originally sent to <strong>${email}</strong>. 
+        Because this is a test environment, it was redirected to the verified account email.
+      </div>
+      ${htmlContent}
+    `;
+  }
+
+  if (!resend) {
+    console.log(`[EmailService] Resend API Key is missing. Simulating send to ${targetRecipient}`);
+    return { data: { id: 'simulated-id-no-key' } };
+  }
+
+  try {
+    const response = await resend.emails.send({
+      from: DEFAULT_SENDER,
+      to: targetRecipient,
+      subject: `${isProduction ? '' : '[TEST] '}Booking Confirmation - SmartAssist`,
+      html: finalHtml,
+      attachments: [
+        {
+          filename: `receipt-${booking.receiptId}.pdf`,
+          content: pdfBuffer
+        }
+      ]
+    });
+    console.log(`[EmailService] Booking confirmation email sent successfully to ${targetRecipient}. ID: ${response.data?.id}`);
+    return response;
+  } catch (error) {
+    console.error(`[EmailService] Error sending booking confirmation email via Resend:`, error.message);
+    return null;
+  }
+};
+
 module.exports = {
   sendSpecialistApprovalEmail,
-  sendSpecialistRejectionEmail
+  sendSpecialistRejectionEmail,
+  sendBookingConfirmationEmail
 };
