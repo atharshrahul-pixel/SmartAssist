@@ -15,6 +15,7 @@ const Screen6Confirmation = () => {
   const { state, updateState, addBooking } = use(AppContext);
   const navigate = useNavigate();
   const bookingAddedRef = useRef(false);
+  const emailSentRef = useRef(false);
   const [pdfLoading, setPdfLoading] = useState(false);
 
   useEffect(() => {
@@ -30,6 +31,24 @@ const Screen6Confirmation = () => {
         time: state.bookedTime
       });
       bookingAddedRef.current = true;
+    }
+
+    if (!emailSentRef.current && state.bookingId) {
+      emailSentRef.current = true;
+      fetch(`${BACKEND_URL}/bookings/${state.bookingId}/send-email`, {
+        method: 'POST'
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          console.log("Confirmation email sent successfully!");
+        } else {
+          console.error("Failed to send confirmation email:", data.message);
+        }
+      })
+      .catch(err => {
+        console.error("Error triggering confirmation email:", err);
+      });
     }
 
   }, [state.bookingId, state.bookedDate, state.bookedTime, state.finalSpecialist, navigate, addBooking]);

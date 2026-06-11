@@ -32,9 +32,6 @@ const Navbar = () => {
         {/* Desktop Navigation */}
         <div className="nav-desktop" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <LanguageSelector />
-          <Link to="/lookup" style={{ color: 'var(--color-white)', fontSize: '14px', textDecoration: 'none', opacity: 0.8 }}>
-            {t('check_appointments')}
-          </Link>
           {user ? (
             <Link to={user.role === 'specialist' ? '/specialist/dashboard' : '/dashboard'} className="navbar-user-badge">
               <User size={14} /> {user.name}
@@ -68,19 +65,6 @@ const Navbar = () => {
       {isOpen && (
         <div className="nav-mobile-menu">
           <LanguageSelector />
-          <Link 
-            to="/lookup" 
-            style={{ 
-              color: 'var(--color-white)', 
-              fontSize: '16px', 
-              textDecoration: 'none', 
-              padding: '8px 0',
-              borderBottom: '1px solid rgba(255,255,255,0.05)'
-            }} 
-            onClick={() => setIsOpen(false)}
-          >
-            {t('check_appointments')}
-          </Link>
           {user ? (
             <Link 
               to={user.role === 'specialist' ? '/specialist/dashboard' : '/dashboard'} 
