@@ -81,7 +81,7 @@ const queryGooglePlaces = async (lat, lng, category, radius, isEscalated = false
     : {
         textQuery: `${config.query} near ${lat},${lng}`,
         maxResultCount: 20,
-        locationRestriction: {
+        locationBias: {
           circle: {
             center: { latitude: lat, longitude: lng },
             radius: parseFloat(radius)
