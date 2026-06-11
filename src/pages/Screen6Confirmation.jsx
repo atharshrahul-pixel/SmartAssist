@@ -18,6 +18,7 @@ const Screen6Confirmation = () => {
   const emailSentRef = useRef(false);
   const [pdfLoading, setPdfLoading] = useState(false);
 
+  // react-doctor-disable-next-line react-doctor/no-fetch-in-effect
   useEffect(() => {
     if (!state.bookingId || !state.bookedDate) {
       navigate('/');
