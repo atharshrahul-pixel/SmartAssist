@@ -78,7 +78,7 @@ const Screen4Specialists = () => {
       queryParams.append('lat', state.lat);
       queryParams.append('lng', state.lng);
     }
-    if (state.recommendedSpecialist && state.recommendedSpecialist !== 'All' && !isDefaultCategory) {
+    if (panelType === 'nearyou' && state.recommendedSpecialist && state.recommendedSpecialist !== 'All' && !isDefaultCategory) {
       queryParams.append('category', state.recommendedSpecialist);
     }
 
@@ -103,7 +103,7 @@ const Screen4Specialists = () => {
     return () => {
       active = false;
     };
-  }, [state.accepted, navigate, state.lat, state.lng, state.recommendedSpecialist, isDefaultCategory]);
+  }, [state.accepted, navigate, state.lat, state.lng, state.recommendedSpecialist, isDefaultCategory, panelType]);
 
   const filteredData = useMemo(() => {
     return specialistsData.filter(s => {
@@ -162,7 +162,8 @@ const Screen4Specialists = () => {
                 className="discovery-menu-card"
                 onClick={() => {
                   setPanelType('website');
-                  setFilter(resolveRecommendationCategory(state.recommendedSpecialist));
+                  const resolved = resolveRecommendationCategory(state.recommendedSpecialist);
+                  setFilter(CATEGORIES.includes(resolved) ? resolved : 'All');
                   setActivePanel('website');
                   window.scrollTo(0, 0);
                   if (mainContentRef.current) {
