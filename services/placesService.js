@@ -56,11 +56,7 @@ const getCoordinatesFromQuery = async (query) => {
  * Calls Google Places API (New) to search for places nearby
  */
 const queryGooglePlaces = async (lat, lng, category, radius, isEscalated = false) => {
-  const config = CATEGORY_MAP[category];
-  if (!config) {
-    console.warn(`Unsupported category for Places API: ${category}`);
-    return { results: [], fromQuotaError: false };
-  }
+  const config = CATEGORY_MAP[category] || { mode: 'TextSearch', query: category };
 
   if (!getApiKey()) {
     console.warn('Google Places API key is missing. Skipping Places search.');
