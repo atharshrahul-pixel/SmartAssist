@@ -78,7 +78,7 @@ const SpecialistActionCard = ({
         </h2>
 
         <div className="unavailable-specialist-box specialist-unavailable-banner" style={{ background: 'rgba(237, 184, 32, 0.15)', borderColor: 'var(--color-accent)' }}>
-          No registered {unavailableSpecialistName}s on our website. Search for nearby {unavailableSpecialistName}s using Google Maps.
+          No clinics registered on Smart Assist yet. Try Near You to find clinics around you.
         </div>
 
         <p style={{ fontSize: '15px', color: 'var(--color-muted)', marginBottom: '40px', lineHeight: 1.6, textAlign: 'left' }}>
