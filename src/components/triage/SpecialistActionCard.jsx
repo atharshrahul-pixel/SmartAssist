@@ -74,11 +74,11 @@ const SpecialistActionCard = ({
         </div>
         
         <h2 style={{ fontSize: '32px', fontWeight: '800', color: 'var(--color-white)', marginBottom: '12px' }}>
-          Specialist unavailable
+          {unavailableSpecialistName} Recommended
         </h2>
 
-        <div className="unavailable-specialist-box specialist-unavailable-banner">
-          We currently don't have a specialist available for this condition.
+        <div className="unavailable-specialist-box specialist-unavailable-banner" style={{ background: 'rgba(237, 184, 32, 0.15)', borderColor: 'var(--color-accent)' }}>
+          No registered {unavailableSpecialistName}s on our website. Search for nearby {unavailableSpecialistName}s using Google Maps.
         </div>
 
         <p style={{ fontSize: '15px', color: 'var(--color-muted)', marginBottom: '40px', lineHeight: 1.6, textAlign: 'left' }}>
@@ -89,10 +89,10 @@ const SpecialistActionCard = ({
           <button 
             type="button"
             className="btn-primary w-full" 
-            onClick={handleAcceptFallback || handleAccept} 
+            onClick={handleAccept} 
             style={{ padding: '16px', fontWeight: '700' }}
           >
-            BROWSE AVAILABLE SPECIALISTS
+            FIND NEARBY {unavailableSpecialistName.toUpperCase()}S
           </button>
           <button 
             type="button"

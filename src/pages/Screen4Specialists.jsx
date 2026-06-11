@@ -21,7 +21,7 @@ const resolveRecommendationCategory = (rec) => {
   if (normalized === 'dentist') return 'Dentist';
   if (normalized === 'physiotherapist') return 'Physiotherapist';
   if (normalized === 'therapist') return 'Therapist';
-  return 'All';
+  return rec;
 };
 
 // react-doctor-disable-next-line react-doctor/prefer-useReducer, react-doctor/no-giant-component
@@ -40,8 +40,21 @@ const Screen4Specialists = () => {
   const [filter, setFilter] = useState(initialFilter);
   const [searchQuery, setSearchQuery] = useState('');
   
-  const [activePanel, setActivePanel] = useState(null); // 'website' | 'nearyou' | null
-  const [panelType, setPanelType] = useState(null); // 'website' | 'nearyou' | null
+  const isDefaultCategory = useMemo(() => {
+    return ['dentist', 'gym', 'gym trainer', 'physiotherapist', 'general practitioner', 'therapist']
+      .includes((state.recommendedSpecialist || '').toLowerCase().trim());
+  }, [state.recommendedSpecialist]);
+
+  const [activePanel, setActivePanel] = useState(
+    state.recommendedSpecialist && state.recommendedSpecialist !== 'All' && !isDefaultCategory 
+      ? 'nearyou' 
+      : null
+  );
+  const [panelType, setPanelType] = useState(
+    state.recommendedSpecialist && state.recommendedSpecialist !== 'All' && !isDefaultCategory 
+      ? 'nearyou' 
+      : null
+  );
 
   const displayedCategories = useMemo(() => {
     if (panelType === 'nearyou' && state.recommendedSpecialist && state.recommendedSpecialist !== 'All') {
@@ -65,6 +78,9 @@ const Screen4Specialists = () => {
       queryParams.append('lat', state.lat);
       queryParams.append('lng', state.lng);
     }
+    if (state.recommendedSpecialist && state.recommendedSpecialist !== 'All' && !isDefaultCategory) {
+      queryParams.append('category', state.recommendedSpecialist);
+    }
 
     fetch(`${BACKEND_URL}/specialists?${queryParams.toString()}`)
       .then(res => res.json())
@@ -87,7 +103,7 @@ const Screen4Specialists = () => {
     return () => {
       active = false;
     };
-  }, [state.accepted, navigate, state.lat, state.lng]);
+  }, [state.accepted, navigate, state.lat, state.lng, state.recommendedSpecialist, isDefaultCategory]);
 
   const filteredData = useMemo(() => {
     return specialistsData.filter(s => {

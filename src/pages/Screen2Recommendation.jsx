@@ -93,7 +93,11 @@ const Screen2Recommendation = () => {
   }, [hasExpired, state.confidence]);
 
   const handleAccept = () => {
-    updateState({ accepted: true, finalSpecialist: null });
+    updateState({ 
+      accepted: true, 
+      finalSpecialist: null,
+      recommendedSpecialist: state.idealCategory || state.recommendedSpecialist
+    });
     navigate('/specialists');
   };
 
