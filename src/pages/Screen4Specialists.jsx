@@ -256,7 +256,7 @@ const Screen4Specialists = () => {
                           mainContentRef.current.scrollTop = 0;
                         }
                       }}
-                      style={{ border: 'none', background: 'transparent', textAlign: 'left', cursor: 'pointer', width: '100%' }}
+                      style={{ textAlign: 'left', cursor: 'pointer', width: '100%' }}
                     >
                       {cat === 'All' ? t('all') : t(`category_${cat}`, { defaultValue: cat })}
                       <span style={{ fontSize: '12px', opacity: 0.5 }}>

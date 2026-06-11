@@ -439,6 +439,7 @@ a {
   font-size: 14px;
   font-weight: 500;
   color: var(--color-dark);
+  background: transparent;
   cursor: pointer;
   transition: all 0.2s ease;
   border: 1.5px solid transparent;
