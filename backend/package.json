@@ -1,0 +1,37 @@
+{
+  "name": "smartassist-backend",
+  "version": "1.0.0",
+  "description": "Backend API for SmartAssist triage and specialist appointment booking.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "keywords": [
+    "smartassist",
+    "express",
+    "triage",
+    "appointments"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "firebase": "^12.13.0",
+    "firebase-admin": "^13.9.0",
+    "ioredis": "^5.11.1",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.6.2",
+    "multer": "^2.1.1",
+    "node-cache": "^5.1.2",
+    "node-cron": "^4.2.1",
+    "pdfkit": "^0.18.0",
+    "resend": "^6.12.4"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}

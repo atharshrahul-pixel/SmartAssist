@@ -1,0 +1,29 @@
+services:
+  backend:
+    build:
+      context: ./backend
+    env_file:
+      - ./backend/.env
+    environment:
+      PORT: 7860
+      FRONTEND_URL: http://localhost:5173
+    ports:
+      - "5000:7860"
+    volumes:
+      - ./backend/config/serviceAccountKey.json:/usr/src/app/config/serviceAccountKey.json:ro
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:7860/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  frontend:
+    build:
+      context: .
+      args:
+        VITE_BACKEND_URL: http://localhost:5000/api
+    ports:
+      - "5173:80"
+    depends_on:
+      backend:
+        condition: service_healthy
