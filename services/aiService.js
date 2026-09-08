@@ -169,8 +169,20 @@ const callLLM = async (prompt, maxTokens) => {
     return await askOpenAi(prompt, maxTokens);
   } else if (provider === 'groq') {
     return await askGroq(prompt, maxTokens);
-  } else {
+  }
+
+  // Gemini is the primary provider. If it is unavailable or returns an
+  // error, try Groq and then OpenAI before surfacing the failure to the caller.
+  try {
     return await askGemini(prompt, maxTokens);
+  } catch (geminiError) {
+    console.warn(`Gemini request failed; trying Groq fallback: ${geminiError.message}`);
+    try {
+      return await askGroq(prompt, maxTokens);
+    } catch (groqError) {
+      console.warn(`Groq request failed; trying OpenAI fallback: ${groqError.message}`);
+      return await askOpenAi(prompt, maxTokens);
+    }
   }
 };
 
@@ -183,14 +195,7 @@ const getAiRecommendation = async ({ problemDescription }) => {
 
   const prompt = generateRecommendationPrompt({ problemDescription });
   
-  let rawResponse;
-  if (provider === 'openai') {
-    rawResponse = await askOpenAi(prompt);
-  } else if (provider === 'groq') {
-    rawResponse = await askGroq(prompt);
-  } else {
-    rawResponse = await askGemini(prompt);
-  }
+  const rawResponse = await callLLM(prompt);
 
   const specialist = normalizeSpecialistName(rawResponse);
 

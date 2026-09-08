@@ -377,7 +377,17 @@ Output JSON:`;
     } else if (provider === 'groq') {
       rawOutput = await callGroq(finalPrompt);
     } else {
-      rawOutput = await callGemini(finalPrompt);
+      try {
+        rawOutput = await callGemini(finalPrompt);
+      } catch (geminiError) {
+        console.warn(`Gemini triage request failed; trying Groq fallback: ${geminiError.message}`);
+        try {
+          rawOutput = await callGroq(finalPrompt);
+        } catch (groqError) {
+          console.warn(`Groq triage request failed; trying OpenAI fallback: ${groqError.message}`);
+          rawOutput = await callOpenAi(finalPrompt);
+        }
+      }
     }
 
     const parsed = parseJsonResponse(rawOutput, allAvailableCategories);
