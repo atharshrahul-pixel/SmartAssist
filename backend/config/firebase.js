@@ -1,12 +1,11 @@
 const admin = require("firebase-admin");
 const env = require("./env");
-const path = require("path");
 const fs = require("fs");
 
 let db;
 
 if (env.dbProvider === 'firebase') {
-  const serviceAccountPath = path.join(__dirname, "serviceAccountKey.json");
+  const serviceAccountPath = env.firebaseServiceAccountPath;
 
   if (!fs.existsSync(serviceAccountPath)) {
     console.error('Firebase serviceAccountKey.json is missing');

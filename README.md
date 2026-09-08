@@ -21,7 +21,7 @@ SmartAssist is an AI-powered triage and specialist appointment booking applicati
 
 ## Configuration
 
-For local Docker use, copy `backend/.env.example` to `backend/.env` and provide your Firebase and AI credentials. The service-account key must be stored at `backend/config/serviceAccountKey.json`; it is intentionally ignored by Git and Docker build contexts.
+For local Docker use, copy `backend/.env.example` to `backend/.env` and provide your Firebase and AI credentials. Store the Firebase service-account key at `backend/secrets/serviceAccountKey.json`; it is intentionally ignored by Git and Docker build contexts.
 
 ## Run with Docker
 
@@ -30,7 +30,7 @@ Prerequisites: Docker Desktop and Docker Compose.
 ```bash
 # macOS/Linux
 cp backend/.env.example backend/.env
-# Add your Firebase service-account key at backend/config/serviceAccountKey.json
+# Add your Firebase service-account key at backend/secrets/serviceAccountKey.json
 # Add GEMINI_API_KEY, GROQ_API_KEY, and OPENAI_API_KEY to backend/.env
 docker compose up --build
 ```
@@ -40,6 +40,8 @@ On Windows PowerShell, use `Copy-Item backend/.env.example backend/.env` instead
 Open `http://localhost:5173`. The frontend is served in one container and calls the backend at `http://localhost:5000/api` in the browser. The backend is available at `http://localhost:5000`.
 
 The AI provider order is Gemini → Groq → OpenAI → deterministic keyword matching. Keep API keys out of Git.
+
+See [DOCKER.md](DOCKER.md) for the Docker architecture, security model, configuration, and troubleshooting guide.
 
 ## Scripts
 - `npm run dev` - Start development server.

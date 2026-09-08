@@ -7,10 +7,11 @@ services:
     environment:
       PORT: 7860
       FRONTEND_URL: http://localhost:5173
+      FIREBASE_SERVICE_ACCOUNT_PATH: /run/secrets/serviceAccountKey.json
     ports:
       - "5000:7860"
     volumes:
-      - ./backend/config/serviceAccountKey.json:/usr/src/app/config/serviceAccountKey.json:ro
+      - ./backend/secrets:/run/secrets:ro
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://localhost:7860/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
       interval: 15s

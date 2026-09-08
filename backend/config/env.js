@@ -1,10 +1,12 @@
 require('dotenv').config();
+const path = require('path');
 
 const env = {
   aiProvider: process.env.AI_PROVIDER || '',
   aiMaxRetries: Number(process.env.AI_MAX_RETRIES || 2),
   aiTimeoutMs: Number(process.env.AI_TIMEOUT_MS || 8000),
   dbProvider: process.env.DB_PROVIDER || 'firebase',
+  firebaseServiceAccountPath: process.env.FIREBASE_SERVICE_ACCOUNT_PATH || path.join(__dirname, 'serviceAccountKey.json'),
   mongoDbUri: process.env.MONGODB_URI || '',
   frontendUrl: process.env.FRONTEND_URL || 'http://localhost:5173',
   geminiApiKey: process.env.GEMINI_API_KEY || '',

@@ -2,6 +2,7 @@ node_modules
 .git
 .env
 config/serviceAccountKey.json
+secrets
 *.log
 venv
 __pycache__
